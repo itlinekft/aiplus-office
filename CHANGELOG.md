@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13 — 2026-10-26
+
+- GridCraft names a new workbook's sheet in the user's language (for example „Árlista”), not „Sheet1”.
+
 ## 0.1.12 — 2026-10-25
 
 - The connectors never make Claude wait: each answers the client at once (within 2 s), downloads and starts its app in
