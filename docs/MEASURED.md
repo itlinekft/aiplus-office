@@ -264,8 +264,9 @@ node scripts/release.mjs --out <scratch>/release-0.1.1/aiplus-office --stage <sc
 - Built from commit `5242538` (16 files incl. the new `skills/office-start/SKILL.md`). `set-leakscan --staged` and
   `--tree` exit 0; the same 8 advisory „price" findings as 0.1.0 (the invented forint amounts of the worked examples);
   the `--tree` run again prints both „remote is public" and „Every remote of this repository is private" (see the
-  0.1.0 entry). `claude plugin validate` passed. An exact-string sweep of the staged tree (working name, „AI+ Office",
-  „Office nélkül", the upstream repo name, „100%", „Acrobat") found nothing; „Microsoft" only in the two trademark lines.
+  0.1.0 entry). `claude plugin validate` passed. An exact-string sweep of the staged tree found nothing (working name,
+  „AI+ Office", „Office nélkül", the upstream repo name, the banned claims, „Acrobat"); „Microsoft" only in the two
+  trademark lines.
 - Marketplace entry: version 0.1.1, description = `plugin.json`'s (Hungarian, then English). README row bilingual.
 - Committed locally in the clone as `2f97c49` on top of `44a504d` (= origin/main), **not pushed**; superseded by `604cdf1` below.
 
