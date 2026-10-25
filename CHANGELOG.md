@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.12 — 2026-10-25
+
+- The connectors never make Claude wait: each answers the client at once (within 2 s), downloads and starts its app in
+  the background, then announces its tools (`notifications/tools/list_changed`); until then one `<app>_status` tool
+  says what is happening, in Hungarian and English. Measured cause: on a Windows box Claude Desktop gave up on the
+  connectors after ~30 s, during the first download and again on the first start of the big apps.
+- The skills say to prefer AI+ Iroda to generic docx, xlsx, pptx and pdf skills when the plugin is installed
+  (a Windows test filled a .docx template with a generic skill instead).
+
 ## 0.1.11 — 2026-10-25
 
 - Four connectors: GridCraft (spreadsheets) and DeckCraft (slides) join WordCraft and PdfCraft. DeckCraft runs
