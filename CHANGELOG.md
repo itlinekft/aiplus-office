@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 — 2026-10-25
+
+- The source is public: `homepage` and `repository` point to `itlinekft/aiplus-office`.
+
 ## 0.1.5 — 2026-10-25
 
 - No em dash left in the shipped skill texts and the README (C19 rule R11; 0.1.3 had cleaned only the skill

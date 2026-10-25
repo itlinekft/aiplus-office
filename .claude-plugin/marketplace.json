@@ -10,7 +10,7 @@
     {
       "name": "aiplus-office",
       "source": "./",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "description": "Office files (DOCX, XLSX, PPTX, PDF) with the free ArtCraft apps, headless, for Claude. Early alpha apps.",
       "category": "productivity"
     }
