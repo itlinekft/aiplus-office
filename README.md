@@ -1,7 +1,7 @@
 # aiplus-office
 
-A Claude plugin of the ITLine AI+ line (working id `aiplus-office`, block code `office`; the product name is not decided
-yet). It lets Claude create and edit **DOCX, XLSX, PPTX and PDF** files with the free, open-source ArtCraft apps: 
+A Claude plugin of the ITLine AI+ line, shown to users as „Ingyenes irodai AI+ modul” (id `aiplus-office`, block code
+`office`). It lets Claude create and edit **DOCX, XLSX, PPTX and PDF** files with the free, open-source ArtCraft apps: 
 **WordCraft, GridCraft, DeckCraft and PdfCraft**: driven headless through their command-line tools, with a mechanical
 check of every file it produces and worked Hungarian office workflows (árajánlat, árlista, prezentáció).
 
@@ -59,8 +59,8 @@ their official GitHub releases (`github.com/storytold/<app>`), each archive chec
 Linux needs glibc 2.35 or newer.
 
 Users install it from the public marketplace `itlinekft/aiplus-plugins` (see `release/README.md`, shipped as the plugin's
-README). Claude Code, from a local checkout (this repository is private; its remote is the private
-`itlinekft/aiplus-office`):
+README). For users: the [user guide](docs/user-guide.md) and the [troubleshooting guide](TROUBLESHOOTING.md), both
+Hungarian first, then English. Claude Code, from a local checkout of this repository:
 
 ```bash
 claude plugin marketplace add /path/to/aiplus-office      # the repo carries a local dev marketplace

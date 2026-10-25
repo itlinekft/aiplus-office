@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.7 — 2026-10-25
+
+- A user guide (`docs/user-guide.md`, shipped as `USER-GUIDE.md`) from install to the first Hungarian office job, and a
+  troubleshooting guide (`TROUBLESHOOTING.md`, shipped) with one entry per user-visible refusal and per measured
+  fault, both Hungarian first, then English (C19 rules R7 and R9; C16 entry shape).
+- Both READMEs and `office-start` link the two pages; the repository README no longer calls the repository private.
+
 ## 0.1.6 — 2026-10-25
 
 - The source is public: `homepage` and `repository` point to `itlinekft/aiplus-office`.

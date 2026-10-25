@@ -233,6 +233,14 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 > The programs' web page is `https://getartcraft.com/apps/<program>`; the newest version is on the GitHub page. These are
 > early versions too: always keep a copy of an important file.
 
+## 8a. Guide and troubleshooting
+
+When the user asks for a guide or something fails that this skill does not cover, point to the two pages:
+
+> **HU:** Részletes leírás: [felhasználói útmutató](https://github.com/itlinekft/aiplus-office/blob/main/docs/user-guide.md) és [hibaelhárítás](https://github.com/itlinekft/aiplus-office/blob/main/TROUBLESHOOTING.md).
+>
+> **EN:** More detail: the [user guide](https://github.com/itlinekft/aiplus-office/blob/main/docs/user-guide.md) and the [troubleshooting guide](https://github.com/itlinekft/aiplus-office/blob/main/TROUBLESHOOTING.md).
+
 ## 9. Close
 
 End with one concrete next step in the user's language, e.g. HU „Próbáld ki: »Készíts árlistát táblázatban három

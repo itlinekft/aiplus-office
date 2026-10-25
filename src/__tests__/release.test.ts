@@ -16,7 +16,7 @@ afterAll(cleanupTmp);
 
 const SOURCES = [
   "package.json", "CHANGELOG.md", "src/bin/aiplus-office.ts", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
-  ".mcp.json", "dist/aiplus-office.mjs", "LICENSE", "NOTICE", "release/README.md", "release/NOTICE", "README.md", "src/registry.ts", "docs/x.md",
+  ".mcp.json", "dist/aiplus-office.mjs", "LICENSE", "NOTICE", "release/README.md", "release/NOTICE", "README.md", "src/registry.ts", "docs/x.md", "TROUBLESHOOTING.md", "docs/user-guide.md",
   ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`),
 ];
 
@@ -67,11 +67,12 @@ describe("build from a commit", () => {
     const b = build({ repo, out });
     expect(b.sha).toMatch(/^[0-9a-f]{40}$/);
     const files = (b.files as string[]).slice().sort();
-    expect(files).toEqual([".claude-plugin/plugin.json", ".mcp.json", "LICENSE", "NOTICE", "README.md", "dist/aiplus-office.mjs", ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`)].sort());
+    expect(files).toEqual([".claude-plugin/plugin.json", ".mcp.json", "LICENSE", "NOTICE", "README.md", "TROUBLESHOOTING.md", "USER-GUIDE.md", "dist/aiplus-office.mjs", ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`)].sort());
     expect(fs.readFileSync(path.join(out, "README.md"), "utf8")).toBe(fs.readFileSync(path.join(REPO_ROOT, "release", "README.md"), "utf8"));
     expect(fs.readFileSync(path.join(out, "skills", "office-router", "SKILL.md"), "utf8")).not.toContain("UNCOMMITTED");
     expect(fs.readFileSync(path.join(out, "NOTICE"), "utf8")).toBe(fs.readFileSync(path.join(REPO_ROOT, "release", "NOTICE"), "utf8"));
     expect(fs.readFileSync(path.join(out, "NOTICE"), "utf8")).toContain("Copyright (c) 2026 Robert Csakany");
+    expect(fs.readFileSync(path.join(out, "USER-GUIDE.md"), "utf8")).toBe(fs.readFileSync(path.join(REPO_ROOT, "docs", "user-guide.md"), "utf8")); // the user guide ships at the root (C19 R7)
     for (const bad of ["src", "docs", "release", "package.json", "CHANGELOG.md"]) expect(fs.existsSync(path.join(out, bad)), bad).toBe(false);
   });
 

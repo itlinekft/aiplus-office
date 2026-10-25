@@ -35,6 +35,8 @@ const ALLOW = [
   { from: "LICENSE" },
   { from: "release/NOTICE", to: "NOTICE" },
   { from: "release/README.md", to: "README.md" },
+  { from: "TROUBLESHOOTING.md" },
+  { from: "docs/user-guide.md", to: "USER-GUIDE.md" },
   { prefix: "skills/" },
 ];
 
