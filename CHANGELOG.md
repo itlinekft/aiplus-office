@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.14 — 2026-10-26
+
+- When the module cannot run (Node.js or an app missing, a connector not running, a session in the cloud), the skills
+  stop, say why in Hungarian and English and continue with the first-run check; they never make the file another way
+  under the module's name.
+- Checks use the module's own tools only, never `python` (an office computer has none; Windows answers with a Store
+  stub that failed a correct run).
+- A change writes a new file: an earlier result of the session is no longer overwritten (a password step replaced the
+  merged PDF).
+- First run: Node.js installed while Claude was running is found and the user is told to restart Claude fully;
+  connectors that still say „Reconnect” after the restart are reconnected by hand (Claude remembers a failure for
+  15 minutes).
+
 ## 0.1.13 — 2026-10-26
 
 - GridCraft names a new workbook's sheet in the user's language (for example „Árlista”), not „Sheet1”.

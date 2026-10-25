@@ -14,5 +14,5 @@
 
 ## 3. Release and measure
 
-- [ ] 3.1 Version 0.1.14, CHANGELOG; tests, typecheck, build, `claude plugin validate`; release to the marketplace [REQ: No silent substitute]
+- [x] 3.1 Version 0.1.14, CHANGELOG; tests, typecheck, build, `claude plugin validate`; release to the marketplace [REQ: No silent substitute]
 - [ ] 3.2 box2: fresh install (old plugin and marketplace removed), then a cloud chat and a local session without Node.js (no file made, office-start's text), then with Node.js (E1, W1, D1, P1–P2 with a new file) [REQ: No silent substitute] [REQ: Earlier results kept]
