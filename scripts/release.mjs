@@ -84,6 +84,9 @@ export function build({ repo, ref = "HEAD", out }) {
   // The marketplace entry carries plugin.json's own (Hungarian + English) description: one source, no copy here.
   const description = JSON.parse(show(".claude-plugin/plugin.json")).description;
   if (typeof description !== "string" || !description.trim()) throw new Refuse("plugin.json has no description");
+  // The shown name („AI+ Iroda”); Claude Desktop's card title otherwise falls back to the id.
+  const displayName = JSON.parse(show(".claude-plugin/plugin.json")).displayName;
+  if (typeof displayName !== "string" || !displayName.trim()) throw new Refuse("plugin.json has no displayName");
   const files = selectFiles(tracked);
   fs.rmSync(out, { recursive: true, force: true });
   const sums = [];
@@ -97,14 +100,14 @@ export function build({ repo, ref = "HEAD", out }) {
   // The shipped bundle must report the same version (the packaging test also checks it equals a fresh build).
   const r = spawnSync(process.execPath, [path.join(out, "dist", "aiplus-office.mjs"), "--version"], { encoding: "utf8" });
   if (r.stdout.trim() !== `aiplus-office ${version}`) throw new Refuse(`bundle reports "${r.stdout.trim()}", expected aiplus-office ${version}`);
-  return { sha, version, description, files: files.map((f) => f.to), sums };
+  return { sha, version, description, displayName, files: files.map((f) => f.to), sums };
 }
 
 /** Add or update the plugin's entry; every other entry keeps its content and position. */
-export function updateMarketplace(text, version, description) {
+export function updateMarketplace(text, version, description, displayName) {
   const m = JSON.parse(text);
   if (!Array.isArray(m.plugins)) throw new Refuse("marketplace.json has no plugins array");
-  const entry = { name: PLUGIN, source: `./plugins/${PLUGIN}`, version, description };
+  const entry = { name: PLUGIN, ...(displayName ? { displayName } : {}), source: `./plugins/${PLUGIN}`, version, description };
   const i = m.plugins.findIndex((p) => p.name === PLUGIN);
   if (i >= 0) m.plugins[i] = entry;
   else m.plugins.push(entry);
@@ -139,7 +142,7 @@ export function stage({ built, staging, dir, leakscan = "set-leakscan", runLeaks
   const target = path.join(dir, "plugins", PLUGIN);
   fs.rmSync(target, { recursive: true, force: true });
   fs.cpSync(staging, target, { recursive: true });
-  fs.writeFileSync(mpFile, updateMarketplace(fs.readFileSync(mpFile, "utf8"), built.version, built.description));
+  fs.writeFileSync(mpFile, updateMarketplace(fs.readFileSync(mpFile, "utf8"), built.version, built.description, built.displayName));
   const readme = path.join(dir, "README.md");
   if (fs.existsSync(readme)) fs.writeFileSync(readme, updateReadme(fs.readFileSync(readme, "utf8")));
   const paths = [`plugins/${PLUGIN}`, ".claude-plugin/marketplace.json", "README.md"];

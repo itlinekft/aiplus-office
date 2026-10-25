@@ -97,11 +97,17 @@ export interface FixtureOptions {
   assetDelayMs?: number;
   /** Omit these asset names from the release JSON. */
   hide?: string[];
+  /** Send this fraction of an asset body, then hold the connection open without sending more (a stalled transfer). */
+  stallAt?: number;
+  /** How many asset requests stall (`stallAt`); default every one. */
+  stallTimes?: number;
+  /** Answer `Range: bytes=N-` with 206 and the rest of the body; default true. */
+  ranges?: boolean;
 }
 
 export interface Fixture {
   url: string;
-  requests: { method: string; url: string; auth?: string }[];
+  requests: { method: string; url: string; auth?: string; range?: string }[];
   close: () => Promise<void>;
 }
 
@@ -109,6 +115,7 @@ export async function startFixture(o: FixtureOptions): Promise<Fixture> {
   const tag = o.tag ?? "v0.7.0";
   const repo = o.repo ?? "storytold/photocraft";
   const requests: Fixture["requests"] = [];
+  let stalled = 0;
   const sumsBody =
     o.sums === undefined ? `${Object.entries(o.assets).map(([n, b]) => `${sha256(b)}  ${n}`).join("\n")}\n` : o.sums;
   let base = "";
@@ -124,7 +131,7 @@ export async function startFixture(o: FixtureOptions): Promise<Fixture> {
 
   const server = http.createServer((req, res) => {
     const url = req.url ?? "";
-    requests.push({ method: req.method ?? "GET", url, auth: req.headers.authorization });
+    requests.push({ method: req.method ?? "GET", url, auth: req.headers.authorization, range: req.headers.range });
     if (url === `/repos/${repo}/releases/latest`) {
       if (o.latestStatus) {
         res.writeHead(o.latestStatus).end("{}");
@@ -151,6 +158,23 @@ export async function startFixture(o: FixtureOptions): Promise<Fixture> {
         return;
       }
       setTimeout(() => {
+        const range = /^bytes=(\d+)-$/.exec(req.headers.range ?? "");
+        if (range && o.ranges !== false) {
+          const from = Number(range[1]);
+          if (from >= body.length) {
+            res.writeHead(416).end();
+            return;
+          }
+          res.writeHead(206, { "content-length": String(body.length - from), "content-range": `bytes ${from}-${body.length - 1}/${body.length}` });
+          res.end(body.subarray(from));
+          return;
+        }
+        if (o.stallAt !== undefined && (o.stallTimes === undefined || stalled < o.stallTimes)) {
+          stalled++;
+          res.writeHead(200, { "content-length": String(body.length) });
+          res.write(body.subarray(0, Math.floor(body.length * o.stallAt)));
+          return;
+        }
         if (o.truncateAt !== undefined) {
           const cut = Math.floor(body.length * o.truncateAt);
           res.writeHead(200, { "content-length": String(body.length) });

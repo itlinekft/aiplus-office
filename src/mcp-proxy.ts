@@ -52,7 +52,7 @@ export const CANCEL_GRACE_MS = 5000;
 export interface McpDeps {
   /** Command prefix in diagnostics. */
   prog: string;
-  provision: (opts?: { probeVersion?: boolean }) => Promise<ProvisionReport>;
+  provision: (opts?: { probeVersion?: boolean; preferInstalled?: boolean }) => Promise<ProvisionReport>;
   spawn: (command: string, args: string[], options: { stdio: ["pipe", "pipe", "inherit"] }) => ChildProcess;
   stdin: Readable;
   stdout: Writable;
@@ -65,7 +65,7 @@ export interface McpDeps {
 export function defaultMcpDeps(app: CraftApp): McpDeps {
   return {
     prog: "aiplus-office",
-    provision: () => defaultProvision(app),
+    provision: (opts) => defaultProvision(app, opts),
     spawn: (command, args, options) => sharedSpawn(command, args, options),
     stdin: process.stdin,
     stdout: process.stdout,
@@ -141,7 +141,7 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
 
   let bin: string;
   try {
-    bin = (await deps.provision()).binary;
+    bin = (await deps.provision({ preferInstalled: true })).binary;
   } catch (e) {
     deps.stderr(`${deps.prog}: ${(e as Error).message}\n`);
     return 69;

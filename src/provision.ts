@@ -66,7 +66,21 @@ export interface ProvisionDeps {
   /** Override only: run `<bin> --version` to fill `report.version`. */
   probeVersion: boolean;
   randomId: () => string;
+  /**
+   * Serve an already installed version at once instead of downloading a newer release first (the MCP connectors:
+   * a client waits for their start). The next command outside a connector updates the cache.
+   */
+  preferInstalled: boolean;
+  /** Asset downloads: abort a stream that delivers nothing for `stallMs`, then resume after each delay in turn. */
+  download: DownloadPolicy;
 }
+
+export interface DownloadPolicy {
+  stallMs: number;
+  retryDelaysMs: number[];
+}
+
+export const DEFAULT_DOWNLOAD: DownloadPolicy = { stallMs: 45_000, retryDelaysMs: [2_000, 5_000, 10_000] };
 
 export function defaultDeps(): ProvisionDeps {
   return {
@@ -85,6 +99,8 @@ export function defaultDeps(): ProvisionDeps {
     apiBase: API_BASE,
     probeVersion: false,
     randomId: () => Math.random().toString(36).slice(2, 10),
+    preferInstalled: false,
+    download: DEFAULT_DOWNLOAD,
   };
 }
 
@@ -362,25 +378,93 @@ export async function downloadText(deps: ProvisionDeps, url: string): Promise<st
   return text;
 }
 
-/** Stream `url` to `dest`, hashing as it goes; returns the SHA-256 hex digest. */
-export async function downloadFile(deps: ProvisionDeps, url: string, dest: string, maxBytes: number = MAX_ASSET_BYTES): Promise<string> {
-  const res = await deps.fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(15 * 60_000) });
-  if (!res.ok || !res.body) throw new ProvisionError(`asset download failed: HTTP ${res.status} for ${url}`);
+function fileSize(file: string): number {
+  try {
+    return fs.statSync(file).size;
+  } catch {
+    return 0;
+  }
+}
+
+async function sha256File(file: string): Promise<string> {
   const hash = createHash("sha256");
-  let received = 0;
-  await pipeline(
-    Readable.fromWeb(res.body as never),
-    async function* (src: AsyncIterable<Buffer>) {
-      for await (const chunk of src) {
-        received += chunk.length;
-        if (received > maxBytes) throw new ProvisionError(`download exceeds ${maxBytes} bytes; aborting (${url})`);
-        hash.update(chunk);
-        yield chunk;
-      }
-    },
-    fs.createWriteStream(dest),
-  );
+  for await (const chunk of fs.createReadStream(file)) hash.update(chunk as Buffer);
   return hash.digest("hex");
+}
+
+/**
+ * One request for `url` from byte `offset` on (a `Range` request when `offset > 0`), appended to `dest`. A
+ * ProvisionError is final (a 4xx, the size cap); any other error (a stall, a dropped connection, a 5xx) may be
+ * resumed. A server that ignores the range answers 200, and the file then starts over.
+ */
+async function fetchOnce(deps: ProvisionDeps, url: string, dest: string, offset: number, maxBytes: number, stallMs: number): Promise<void> {
+  const ctrl = new AbortController();
+  let timer: NodeJS.Timeout | undefined;
+  const arm = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => ctrl.abort(new Error(`no data for ${Math.round(stallMs / 1000)} s`)), stallMs);
+  };
+  arm();
+  try {
+    const headers: Record<string, string> = { "User-Agent": UA };
+    if (offset > 0) headers.Range = `bytes=${offset}-`;
+    const res = await deps.fetch(url, { headers, signal: ctrl.signal });
+    if (res.status === 416 && offset > 0) {
+      fs.rmSync(dest, { force: true });
+      throw new Error("HTTP 416 for the resumed range; starting over");
+    }
+    if (!res.ok || !res.body) {
+      const msg = `asset download failed: HTTP ${res.status} for ${url}`;
+      if (res.status >= 500 || res.status === 429) throw new Error(msg);
+      throw new ProvisionError(msg);
+    }
+    const append = offset > 0 && res.status === 206;
+    let received = append ? offset : 0;
+    await pipeline(
+      Readable.fromWeb(res.body as never),
+      async function* (src: AsyncIterable<Buffer>) {
+        for await (const chunk of src) {
+          arm();
+          received += chunk.length;
+          if (received > maxBytes) throw new ProvisionError(`download exceeds ${maxBytes} bytes; aborting (${url})`);
+          yield chunk;
+        }
+      },
+      fs.createWriteStream(dest, { flags: append ? "a" : "w" }),
+    );
+  } catch (e) {
+    if (ctrl.signal.aborted && !(e instanceof ProvisionError)) throw ctrl.signal.reason as Error;
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Stream `url` to `dest` and return the file's SHA-256 hex digest. A stalled or dropped transfer is resumed where it
+ * stopped (`deps.download`); the digest is taken over the finished file, so a resumed file is checked like any other.
+ */
+export async function downloadFile(deps: ProvisionDeps, url: string, dest: string, maxBytes: number = MAX_ASSET_BYTES): Promise<string> {
+  const policy = deps.download ?? DEFAULT_DOWNLOAD;
+  fs.rmSync(dest, { force: true });
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await fetchOnce(deps, url, dest, fileSize(dest), maxBytes, policy.stallMs);
+      break;
+    } catch (e) {
+      if (e instanceof ProvisionError) throw e;
+      const reason = (e as Error).message;
+      if (attempt >= policy.retryDelaysMs.length) {
+        throw new ProvisionError(`asset download failed after ${attempt + 1} attempts (${reason}): ${url}`);
+      }
+      const delay = policy.retryDelaysMs[attempt];
+      deps.log(
+        `[aiplus-office] download interrupted at ${(fileSize(dest) / 1048576).toFixed(1)} MB (${reason}); resuming in ${Math.round(delay / 1000)} s`,
+      );
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  return sha256File(dest);
 }
 
 /**
@@ -661,31 +745,62 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
     fs.rmSync(versionDir, { recursive: true, force: true });
   }
 
+  // An installed older version, served instead of this download when it is preferred or when the download fails.
+  const useInstalled = (why: string): ProvisionReport | undefined => {
+    if (resolved.source === "pin") return undefined;
+    const older = installedVersions(app, root, deps.platform).filter((v) => v !== version);
+    if (older.length === 0) return undefined;
+    const dir = path.join(root, older[0]);
+    const bin = cachedBinary(app, dir, deps.platform);
+    if (!bin) return undefined;
+    deps.log(`[aiplus-office] ${app.id}: ${why}; using installed ${older[0]}`);
+    return {
+      app: app.id,
+      version: older[0],
+      source: "fallback-installed",
+      asset: readAssetMarker(dir) ?? null,
+      cacheHit: true,
+      binary: bin,
+      durationMs: deps.now() - started,
+    };
+  };
+  if (deps.preferInstalled) {
+    const now = useInstalled(`${version} is available and is installed by the next command outside a connector`);
+    if (now) return now;
+  }
+
   const tag = `v${version}`;
   const release = resolved.release ?? (await apiJson(deps, `${deps.apiBase}/repos/${app.repo}/releases/tags/${tag}`));
   const asset = candidates.find((c) => release.assets.some((a) => a.name === c));
   if (!asset) throw new ProvisionError(`release ${tag} has no asset named ${candidates.join(" or ")}`);
 
-  const installed = await installVerified<string>({
-    deps,
-    repo: app.repo,
-    asset,
-    release,
-    cacheDir: root,
-    finalDir: versionDir,
-    list: (archive) => listArchive(deps, archive),
-    extract: (archive, dest) => extractArchive(deps, archive, dest),
-    validate: (tree) => {
-      const located = locateBinary(app, tree, deps.platform, asset);
-      if (!located) throw new ProvisionError(`no ${binName(app, deps.platform)} found in ${asset}`);
-      const rel = path.relative(tree, located);
-      fs.chmodSync(located, 0o755);
-      fs.rmSync(path.join(path.dirname(located), desktopName(app, deps.platform)), { force: true });
-      fs.writeFileSync(path.join(tree, ASSET_MARKER), `${asset}\n`);
-      return rel;
-    },
-    verifyExisting: (dir) => cachedBinary(app, dir, deps.platform) !== undefined,
-  });
+  let installed: InstallResult<string>;
+  try {
+    installed = await installVerified<string>({
+      deps,
+      repo: app.repo,
+      asset,
+      release,
+      cacheDir: root,
+      finalDir: versionDir,
+      list: (archive) => listArchive(deps, archive),
+      extract: (archive, dest) => extractArchive(deps, archive, dest),
+      validate: (tree) => {
+        const located = locateBinary(app, tree, deps.platform, asset);
+        if (!located) throw new ProvisionError(`no ${binName(app, deps.platform)} found in ${asset}`);
+        const rel = path.relative(tree, located);
+        fs.chmodSync(located, 0o755);
+        fs.rmSync(path.join(path.dirname(located), desktopName(app, deps.platform)), { force: true });
+        fs.writeFileSync(path.join(tree, ASSET_MARKER), `${asset}\n`);
+        return rel;
+      },
+      verifyExisting: (dir) => cachedBinary(app, dir, deps.platform) !== undefined,
+    });
+  } catch (e) {
+    const fallback = useInstalled(`installing ${version} failed (${(e as Error).message})`);
+    if (fallback) return fallback;
+    throw e;
+  }
   const binary = installed.raced ? (cachedBinary(app, versionDir, deps.platform) as string) : path.join(versionDir, installed.value as string);
   const out = report(binary, false, asset);
   if (deps.platform === "darwin") {

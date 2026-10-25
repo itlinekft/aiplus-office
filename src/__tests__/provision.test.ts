@@ -60,6 +60,7 @@ function suite(app: CraftApp): void {
       glibcVersion: () => "2.36",
       apiBase: fx.url,
       log: (m) => logs.push(m),
+      download: { stallMs: 300, retryDelaysMs: [10, 10] },
       ...extra,
     });
     const envWith = (e: NodeJS.ProcessEnv) => ({ AIPLUS_OFFICE_HOME: home, ...e });
@@ -427,9 +428,9 @@ function suite(app: CraftApp): void {
       expect(noStaging(s.root)).toBe(true);
     }, 30_000);
 
-    it("X8 interrupted download leaves no <ver>/ and the next run completes", async () => {
+    it("X8 a download that keeps dropping (no resume) leaves no <ver>/ and the next run completes", async () => {
       const archive = goodArchive();
-      const s = await setup({ assets: { [ASSET]: archive }, truncateAt: 0.5 });
+      const s = await setup({ assets: { [ASSET]: archive }, truncateAt: 0.5, ranges: false });
       await asErr(provision(app, s.deps()));
       expect(fs.existsSync(path.join(s.root, "0.7.0"))).toBe(false);
       expect(noStaging(s.root)).toBe(true);
@@ -485,6 +486,69 @@ function suite(app: CraftApp): void {
       expect(r.version).toBe("0.7.0");
       expect(r.source).toBe("fallback-installed");
       expect(r.cacheHit).toBe(true);
+    });
+
+    it("X10 a stalled download resumes with a Range request and installs a verified binary", async () => {
+      const s = await setup({ assets: { [ASSET]: goodArchive() }, stallAt: 0.5, stallTimes: 1 });
+      const r = await provision(app, s.deps());
+      expect(fs.existsSync(r.binary)).toBe(true);
+      expect(r.source).toBe("latest");
+      const asset = s.fx.requests.filter((q) => q.url.endsWith(`/${ASSET}`));
+      expect(asset.length).toBe(2);
+      expect(asset[1].range).toMatch(/^bytes=\d+-$/);
+      expect(s.logs.join("\n")).toMatch(/no data for 0 s|interrupted/);
+      expect(noStaging(s.root)).toBe(true);
+    });
+
+    it("X11 a server that ignores Range starts over and the digest still matches", async () => {
+      const s = await setup({ assets: { [ASSET]: goodArchive() }, stallAt: 0.5, stallTimes: 1, ranges: false });
+      const r = await provision(app, s.deps());
+      expect(fs.existsSync(r.binary)).toBe(true);
+    });
+
+    it("X8b a dropped connection resumes with a Range request", async () => {
+      const s = await setup({ assets: { [ASSET]: goodArchive() }, truncateAt: 0.5 });
+      const r = await provision(app, s.deps());
+      expect(fs.existsSync(r.binary)).toBe(true);
+      expect(s.fx.requests.some((q) => q.url.endsWith(`/${ASSET}`) && q.range)).toBe(true);
+    });
+
+    it("X12 a download that keeps stalling falls back to the installed older version", async () => {
+      const s = await setup({ assets: { [ASSET]: goodArchive() }, stallAt: 0.3, ranges: false });
+      install(s.root, "0.6.0");
+      const r = await provision(app, s.deps());
+      expect(r.version).toBe("0.6.0");
+      expect(r.source).toBe("fallback-installed");
+      expect(s.logs.join("\n")).toMatch(/installing 0\.7\.0 failed .*3 attempts/);
+      expect(fs.existsSync(path.join(s.root, "0.7.0"))).toBe(false);
+      expect(noStaging(s.root)).toBe(true);
+    });
+
+    it("X13 a download that keeps stalling with nothing installed fails within the retry budget", async () => {
+      const s = await setup({ assets: { [ASSET]: goodArchive() }, stallAt: 0.3, ranges: false });
+      const t0 = Date.now();
+      const e = await asErr(provision(app, s.deps()));
+      expect(e.message).toMatch(/after 3 attempts/);
+      expect(Date.now() - t0).toBeLessThan(10_000);
+      expect(noStaging(s.root)).toBe(true);
+    });
+
+    it("X14 preferInstalled serves the installed version without downloading the newer release", async () => {
+      const s = await setup();
+      install(s.root, "0.6.0");
+      const r = await provision(app, s.deps({ preferInstalled: true }));
+      expect(r.version).toBe("0.6.0");
+      expect(r.cacheHit).toBe(true);
+      expect(s.fx.requests.some((q) => q.url.endsWith(`/${ASSET}`))).toBe(false);
+      const later = await provision(app, s.deps());
+      expect(later.version).toBe("0.7.0");
+    });
+
+    it("X15 preferInstalled with nothing installed downloads as usual", async () => {
+      const s = await setup();
+      const r = await provision(app, s.deps({ preferInstalled: true }));
+      expect(r.version).toBe("0.7.0");
+      expect(fs.existsSync(r.binary)).toBe(true);
     });
 
     it("X2 failing lookup with an empty cache names the error and the escape hatches", async () => {

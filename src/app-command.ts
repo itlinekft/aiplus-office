@@ -31,7 +31,7 @@ export function execPassthrough(prog: string, bin: string, args: string[]): Prom
 /** Per-app command context. */
 export interface AppCommandContext {
   prog: string;
-  provision: (opts?: { probeVersion?: boolean }) => Promise<ProvisionReport>;
+  provision: (opts?: { probeVersion?: boolean; preferInstalled?: boolean }) => Promise<ProvisionReport>;
   stdout: (text: string) => void;
   stderr: (text: string) => void;
   usage: string;

@@ -59,7 +59,7 @@ exit: 0 ok · 1 usage/failed · 69 provisioning failure`;
 }
 
 export interface CliDeps {
-  provision: (appId: string, opts?: { probeVersion?: boolean }) => Promise<ProvisionReport>;
+  provision: (appId: string, opts?: { probeVersion?: boolean; preferInstalled?: boolean }) => Promise<ProvisionReport>;
   stdout: (text: string) => void;
   stderr: (text: string) => void;
   env: NodeJS.ProcessEnv;
