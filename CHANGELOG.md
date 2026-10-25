@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.9 — 2026-10-25
+
+- English name „AI+ Office” (Hungarian stays „AI+ Iroda”): the English half of the description, both READMEs, the
+  user guide and the troubleshooting guide, and the marketplace row. The public-copy lint now allows the name and bans
+  „Microsoft Office” in shipped files; the trademark footer is unchanged.
+
 ## 0.1.8 — 2026-10-25
 
 - Shown name „AI+ Iroda” (ITLine's naming rule: every AI+ modul is „AI+ <name>” with an `aiplus-` id, free or

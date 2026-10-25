@@ -1,4 +1,4 @@
-# AI+ Iroda: hibaelhárítás · troubleshooting
+# AI+ Iroda: hibaelhárítás · AI+ Office: troubleshooting
 
 Egy bejegyzés egy hiba. A **Tünet** pontosan az, amit látsz: a program kiírását szó szerint idézzük, angolul, mert a
 program így írja ki. Az **Ellenőrzés** csak olvas, semmit nem változtat. A **Javítás** a legkisebb lépéssel kezdődik.

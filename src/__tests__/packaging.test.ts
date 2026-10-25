@@ -87,7 +87,8 @@ describe("public copy", () => {
     const shipped = ["release/README.md", "release/NOTICE", ".claude-plugin/plugin.json", ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`)];
     for (const f of shipped) {
       const t = read(f);
-      for (const bad of [/munkanév/i, /AI\+ Office/, /Office nélkül/i, /without (Microsoft )?Office/i]) expect(t, `${f} ${bad}`).not.toMatch(bad);
+      // „AI+ Office” is the English name since 0.1.9 (ITLine naming decision); the Office-replacement wording stays banned.
+      for (const bad of [/munkanév/i, /Office nélkül/i, /without (Microsoft )?Office/i, /Microsoft Office/]) expect(t, `${f} ${bad}`).not.toMatch(bad);
       const ms = t.split("\n").filter((l) => /Microsoft/.test(l));
       for (const l of ms) expect([FOOTER_HU, FOOTER_EN], `${f}: ${l}`).toContain(l);
     }

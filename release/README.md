@@ -1,13 +1,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/itlinekft/aiplus-office/main/brand/aiplus-office-dark-256.png">
-    <img src="https://raw.githubusercontent.com/itlinekft/aiplus-office/main/brand/aiplus-office-256.png" width="160" height="160" alt="AI+ Iroda">
+    <img src="https://raw.githubusercontent.com/itlinekft/aiplus-office/main/brand/aiplus-office-256.png" width="160" height="160" alt="AI+ Iroda · AI+ Office">
   </picture>
 </p>
 
-# AI+ Iroda
+# AI+ Iroda · AI+ Office
 
-**AI+ Iroda** · ITLine AI+ · ingyenes · MIT
+**AI+ Iroda** (English: **AI+ Office**) · ITLine AI+ · ingyenes · MIT
 
 ## Magyarul
 
@@ -30,7 +30,7 @@ dolgozz másolaton, és az ügyfélnek szánt fájlt küldés előtt nézd át.
 
 ## In English
 
-AI+ Iroda is a free AI+ module for Claude. Claude creates and edits files in **Word, Excel, PowerPoint and PDF** formats (DOCX, XLSX,
+AI+ Office (Hungarian name: AI+ Iroda) is a free AI+ module for Claude. Claude creates and edits files in **Word, Excel, PowerPoint and PDF** formats (DOCX, XLSX,
 PPTX, PDF) with the free, open-source ArtCraft programs (**WordCraft, GridCraft, DeckCraft, PdfCraft**) through their
 command-line tools, checks every finished file mechanically, and follows worked Hungarian office examples (árajánlat,
 árlista, prezentáció).

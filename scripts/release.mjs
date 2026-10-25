@@ -26,7 +26,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PLUGIN = "aiplus-office";
-const README_ROW = `| \`${PLUGIN}\` | AI+ Iroda (ingyenes · free) | irodai skillek és az \`aiplus-office\` parancs, a WordCraft, GridCraft, DeckCraft és PdfCraft programokat első használatkor maga tölti le; Excel- és PowerPoint-fájlhoz a Claude-nak a saját gépeden kell futnia (Claude Code vagy „This computer” munkamenet) · office skills and the \`aiplus-office\` command, downloads the four apps itself on first use; Excel and PowerPoint files need Claude on your own computer (Claude Code or a “This computer” session) |`;
+const README_ROW = `| \`${PLUGIN}\` | AI+ Iroda · AI+ Office (ingyenes · free) | irodai skillek és az \`aiplus-office\` parancs, a WordCraft, GridCraft, DeckCraft és PdfCraft programokat első használatkor maga tölti le; Excel- és PowerPoint-fájlhoz a Claude-nak a saját gépeden kell futnia (Claude Code vagy „This computer” munkamenet) · office skills and the \`aiplus-office\` command, downloads the four apps itself on first use; Excel and PowerPoint files need Claude on your own computer (Claude Code or a “This computer” session) |`;
 
 const ALLOW = [
   { from: ".claude-plugin/plugin.json" },
