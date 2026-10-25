@@ -101,7 +101,7 @@ describe("stage into a marketplace clone", () => {
     expect(m.plugins).toHaveLength(2);
     const readme = fs.readFileSync(path.join(mp, "README.md"), "utf8");
     expect(readme.split(`| \`${PLUGIN}\` |`).length - 1).toBe(1);
-    expect(readme).toMatch(/free office AI\+ module .*Excel and PowerPoint files need Claude on your own computer/); // bilingual row (office-first-run)
+    expect(readme).toMatch(/AI\+ Iroda \(ingyenes · free\) .*Excel and PowerPoint files need Claude on your own computer/); // bilingual row (office-first-run)
     expect(readme.indexOf("`aiplus`")).toBeLessThan(readme.indexOf(`\`${PLUGIN}\``));
     expect(fs.existsSync(path.join(mp, "plugins", PLUGIN, "dist", "aiplus-office.mjs"))).toBe(true);
     expect(sh(mp, "git", ["rev-parse", "HEAD"])).toBe(before);
