@@ -26,6 +26,7 @@ dolgozz másolaton, és az ügyfélnek szánt fájlt küldés előtt nézd át.
   munkamenet nem tudja letölteni a programokat.
 - **Első lépés:** kérdezd meg a Claude-tól: „hogyan kezdjem?” Megnézi a gépet, elmondja, honnan jönnek a programok,
   és csak a beleegyezéseddel tölt le.
+- **Weboldal:** https://www.itline.hu/ai-plus/iroda/
 - **Útmutató és hibaelhárítás:** [felhasználói útmutató](https://github.com/itlinekft/aiplus-office/blob/main/docs/user-guide.md), [hibaelhárítás](https://github.com/itlinekft/aiplus-office/blob/main/TROUBLESHOOTING.md).
 
 ## In English
@@ -37,6 +38,8 @@ command-line tools, checks every finished file mechanically, and follows worked 
 
 **First step:** ask Claude “how do I start?” (or „hogyan kezdjem?”). The `office-start` skill checks Node.js and the
 programs, says where they come from, offers to download them (only with your yes), and says what works where.
+
+**Web page:** https://www.itline.hu/en/ai-plus/ (Hungarian page: https://www.itline.hu/ai-plus/iroda/)
 
 **Guide and troubleshooting:** the [user guide](https://github.com/itlinekft/aiplus-office/blob/main/docs/user-guide.md) and the [troubleshooting guide](https://github.com/itlinekft/aiplus-office/blob/main/TROUBLESHOOTING.md), Hungarian first, then
 English.

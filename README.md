@@ -7,7 +7,7 @@
 
 # AI+ Iroda · AI+ Office (aiplus-office)
 
-**AI+ Iroda** (English: **AI+ Office**) · ITLine AI+ · ingyenes · MIT
+**AI+ Iroda** (English: **AI+ Office**) · ITLine AI+ · ingyenes · MIT · [itline.hu/ai-plus/iroda](https://www.itline.hu/ai-plus/iroda/)
 
 A Claude plugin of the ITLine AI+ line, shown to users as „AI+ Iroda” (in English „AI+ Office”), free (id `aiplus-office`, block code
 `office`). It lets Claude create and edit **DOCX, XLSX, PPTX and PDF** files with the free, open-source ArtCraft apps: 

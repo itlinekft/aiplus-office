@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.10 — 2026-10-25
+
+- The plugin homepage is the AI+ Iroda page on itline.hu (https://www.itline.hu/ai-plus/iroda/), now live; the
+  repository link stays on GitHub. Both READMEs link the page.
+
 ## 0.1.9 — 2026-10-25
 
 - English name „AI+ Office” (Hungarian stays „AI+ Iroda”): the English half of the description, both READMEs, the
