@@ -74,6 +74,8 @@ Id families: `file.*`, `cell.*`/`range.*` (data), `sheet.*`, `home.*` (formats, 
 - **Columns keep their default width**: in the PDF a long name is cut and a date that does not fit prints as `#####`.
   Run `home.autofitColumnWidth {"cols":"A:F"}` before every PDF export.
 - The default paper is US Letter: set `pageLayout.size {"paper":"A4"}` for a Hungarian printout.
+- A new workbook's sheet is called `Sheet1`: name it in the user's language for its content, e.g.
+  `sheet.rename {"name":"Árlista"}` (a Windows test left a Hungarian price list on „Sheet1”).
 - `convert` to csv writes the active sheet only; pass `--sheet NAME` for another.
 - 27% VAT on each line and on the total can differ by rounding: decide with the user whether lines are rounded
   (`=ROUND(B2*0.27,0)`) and keep one rule in the whole sheet.
