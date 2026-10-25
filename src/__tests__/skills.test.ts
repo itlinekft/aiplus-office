@@ -121,9 +121,11 @@ describe("router and app skills", () => {
     expect(b).toMatch(/checked before it is sent/);
   });
 
-  it("the router keeps GridCraft and DeckCraft off the MCP route", () => {
+  it("the router names the four confined MCP servers and GridCraft's gateway (change office-mcp-grid-deck)", () => {
     const b = loadSkill("office-router").body;
-    expect(b).toMatch(/GridCraft and DeckCraft are not registered as MCP servers/);
+    for (const app of ["wordcraft", "gridcraft", "deckcraft", "pdfcraft"]) expect(b).toContain(`aiplus-office-${app}`);
+    expect(b).toMatch(/GridCraft's own server has no confinement/);
+    expect(b).not.toMatch(/not registered as MCP servers/);
   });
 });
 

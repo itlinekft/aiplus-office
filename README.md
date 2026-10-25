@@ -33,17 +33,19 @@ PowerPoint. So:
 
 | Where the user works | Word (DOCX) | PDF | Excel (XLSX) | PowerPoint (PPTX) |
 |---|---|---|---|---|
-| Claude Desktop, plain Chat (no shell) | yes, MCP | yes, MCP | no | no |
+| Claude Desktop, plain Chat (no shell) | yes, MCP | yes, MCP | MCP, not measured yet | MCP, not measured yet |
 | Claude Desktop, a “This computer” session | yes | yes | yes | yes |
 | Claude Code | yes | yes | yes | yes |
 | a session running in the cloud (Cowork measured) | not measured | not measured | no | no |
 
-Only WordCraft and PdfCraft are registered MCP servers (the Desktop install dialog lists exactly
-`aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11). GridCraft and DeckCraft run
-through the shell, so **Excel and PowerPoint files need Claude running on the user's own computer** (Claude Code, or a
-Claude Desktop session whose environment is “This computer”); a plain Chat cannot make them, and a session in the cloud
-cannot download the apps (measured 2026-10-24: a Cowork session in the cloud made no file). The table
-is the design; what has actually been tried is kept in one block of `skills/office-start/SKILL.md`
+All four apps are registered MCP servers, each confined to the project folder (`.mcp.json`; GridCraft and DeckCraft
+since change `office-mcp-grid-deck`, 2026-10-25). Up to 0.1.10 only WordCraft and PdfCraft were (the Desktop install
+dialog listed exactly `aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11), so
+the user-facing copy still says a plain Chat handles Word and PDF only; it changes once the two new connectors are
+measured in a plain Chat on Windows. Through the shell (the skills' recipes),
+**Excel and PowerPoint files need Claude running on the user's own computer** (Claude Code, or a Claude Desktop session
+whose environment is “This computer”); a session in the cloud cannot download the apps (measured 2026-10-24: a Cowork session in the cloud made no file). The
+table is the design; what has actually been tried is kept in one block of `skills/office-start/SKILL.md`
 (`office-start:tested`), with details in `docs/MEASURED.md`.
 
 ## What is inside
@@ -57,7 +59,7 @@ is the design; what has actually been tried is kept in one block of `skills/offi
 | `skills/office-deck` | outline → slides → PDF handout (example: a Hungarian quarterly deck) |
 | `skills/office-data-visual` | numbers → workbook with formulas and a read-back → chart → slide (example: árlista with 27% ÁFA) |
 | `dist/aiplus-office.mjs` | the `aiplus-office` command (one self-contained Node.js file) |
-| `.mcp.json` | MCP servers for clients without a shell: WordCraft and PdfCraft only, confined to the project folder |
+| `.mcp.json` | MCP servers for clients without a shell: the four apps, each confined to the project folder |
 
 ## Install
 
@@ -105,10 +107,25 @@ Exit codes: 0 ok, 1 usage/failure, 69 provisioning failure; `verify` 0/1/2/3 (3 
 
 ## MCP and confinement
 
-WordCraft and PdfCraft MCP servers support path confinement; the plugin registers them confined to the project folder
-(`${CLAUDE_PROJECT_DIR}`; a root that arrives unexpanded is refused). GridCraft's and DeckCraft's servers advertise no
-confinement: they could read and write any file the user can, so they are **not** registered; Claude uses them
-through the shell, in the project folder. `aiplus-office <app> mcp --allow-unconfined` exists as an explicit opt-in.
+The plugin registers all four MCP servers confined to the project folder (`${CLAUDE_PROJECT_DIR}`; a root that arrives
+unexpanded is refused, and so is one that does not exist).
+
+| App | Tools | Confined by |
+|---|---|---|
+| WordCraft | 16 | its own server (`--automation-read-root` / `--automation-write-root`) |
+| DeckCraft | 25 | its own server (the same two roots; measured on 0.10.0 and 0.11.1, the registry said “none” until 2026-10-25) |
+| PdfCraft | 17 with `--compact` (175 without) | its own server (`--root`) |
+| GridCraft | 20 | **aiplus-office** (`src/mcp-gateway.ts`): `gridcraft-cli mcp` has no root option |
+
+The GridCraft gateway runs the upstream server with no file option and stands between it and the client: it lists
+and accepts only 20 of its 21 tools (not the window-only `screenshot`); it resolves every `path` argument, also one in
+`execute_command`'s `params`, against the project folder and refuses one that leaves it (`..`, a symlink, a dangling
+symlink, another drive); `execute_command` runs only in-workbook command namespaces and the listed `file.*` commands,
+never `link.*`, `automate.*`, `app.*`, `window.*`, `view.newWindow` or `file.print`, and never a command whose
+parameters carry a `file`, `folder` or `url` key; other JSON-RPC requests than the MCP basics are answered “method not
+found”. A refusal is a tool error, Hungarian first, then English, and never reaches GridCraft. Paths: DeckCraft and
+WordCraft take absolute paths inside the folder only; the GridCraft gateway also resolves a relative path against it.
+`aiplus-office <app> mcp --allow-unconfined` remains for an app row with no confinement (none today).
 
 ## Development
 

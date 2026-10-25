@@ -73,10 +73,14 @@ Families: `slide.*`, `shape.*`, `insert.*`, `format.*`, `arrange.*`, `design.*` 
 - A PPTX with comments saved back by DeckCraft was reported to be rejected by PowerPoint (alpha regression): remove
   review comments, or keep the PDF as the delivery.
 
-## MCP route (not registered)
+## MCP route (registered, confined)
 
-DeckCraft's MCP server advertises **no path confinement**, so the plugin does not register it and `aiplus-office
-deckcraft mcp` refuses without `--allow-unconfined`. Use the bash route in the project folder.
+The plugin registers `aiplus-office-deckcraft` (25 tools), confined to the project folder for reads and writes by
+DeckCraft itself (`--automation-read-root` / `--automation-write-root`, measured on 0.10.0 and 0.11.1). Use it in a
+client without a shell: `new_presentation`, `add_slide` (layout, title, body), `insert_table` / `insert_chart`,
+`inspect_document`, `render_slide` to look at a slide, then `save_presentation` and `export` (format `pdf`). Paths must
+be **absolute** and inside the project folder; a relative or outside path is refused („automation path rejected”). The
+window-only tools (`screenshot`, `call_app`) do not work here. The bash route stays the default where there is a shell.
 
 ## Recipes
 

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { runMcp } from "../mcp-proxy.js";
 import { defaultLauncherPath, registerMcp, serverName } from "../mcp-register.js";
 import type { ProvisionReport } from "../provision.js";
-import { CRAFT_APPS, getApp } from "../registry.js";
+import { type CraftApp, CRAFT_APPS, getApp } from "../registry.js";
 import { cleanupTmp, tmpDir } from "./helpers/fixtures.js";
 
 afterEach(cleanupTmp);
@@ -25,18 +25,24 @@ function fakeSpawn() {
   return { calls, spawn };
 }
 
-async function proxy(appId: string, argv: string[]) {
+/** No registered app is unconfined since DeckCraft's roots were measured (change office-mcp-grid-deck); the
+ * unconfined branch is still covered with a synthetic row. */
+const UNCONFINED: CraftApp = { ...getApp("gridcraft"), name: "Unconfined", mcp: { ...getApp("gridcraft").mcp, confinement: false } };
+
+async function proxy(appOrId: string | CraftApp, argv: string[], cwd = "/work/proj") {
+  const app = typeof appOrId === "string" ? getApp(appOrId) : appOrId;
+  const appId = app.id;
   const f = fakeSpawn();
   const stdin = new PassThrough();
   const err: string[] = [];
   stdin.end();
-  const code = await runMcp(getApp(appId), argv, {
+  const code = await runMcp(app, argv, {
     provision: async () => report(appId, `/bin/${appId}-cli`),
     spawn: f.spawn as never,
     stdin,
     stdout: new PassThrough(),
     stderr: (t) => err.push(t),
-    cwd: () => "/work/proj",
+    cwd: () => cwd,
     onSignal: () => {},
   });
   return { code, calls: f.calls, err: err.join("") };
@@ -69,9 +75,32 @@ describe("per-app MCP proxy", () => {
     expect(bad.err).toMatch(/--compact is not supported/);
   });
 
-  it("every unconfined app refuses without --allow-unconfined, naming the flag and the app", async () => {
-    for (const a of CRAFT_APPS.filter((x) => x.mcp.confinement === false)) {
-      const r = await proxy(a.id, []);
+  it("every app is confined: DeckCraft by its automation roots, GridCraft by the gateway", () => {
+    expect(CRAFT_APPS.filter((x) => x.mcp.confinement === false)).toEqual([]);
+    expect(getApp("deckcraft").mcp).toMatchObject({ confinement: "automation-roots", tools: 25 });
+    expect(getApp("gridcraft").mcp).toMatchObject({ confinement: "gateway", tools: 20 });
+  });
+
+  it("DeckCraft maps --root to both automation roots", async () => {
+    expect((await proxy("deckcraft", ["--root", "/r"])).calls[0].args).toEqual(["mcp", "--automation-read-root", "/r", "--automation-write-root", "/r"]);
+  });
+
+  it("GridCraft (gateway) starts its server with no file option, rooted at an existing folder; a missing root is refused", async () => {
+    const root = tmpDir("grid-root-");
+    const r = await proxy("gridcraft", [], root);
+    expect(r.code).toBe(0);
+    expect(r.calls).toEqual([{ command: "/bin/gridcraft-cli", args: ["mcp"] }]);
+    expect(r.err).toContain(`mcp root: ${root}`);
+    expect(r.err).toContain(`files confined by aiplus-office to ${root}`);
+    const missing = await proxy("gridcraft", ["--root", path.join(root, "nope")]);
+    expect(missing.code).toBe(1);
+    expect(missing.calls).toHaveLength(0);
+    expect(missing.err).toMatch(/not an existing folder/);
+  });
+
+  it("an unconfined app row refuses without --allow-unconfined, naming the flag and the app", async () => {
+    for (const a of [UNCONFINED]) {
+      const r = await proxy(a, []);
       expect(r.code, a.id).toBe(1);
       expect(r.calls, a.id).toHaveLength(0);
       expect(r.err).toContain("--allow-unconfined");
@@ -81,14 +110,14 @@ describe("per-app MCP proxy", () => {
   });
 
   it("with --allow-unconfined the server starts without roots and stderr warns", async () => {
-    const r = await proxy("gridcraft", ["--allow-unconfined"]);
+    const r = await proxy(UNCONFINED, ["--allow-unconfined"]);
     expect(r.code).toBe(0);
     expect(r.calls).toEqual([{ command: "/bin/gridcraft-cli", args: ["mcp"] }]);
     expect(r.err).toMatch(/unconfined.*read and write any path/);
   });
 
   it("--root on an unconfined app is rejected (it would imply confinement that does not exist)", async () => {
-    const r = await proxy("deckcraft", ["--allow-unconfined", "--root", "/x"]);
+    const r = await proxy(UNCONFINED, ["--allow-unconfined", "--root", "/x"]);
     expect(r.code).toBe(1);
     expect(r.calls).toHaveLength(0);
     expect(r.err).toMatch(/--root has no effect/);
@@ -133,9 +162,9 @@ describe("per-app MCP registration", () => {
     fs.mkdirSync(path.join(d, ".git"));
     return d;
   };
-  const reg = (appId: string, cwd: string, allowUnconfined = false) => {
+  const reg = (appId: string | CraftApp, cwd: string, allowUnconfined = false) => {
     const err: string[] = [];
-    const code = registerMcp(getApp(appId), { cwd, allowUnconfined, stderr: (t) => err.push(t) });
+    const code = registerMcp(typeof appId === "string" ? getApp(appId) : appId, { cwd, allowUnconfined, stderr: (t) => err.push(t) });
     return { code, err: err.join("") };
   };
   const cfg = (cwd: string) => JSON.parse(fs.readFileSync(path.join(cwd, ".mcp.json"), "utf8"));
@@ -158,9 +187,18 @@ describe("per-app MCP registration", () => {
     expect(entry.args.slice(1)).toEqual(["wordcraft", "mcp", "--root", cwd]);
   });
 
+  it("registers GridCraft and DeckCraft confined, with --root <project>", () => {
+    const cwd = project();
+    expect(reg("gridcraft", cwd).code).toBe(0);
+    expect(reg("deckcraft", cwd).code).toBe(0);
+    const c = cfg(cwd);
+    expect(c.mcpServers["aiplus-office-gridcraft"].args.slice(1)).toEqual(["gridcraft", "mcp", "--root", cwd]);
+    expect(c.mcpServers["aiplus-office-deckcraft"].args.slice(1)).toEqual(["deckcraft", "mcp", "--root", cwd]);
+  });
+
   it("refuses an unconfined app without --allow-unconfined and writes nothing", () => {
     const cwd = project();
-    const r = reg("gridcraft", cwd);
+    const r = reg(UNCONFINED, cwd);
     expect(r.code).toBe(1);
     expect(r.err).toContain("--allow-unconfined");
     expect(fs.existsSync(path.join(cwd, ".mcp.json"))).toBe(false);
@@ -168,9 +206,9 @@ describe("per-app MCP registration", () => {
 
   it("persists --allow-unconfined in the entry so the decision is visible", () => {
     const cwd = project();
-    const r = reg("deckcraft", cwd, true);
+    const r = reg(UNCONFINED, cwd, true);
     expect(r.code).toBe(0);
-    expect(cfg(cwd).mcpServers["aiplus-office-deckcraft"].args.slice(1)).toEqual(["deckcraft", "mcp", "--allow-unconfined"]);
+    expect(cfg(cwd).mcpServers["aiplus-office-gridcraft"].args.slice(1)).toEqual(["gridcraft", "mcp", "--allow-unconfined"]);
     expect(r.err).toMatch(/unconfined/);
   });
 

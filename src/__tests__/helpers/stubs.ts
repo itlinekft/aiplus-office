@@ -52,3 +52,26 @@ export function readLog(file: string): { t: number; ev: string; key?: string; id
     .filter(Boolean)
     .map((l) => JSON.parse(l));
 }
+
+/**
+ * Fake `gridcraft-cli mcp` for the gateway tests (change office-mcp-grid-deck). Lists the 21 upstream tool names
+ * (with `screenshot`), answers every request at once, echoes a `tools/call`'s name and arguments back as its text, and
+ * logs each received message to $STUB_LOG.
+ */
+export const GRID_MCP_STUB = `
+const fs = require("node:fs");
+const readline = require("node:readline");
+const TOOLS = ["execute_command","list_commands","inspect_workbook","read_range","write_range","set_cell","get_cell","evaluate_formula","select","format_range","insert_chart","create_table","sort_range","filter","open_workbook","save_workbook","new_workbook","undo","redo","screenshot","list_functions"];
+const log = (o) => process.env.STUB_LOG && fs.appendFileSync(process.env.STUB_LOG, JSON.stringify(o) + "\\n");
+if (process.env.STUB_ARGV_LOG) fs.writeFileSync(process.env.STUB_ARGV_LOG, JSON.stringify(process.argv.slice(2)));
+const send = (o) => process.stdout.write(JSON.stringify({ jsonrpc: "2.0", ...o }) + "\\n");
+readline.createInterface({ input: process.stdin }).on("line", (line) => {
+  const m = JSON.parse(line);
+  log(m);
+  if (m.id === undefined) return;
+  if (m.method === "initialize") send({ id: m.id, result: { protocolVersion: "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "gridcraft" }, instructions: "GridCraft is a spreadsheet app." } });
+  else if (m.method === "tools/list") send({ id: m.id, result: { tools: TOOLS.map((name) => ({ name, inputSchema: { type: "object" } })) } });
+  else if (m.method === "tools/call") send({ id: m.id, result: { content: [{ type: "text", text: JSON.stringify(m.params) }], isError: false } });
+  else send({ id: m.id, result: {} });
+});
+`;

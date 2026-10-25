@@ -11,13 +11,20 @@
  * message passes straight through; non-JSON server stdout goes to stderr so it
  * cannot corrupt the MCP channel.
  *
+ * An app with `confinement: "gateway"` (GridCraft) runs its server with no file option and the proxy confines it:
+ * every `tools/call` goes through `src/mcp-gateway.ts` first (allowlisted tools, paths resolved inside the root,
+ * refused commands), a refusal is answered here and never reaches the server, and `tools/list` / `initialize`
+ * results are filtered / annotated on the way back.
+ *
  * Ported from the upstream package's CLI (see UPSTREAM.md); added: a `--root` that still holds an unexpanded `${…}` is
- * refused. See change: office-plugin-v1 (office-mcp).
+ * refused; the gateway. See change: office-plugin-v1 (office-mcp), office-mcp-grid-deck.
  */
+import * as fs from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
 import type { Readable, Writable } from "node:stream";
 import { type ChildProcess, spawn as sharedSpawn } from "./exec.js";
+import { createGateway, type Gateway, methodPolicy } from "./mcp-gateway.js";
 import { provision as defaultProvision, type ProvisionReport } from "./provision.js";
 import type { CraftApp } from "./registry.js";
 
@@ -32,7 +39,7 @@ export function mcpUsage(app: CraftApp, prog = "aiplus-office"): string {
        ${cmd} --register
 
 Runs the ${app.name} stdio MCP server confined to <dir> (default: the current
-directory) for both reads and writes. Register it in the project's
+directory) for both reads and writes${app.mcp.confinement === "gateway" ? ` (checked by ${prog}: ${app.name}'s own server has no confinement)` : ""}. Register it in the project's
 .mcp.json with --register (opt-in).${app.mcp.compactFlag ? `\n--compact lists only the helper tools (${app.mcp.tools} tools otherwise); every command stays reachable.` : ""}`
     : `usage: ${cmd} --allow-unconfined${compact}
        ${cmd} --register --allow-unconfined${compact}
@@ -107,6 +114,14 @@ export function parseMcpArgs(argv: string[]): ParsedArgs {
   return { kind: "run", root, allowUnconfined, compact };
 }
 
+function isDirectory(p: string): boolean {
+  try {
+    return fs.statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 function sameId(a: unknown, b: unknown): boolean {
   return a === b;
 }
@@ -148,10 +163,19 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
   }
 
   let spawnArgs: string[];
+  let gateway: Gateway | undefined;
   if (confined) {
     const root = path.resolve(deps.cwd(), parsed.root ?? ".");
     deps.stderr(`[${deps.prog}] mcp root: ${root}\n`);
-    spawnArgs = app.mcp.confinement === "root" ? ["mcp", "--root", root] : ["mcp", "--automation-read-root", root, "--automation-write-root", root];
+    if (app.mcp.confinement === "gateway") {
+      if (!isDirectory(root)) {
+        deps.stderr(`${deps.prog}: the mcp root ${root} is not an existing folder; refusing to start\n`);
+        return 1;
+      }
+      gateway = createGateway(app.name, root);
+      deps.stderr(`[${deps.prog}] ${app.name}: files confined by ${deps.prog} to ${root}\n`);
+      spawnArgs = ["mcp"];
+    } else spawnArgs = app.mcp.confinement === "root" ? ["mcp", "--root", root] : ["mcp", "--automation-read-root", root, "--automation-write-root", root];
   } else {
     deps.stderr(`[${deps.prog}] warning: ${app.name}'s MCP server is unconfined — it can read and write any path the user can\n`);
     spawnArgs = ["mcp"];
@@ -165,6 +189,9 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
     let eof = false;
     let exitOverride: number | undefined;
     const queue: { raw: string; id: unknown }[] = [];
+    /** Gateway only: client request id → method, for the responses the gateway rewrites. */
+    const rewrite = new Map<unknown, "initialize" | "tools/list">();
+    const toClient = (o: unknown) => deps.stdout.write(`${JSON.stringify(o)}\n`);
     const toChild = (line: string) => {
       if (child.stdin && !child.stdin.destroyed) child.stdin.write(`${line}\n`);
     };
@@ -216,8 +243,32 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
         return toChild(line);
       }
       const single = msg && !Array.isArray(msg) ? msg : undefined;
+      if (gateway && Array.isArray(msg)) {
+        // A JSON-RPC batch would carry tool calls past the gateway; MCP clients do not send them since 2025-06-18.
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+        return;
+      }
+      if (gateway && single) {
+        const policy = methodPolicy(single.method, single.id, single.params);
+        if (policy === "drop") return;
+        if (policy === "reject") {
+          toClient({ jsonrpc: "2.0", id: single.id, error: { code: -32601, message: `method not available through ${deps.prog}: ${String(single.method)}` } });
+          return;
+        }
+        if (single.id !== undefined && (single.method === "initialize" || single.method === "tools/list")) rewrite.set(single.id, single.method);
+      }
       if (single?.method === "tools/call" && single.id !== undefined) {
-        queue.push({ raw: line, id: single.id });
+        let raw = line;
+        if (gateway) {
+          const params = (single as { params?: { name?: unknown; arguments?: unknown } }).params ?? {};
+          const decision = gateway.check(params.name, params.arguments);
+          if (!decision.ok) {
+            toClient({ jsonrpc: "2.0", id: single.id, result: { content: [{ type: "text", text: decision.message }], isError: true } });
+            return;
+          }
+          raw = JSON.stringify({ ...single, params: { ...params, arguments: decision.arguments } });
+        }
+        queue.push({ raw, id: single.id });
         pump();
       } else if (
         single?.method === "notifications/cancelled" &&
@@ -242,7 +293,13 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
         deps.stderr(`${line}\n`);
         return;
       }
-      deps.stdout.write(`${line}\n`);
+      const pending = gateway && msg && !Array.isArray(msg) && msg.id !== undefined ? rewrite.get(msg.id) : undefined;
+      if (gateway && pending && msg && (msg as { method?: unknown }).method === undefined) {
+        rewrite.delete(msg.id);
+        const result = (msg as { result?: unknown }).result;
+        if (result !== undefined) toClient({ ...msg, result: pending === "tools/list" ? gateway.filterToolList(result) : gateway.annotateInitialize(result) });
+        else deps.stdout.write(`${line}\n`);
+      } else deps.stdout.write(`${line}\n`);
       if (hasInflight && msg && !Array.isArray(msg) && msg.id !== undefined && sameId(msg.id, inflight)) {
         hasInflight = false;
         inflight = undefined;

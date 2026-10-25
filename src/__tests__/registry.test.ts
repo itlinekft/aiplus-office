@@ -5,7 +5,8 @@ import { APP_IDS, binName, CRAFT_APPS, desktopName, envPrefix, getApp, hostKey, 
  * Upstream probe 0.4 (latest releases): which MCP servers advertise path confinement.
  * PdfCraft confines through a single `--root`; GridCraft and DeckCraft advertise none.
  */
-const CONFINED = ["wordcraft", "pdfcraft"];
+/** Every app is confined since change office-mcp-grid-deck: DeckCraft by its own roots, GridCraft by the gateway. */
+const CONFINED = ["wordcraft", "gridcraft", "deckcraft", "pdfcraft"];
 const LARGE = ["pdfcraft"];
 
 describe("registry", () => {
@@ -51,8 +52,8 @@ describe("registry", () => {
     expect(getApp("pdfcraft").mcp.bridgeFlag).toBeUndefined();
     expect(getApp("pdfcraft").mcp.confinement).toBe("root");
     expect(getApp("wordcraft").mcp.confinement).toBe("automation-roots");
-    expect(getApp("gridcraft").mcp.confinement).toBe(false);
-    expect(getApp("deckcraft").mcp.confinement).toBe(false);
+    expect(getApp("gridcraft").mcp.confinement).toBe("gateway");
+    expect(getApp("deckcraft").mcp.confinement).toBe("automation-roots");
   });
 
   it("the large app offers --compact; no small app does", () => {

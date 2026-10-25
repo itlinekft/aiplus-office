@@ -10,10 +10,14 @@ import { spawn, spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { GRID_TOOLS } from "../mcp-gateway.js";
 import { provision } from "../provision.js";
+import { getApp } from "../registry.js";
 import { runVerify } from "../verify.js";
 import { partText, readDocx, realisticDocx } from "./helpers/docx.js";
 import { cleanupTmp, tmpDir } from "./helpers/fixtures.js";
+import { mcpSession, text } from "./helpers/mcp-client.js";
+import { encodePng, scene } from "./helpers/png.js";
 import { OFFICE_CLI as CRAFT_CLI, REPO_ROOT, TSX } from "./helpers/paths.js";
 
 const enabled = !!process.env.AIPLUS_OFFICE_E2E;
@@ -81,14 +85,128 @@ describe.skipIf(!enabled)("real release binaries", () => {
     expect(r.stderr).toMatch(/files confined/);
   }, 300_000);
 
-  it("MCP through the proxy: an unconfined app (GridCraft) refuses, then lists tools with --allow-unconfined", async () => {
-    const cwd = tmpDir("craft-mcp-");
-    const refused = spawnSync(process.execPath, ["--import", TSX, CRAFT_CLI, "gridcraft", "mcp"], { cwd, encoding: "utf8", env: { ...process.env, NODE_OPTIONS: "", AIPLUS_OFFICE_HOME: home() } });
-    expect(refused.status).toBe(1);
-    expect(refused.stderr).toContain("--allow-unconfined");
-    const r = await mcpToolList(["gridcraft", "mcp", "--allow-unconfined"], cwd, { AIPLUS_OFFICE_HOME: home() });
-    expect(r.tools.length).toBeGreaterThan(10);
-    expect(r.stderr).toMatch(/unconfined/);
+  it("MCP: GridCraft through the gateway lists the 20 allowlisted tools, runs each once, saves in the root, refuses outside", async () => {
+    const root = fs.realpathSync(tmpDir("craft-grid-mcp-"));
+    const outside = fs.realpathSync(tmpDir("craft-grid-out-"));
+    await provision("gridcraft", { env: { AIPLUS_OFFICE_HOME: home() } });
+    const s = await mcpSession(["gridcraft", "mcp", "--root", root], outside, { AIPLUS_OFFICE_HOME: home() });
+    try {
+      expect(s.stderr()).toContain(`files confined by aiplus-office to ${root}`);
+      expect(s.init.instructions).toContain(`Files: only inside ${root}`);
+      expect(await s.listTools()).toEqual([...GRID_TOOLS]);
+      const ok = async (name: string, args: Record<string, unknown> = {}) => {
+        const r = await s.call(name, args);
+        expect(r.isError, `${name}: ${text(r)}`).toBeFalsy();
+        return text(r);
+      };
+      await ok("new_workbook");
+      await ok("write_range", { range: "A1", values: [["Termék", "Nettó (Ft)"], ["Tűzőgép", 12000], ["Hőpapír tekercs", 3500]] });
+      await ok("set_cell", { cell: "B4", input: "=SUM(B2:B3)" });
+      expect(await ok("get_cell", { cell: "B4" })).toContain("15500");
+      expect(await ok("evaluate_formula", { formula: "=B4*0.27" })).toContain("4185");
+      expect(await ok("read_range", { range: "A1:B4" })).toContain("Tűzőgép");
+      await ok("select", { range: "A1" });
+      await ok("format_range", { range: "A1:B1", bold: true });
+      await ok("insert_chart", { range: "A1:B3", type: "column", title: "Nettó" });
+      await ok("create_table", { range: "A1:B3" });
+      await ok("sort_range", { range: "A1:B3", keys: [{ column: "B", order: "desc" }], header: true });
+      await ok("filter", { range: "A1:B3", column: "A", values: ["Tűzőgép", "Hőpapír tekercs"] });
+      await ok("undo");
+      await ok("redo");
+      expect(await ok("list_commands", { search: "bold" })).toContain("home.bold");
+      expect(await ok("list_functions", { search: "SUM" })).toContain("SUM");
+      expect(await ok("inspect_workbook")).toContain("Sheet1");
+      await ok("save_workbook", { path: "arlista.xlsx" });
+      expect(fs.existsSync(path.join(root, "arlista.xlsx"))).toBe(true);
+      await ok("execute_command", { command: "file.exportPdf", params: { path: "arlista.pdf" } });
+      expect(fs.existsSync(path.join(root, "arlista.pdf"))).toBe(true);
+      await ok("open_workbook", { path: "arlista.xlsx" });
+      // refusals: none of these reach GridCraft, nothing appears outside the root
+      for (const [name, args] of [
+        ["save_workbook", { path: path.join(outside, "x.xlsx") }],
+        ["save_workbook", { path: "../x.xlsx" }],
+        ["execute_command", { command: "file.saveAs", params: { path: path.join(outside, "y.xlsx") } }],
+        ["execute_command", { command: "link.open", params: { url: "https://example.com" } }],
+        ["screenshot", { path: "x.png" }],
+      ] as const) {
+        const r = await s.call(name, args as Record<string, unknown>);
+        expect(r.isError, name).toBe(true);
+        expect(text(r)).toContain(" English: ");
+      }
+      expect(fs.readdirSync(outside)).toEqual([]);
+    } finally {
+      await s.close();
+    }
+  }, 300_000);
+
+  it("MCP: DeckCraft confined by its own roots lists 25 tools, every tool answers once, saves in the root, refuses outside", async () => {
+    const root = fs.realpathSync(tmpDir("craft-deck-mcp-"));
+    const outside = fs.realpathSync(tmpDir("craft-deck-out-"));
+    fs.writeFileSync(path.join(root, "logo.png"), encodePng(scene(32, 32, [200, 30, 30])));
+    await provision("deckcraft", { env: { AIPLUS_OFFICE_HOME: home() } });
+    const s = await mcpSession(["deckcraft", "mcp", "--root", root], outside, { AIPLUS_OFFICE_HOME: home() });
+    try {
+      expect(s.stderr()).toMatch(/files confined/);
+      const tools = await s.listTools();
+      expect(tools).toHaveLength(getApp("deckcraft").mcp.tools);
+      const called = new Set<string>();
+      const call = async (name: string, args: Record<string, unknown> = {}) => {
+        called.add(name);
+        return s.call(name, args);
+      };
+      const ok = async (name: string, args: Record<string, unknown> = {}) => {
+        const r = await call(name, args);
+        expect(r.isError, `${name}: ${text(r)}`).toBeFalsy();
+        return text(r);
+      };
+      await ok("new_presentation", { theme: "Paper" });
+      await ok("add_slide", { layout: "titleAndContent", title: "Negyedéves áttekintés", body: "Árbevétel: +12%\nÚj ügyfelek: 18" });
+      await ok("go_to_slide", { index: 1 });
+      const box = JSON.parse(await ok("add_text_box", { x: 60, y: 440, w: 400, text: "Minta Kereskedelmi Kft." })) as { id: number };
+      await ok("set_text", { id: box.id, text: "Minta Kereskedelmi Kft. · 2026" });
+      await ok("select", { ids: [box.id] });
+      await ok("add_shape", { preset: "roundRect", x: 600, y: 60, w: 200, h: 80, text: "Tűzőgép" });
+      await ok("insert_table", { rows: 2, cols: 2, data: [["Termék", "Ár"], ["Hőpapír", "3 500 Ft"]] });
+      await ok("insert_chart", { type: "column", categories: ["Tűzőgép", "Hőpapír"], series: [{ name: "Nettó", values: [12000, 3500] }], title: "Fizetendő" });
+      await ok("insert_picture", { path: path.join(root, "logo.png"), x: 860, y: 460, w: 60, h: 60 });
+      await ok("run_command", { command: "slide.new", params: { layout: "title", title: "Köszönöm" } });
+      await ok("batch", { commands: [{ command: "slide.new", params: { layout: "titleOnly", title: "Kérdések" } }] });
+      expect(await ok("inspect_document")).toContain("Negyedéves áttekintés");
+      await ok("inspect_slide", { index: 1 });
+      await ok("render_slide", { slide: 1, scale: 0.25 });
+      expect(await ok("list_commands", { filter: "slide.new" })).toContain("slide.new");
+      await ok("save_presentation", { path: path.join(root, "prezentacio.pptx") });
+      await ok("export", { format: "pdf", path: path.join(root, "prezentacio.pdf") });
+      await ok("open_presentation", { path: path.join(root, "prezentacio.pptx") });
+      expect(fs.existsSync(path.join(root, "prezentacio.pptx"))).toBe(true);
+      expect(fs.existsSync(path.join(root, "prezentacio.pdf"))).toBe(true);
+      // interactive and window-only tools: each answers (an error is fine for the window-only ones), none hangs
+      for (const [name, args] of [
+        ["select_tool", { tool: "select" }],
+        ["pointer", { events: [{ type: "move", x: 10, y: 10 }] }],
+        ["key", { key: "Escape" }],
+        ["type_text", { text: "x" }],
+        ["screenshot", {}],
+        ["call_app", { method: "ui.inspect" }],
+      ] as const) {
+        const r = await call(name, args as Record<string, unknown>);
+        expect(r, name).toBeDefined();
+      }
+      expect([...called].sort()).toEqual([...tools].sort());
+      // confinement by DeckCraft itself
+      for (const [name, args] of [
+        ["save_presentation", { path: path.join(outside, "x.pptx") }],
+        ["export", { format: "pdf", path: path.join(outside, "x.pdf") }],
+        ["run_command", { command: "file.saveAs", params: { path: path.join(outside, "y.pptx") } }],
+      ] as const) {
+        const r = await s.call(name, args as Record<string, unknown>);
+        expect(r.isError, name).toBe(true);
+        expect(text(r)).toMatch(/outside the write root/);
+      }
+      expect(fs.readdirSync(outside)).toEqual([]);
+    } finally {
+      await s.close();
+    }
   }, 300_000);
 
   it("MCP through the proxy: PdfCraft --compact lists far fewer tools than its 175 and is root-confined", async () => {

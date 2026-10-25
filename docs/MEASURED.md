@@ -104,6 +104,60 @@ runs under `bash -e` and ends with a passing `aiplus-office verify`). Two recipe
 a GridCraft PDF cut a long name and printed a date as `#####` without `home.autofitColumnWidth`; a `--text-contains
 "730 885 Ft"` failed because the value wrapped at the line end in WordCraft's PDF.
 
+## 2026-10-25: GridCraft and DeckCraft MCP, measured again (change office-mcp-grid-deck)
+
+**Machine:** the Linux box of the first entry (Ubuntu 22.04, x86_64), Node.js v25.6.1. **Read with:** `gh api
+repos/storytold/<app>/releases/latest`, `gh release view -R storytold/<app>`, then the binaries themselves.
+
+| App | Latest release (published) | `mcp` options |
+|---|---|---|
+| GridCraft | v0.12.1 (2026-10-25 13:27 UTC) | `gridcraft-cli mcp [--connect PORT] [--in FILE \| --sample NAME]`: **no confinement** |
+| DeckCraft | v0.11.1 (2026-10-25 13:36 UTC) | `deckcraft-cli mcp [--connect PORT] [--sample] [--automation-read-root DIR] [--automation-write-root DIR]` |
+| WordCraft | v0.11.0 (2026-10-25 13:30 UTC) | (unchanged route) |
+| PdfCraft | v0.14.0 (2026-10-25 13:56 UTC) | (unchanged route) |
+
+Neither release note mentions MCP. The registry row `deckcraft: confinement false` was **stale**: DeckCraft 0.10.0 (the
+version measured on 2026-10-24) already prints the same two root options in `deckcraft-cli mcp --help`.
+
+### DeckCraft confinement, 0.10.0 and 0.11.1: PASS
+
+`deckcraft-cli mcp --automation-read-root R --automation-write-root R`, stderr „files confined: read root R, write root
+R”, 25 tools. Driven over stdio with a small client: `save_presentation` and `export` (pdf) inside R succeed;
+`save_presentation` / `export` / `run_command file.saveAs` / a `batch` step to a path outside R, `open_presentation
+/etc/passwd`, `insert_picture` from `/usr/share/…`, `R/../x.pptx`, `R/link/x.pptx` (link → `/tmp`) and a relative
+`rel.pptx` are all refused: „automation path rejected: outside the write root R: …”, `isError: true`, no file made.
+A missing R stops the server at start („cannot open the automation read root”).
+
+### GridCraft: 21 tools, 353 commands, no confinement
+
+`tools/list`: `execute_command`, `list_commands`, `inspect_workbook`, `read_range`, `write_range`, `set_cell`, `get_cell`,
+`evaluate_formula`, `select`, `format_range`, `insert_chart`, `create_table`, `sort_range`, `filter`, `open_workbook`,
+`save_workbook`, `new_workbook`, `undo`, `redo`, `screenshot` (desktop app only), `list_functions`. Resources:
+`gridcraft://workbook`, `gridcraft://commands`, `gridcraft://functions`; `resources/read file:///etc/hostname` →
+„resource not found”. `commands --json`: 353 commands; those that take a file or URL: `file.open`, `file.save`,
+`file.saveAs`, `file.exportCsv`, `file.exportHtml`, `file.exportPdf`, `file.print`, `insert.picture`,
+`data.fromTextCsv`, `data.getData`, `pageLayout.background` (`path`), `link.open` (`url`), `automate.runScript`.
+`source`, `target`, `destination`, `output` are cell ranges. `=WEBSERVICE(…)` → `#VALUE!` („not available”); an external
+reference `='/etc/[passwd]Sheet1'!A1` → `#REF!`.
+
+### The gateway (`aiplus-office gridcraft mcp --root R`, this change): PASS
+
+Through `node dist/aiplus-office.mjs gridcraft mcp --root R` on GridCraft 0.12.1: `new_workbook`, `write_range` with
+„Tűzőgép”, `save_workbook arlista.xlsx` → `R/arlista.xlsx` (4157 bytes); `open_workbook arlista.xlsx`, `read_range` back
+(„Tűzőgép”, 12000, the SUM 12000); `execute_command file.exportPdf {path: arlista.pdf}` → `R/arlista.pdf`, 1 page.
+Refused by the gateway, nothing written outside R: `save_workbook` to an absolute outside path, to `../x`, through
+`R/link` (→ `/tmp`); `open_workbook /etc/hostname`; `screenshot`; `execute_command link.open`; `file.saveAs` outside;
+`data.getData /etc/passwd`.
+
+### Tests
+
+`AIPLUS_OFFICE_E2E=1 AIPLUS_OFFICE_E2E_HOME=~/.cache/aiplus-office npx vitest run real-apps -t MCP`: 4/4, among them
+GridCraft through the gateway (the 20 tools each called once, the file in R, five refusals, R's sibling folder empty)
+and DeckCraft (25 tools each called once; `screenshot`, `call_app`, `pointer`, `key`, `type_text`, `select_tool`
+answer without hanging; three outside writes refused by DeckCraft).
+
+**Not measured:** Windows, macOS; the two new connectors in Claude Desktop (plain Chat or a „This computer” session).
+
 ## 2026-10-25 — 0.1.3: the Windows test PC's results, and what changed (change office-windows-local)
 
 ### Measured on Windows by the test PC (driven with desktape, 2026-10-24 21:46–21:53)
