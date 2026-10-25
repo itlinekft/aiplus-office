@@ -44,10 +44,31 @@ aiplus-office doc prepare <in.md> --out <dir>   # fill a DOCX company template f
 The apps are **early alpha** and are released almost daily. They read and write real DOCX/XLSX/PPTX/PDF, but not every
 feature of a Word, Excel or PowerPoint file survives a round trip (no VBA macros; complex formatting may change). So:
 
-- Work on a **copy** when the user hands you an existing file; never overwrite their original.
+- Work on a **copy** when the user hands you an existing file; never overwrite their original. The same holds for every
+  file already in the folder, a result you made earlier in the session included: a change writes a **new file** with a
+  telling name (for example `… – jelszóval.pdf`), unless the user asks to replace it.
 - A file meant for a customer (árajánlat, szerződés, díjbekérő) is **checked before it is sent**: `aiplus-office verify`
   passes **and** you rendered one page to PNG and looked at it. Tell the user it was produced with alpha software.
 - Never claim the result is identical to what Word, Excel or PowerPoint would produce.
+
+## When the module cannot run: stop and say so
+
+If the command line above or an app command fails because **Node.js is missing**, the **app is missing or cannot be
+downloaded**, the **AI+ Iroda connector is not running**, or the session **runs in the cloud** (Linux paths, a download
+GitHub refuses, the user's files reached only through a device share):
+
+1. **Stop.** Do not make the requested file another way: no generic docx/xlsx/pptx/pdf library, no other skill, no
+   hand-written file, under the module's name.
+2. **Say why, in plain words, Hungarian first, then English.** For example:
+   > **HU:** Az AI+ Iroda most nem tud elindulni ezen a gépen: <ok, például „nincs telepítve a Node.js” / „ez a munkamenet a
+   > felhőben fut”>. Megmutatom, mi kell hozzá.
+   >
+   > **EN:** AI+ Iroda cannot start on this computer right now: <reason>. I'll show you what it needs.
+3. **Continue with `office-start`**: it checks Node.js and the apps and says what to do (a cloud session: Claude Desktop ›
+   Code › environment „This computer”).
+
+Only if the user then plainly asks for the file to be made another way may you do it, and the answer says it was **not**
+made with AI+ Iroda.
 
 ## Which app for which job
 
@@ -88,6 +109,10 @@ aiplus-office verify dia-1.png --size 1920x1080
 Exit `0` all pass · `1` a failure (expected vs actual is printed) · `2` usage · `3` a probe tool is missing (PdfCraft for
 PDFs; `ffprobe` for image sizes). **A step is not done until verify exits 0.** An XLSX, DOCX or PPTX is verified through
 its PDF export.
+
+Check with the module's own tools only: `aiplus-office verify`, and the apps' `exec eval` / `exec check` (for a sheet's
+totals `aiplus-office gridcraft exec eval "=E8" --in <file>`). **Never `python`** or another interpreter: an office
+computer usually has none, and Windows answers `python` with a Store stub that fails the step.
 
 ```bash recipe: router-roundtrip
 # Smallest pass of the loop: discover, execute, save, export, verify.

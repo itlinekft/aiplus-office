@@ -15,6 +15,9 @@ Every shell call starts with the command line from `office-router`:
 command -v aiplus-office >/dev/null || aiplus-office() { node "${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs" "$@"; }
 ```
 
+If this line or an app command fails (Node.js or the app missing, the connector not running, a cloud session), follow
+`office-router` „When the module cannot run”: stop, say why, go to `office-start`; never make the file another way.
+
 ## What it is for / formats
 
 PDF in, PDF / PNG (`.png .jpg .tif .pam`) / text out: page operations (combine, split, extract, rotate, delete, move,
@@ -73,6 +76,8 @@ Families: `doc_*` (open/save/combine/split/info/set_info/protect), `page_*`, `te
 - Page numbers are 1-based; a page that does not exist is an error.
 - `render` at `--dpi 72` gives one pixel per point (A4 → 596×842 px); the default is 96 dpi.
 - `edit --rotate` does not show in `info`; prove it by rendering (width and height swap).
+- **A changed PDF is a new file** (`… – jelszóval.pdf`, `… – 2 oldal.pdf`): never save over the input or an earlier
+  result unless the user asks to replace it.
 - **Passwords never go on the command line or into a file in the project**: write the script to a `0600` temp file
   outside the project and delete it right after (recipe `protect`).
 

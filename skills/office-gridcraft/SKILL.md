@@ -15,6 +15,9 @@ Every shell call starts with the command line from `office-router`:
 command -v aiplus-office >/dev/null || aiplus-office() { node "${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs" "$@"; }
 ```
 
+If this line or an app command fails (Node.js or the app missing, the connector not running, a cloud session), follow
+`office-router` „When the module cannot run”: stop, say why, go to `office-start`; never make the file another way.
+
 ## What it is for / formats
 
 Create and edit workbooks (cells, formulas, formats, tables, charts, sheets), evaluate formulas, recalculate, convert,

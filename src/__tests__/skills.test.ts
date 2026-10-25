@@ -351,3 +351,50 @@ describe("no residue and no banned claims", () => {
     }
   });
 });
+
+describe("honest fallback (change office-honest-fallback)", () => {
+  const router = loadSkill("office-router");
+  const APP_SKILLS = ["office-wordcraft", "office-gridcraft", "office-deckcraft", "office-pdfcraft"];
+
+  it("the router says to stop, say why in both languages and go to office-start when the module cannot run", () => {
+    expect(router.body).toContain("## When the module cannot run: stop and say so");
+    expect(router.body).toMatch(/Do not make the requested file another way/);
+    expect(router.body).toMatch(/\*\*HU:\*\* Az AI\+ Iroda most nem tud elindulni/);
+    expect(router.body).toMatch(/\*\*EN:\*\* AI\+ Iroda cannot start/);
+    expect(router.body).toMatch(/Continue with `office-start`/);
+    expect(router.body).toMatch(/\*\*not\*\*\s+made with AI\+ Iroda/);
+  });
+
+  for (const name of APP_SKILLS) {
+    it(`${name}: points to the router's section right after the command line`, () => {
+      const body = loadSkill(name).body;
+      const at = body.indexOf(COMMAND_LINE);
+      expect(at).toBeGreaterThan(-1);
+      expect(body.slice(at, at + 600)).toContain("„When the module cannot run”");
+    });
+  }
+
+  it("no skill runs python; the router names the module's own checks", () => {
+    for (const name of ALL_SKILL_NAMES) {
+      const code = fences(loadSkill(name).body).map((f) => f.code).join("\n");
+      expect(/\bpython3?\b/.test(code), name).toBe(false);
+    }
+    expect(router.body).toMatch(/\*\*Never `python`\*\*/);
+    expect(router.body).toMatch(/gridcraft exec eval/);
+  });
+
+  it("an earlier result is never overwritten: a change writes a new file", () => {
+    expect(router.body).toMatch(/a result you made earlier in the session included/);
+    expect(router.body).toMatch(/\*\*new file\*\*/);
+    expect(loadSkill("office-pdfcraft").body).toMatch(/A changed PDF is a new file/);
+  });
+
+  it("office-start finds Node.js installed but not seen, and explains the cached Reconnect, in both languages", () => {
+    const s = loadSkill(START_SKILL_NAME).body;
+    expect(s).toContain('"/c/Program Files/nodejs/node.exe"');
+    expect(s).toMatch(/\*\*HU:\*\* A Node\.js már telepítve van, de a Claude még előtte indult/);
+    expect(s).toMatch(/\*\*EN:\*\* Node\.js is installed, but Claude started before it/);
+    expect(s).toMatch(/\*\*HU:\*\* A Claude 15 percig megjegyzi/);
+    expect(s).toMatch(/\*\*EN:\*\* Claude remembers a connector that failed to start for 15 minutes/);
+  });
+});

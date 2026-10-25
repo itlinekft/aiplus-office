@@ -43,6 +43,29 @@ node --version
 > **EN:** The module needs a free helper program, **Node.js** (version 20 or newer). Download it from the official site,
 > https://nodejs.org, the “LTS” version. After installing it, restart Claude and ask again: “how do I start?”
 
+**Installed, but Claude does not see it.** When `node --version` fails, look at Node.js's usual places first:
+
+```bash
+ls "/c/Program Files/nodejs/node.exe" /opt/homebrew/bin/node /usr/local/bin/node 2>/dev/null
+```
+
+If one is there, Node.js is installed and Claude started before it, so it still runs with the old settings:
+
+> **HU:** A Node.js már telepítve van, de a Claude még előtte indult, ezért nem látja. Lépj ki teljesen a Claude-ból (a
+> tálcán vagy a menüsoron lévő ikonjánál is), indítsd újra, és kérdezd újra: „hogyan kezdjem?”
+>
+> **EN:** Node.js is installed, but Claude started before it, so it does not see it. Quit Claude fully (also from its
+> icon in the tray or the menu bar), start it again and ask again: “how do I start?”
+
+**After the restart the connectors still say „Reconnect”.** Claude remembers a connector that failed for 15 minutes,
+even across a restart. Do not wait:
+
+> **HU:** A Claude 15 percig megjegyzi, ha egy kapcsoló nem indult el. Kattints a „Reconnect” gombra mindegyik AI+ Iroda
+> kapcsolónál (a munkamenet jobb oldali „Connectors” részében, vagy a Customize alatt), és már mehet is.
+>
+> **EN:** Claude remembers a connector that failed to start for 15 minutes. Click “Reconnect” on each AI+ Iroda
+> connector (in the session's “Connectors” panel on the right, or under Customize), and you can go on.
+
 Stop here until Node.js is there: nothing else of the plugin runs without it.
 
 ## 3. What is installed: `status`
