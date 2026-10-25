@@ -10481,7 +10481,7 @@ ${VERIFY_USAGE}
 }
 
 // src/bin/aiplus-office.ts
-var VERSION = "0.1.7";
+var VERSION = "0.1.8";
 var NODE_MIN_MAJOR = 20;
 function nodeLine(version) {
   const major = Number(/^v?(\d+)/.exec(version)?.[1]);

@@ -1,6 +1,15 @@
-# aiplus-office
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/aiplus-office-dark-256.png">
+    <img src="brand/aiplus-office-256.png" width="160" height="160" alt="AI+ Iroda">
+  </picture>
+</p>
 
-A Claude plugin of the ITLine AI+ line, shown to users as „Ingyenes irodai AI+ modul” (id `aiplus-office`, block code
+# AI+ Iroda (aiplus-office)
+
+**AI+ Iroda** · ITLine AI+ · ingyenes · MIT
+
+A Claude plugin of the ITLine AI+ line, shown to users as „AI+ Iroda”, free (id `aiplus-office`, block code
 `office`). It lets Claude create and edit **DOCX, XLSX, PPTX and PDF** files with the free, open-source ArtCraft apps: 
 **WordCraft, GridCraft, DeckCraft and PdfCraft**: driven headless through their command-line tools, with a mechanical
 check of every file it produces and worked Hungarian office workflows (árajánlat, árlista, prezentáció).

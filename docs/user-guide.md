@@ -1,10 +1,10 @@
-# aiplus-office: felhasználói útmutató · user guide
+# AI+ Iroda: felhasználói útmutató · user guide
 
 ## Magyarul
 
 ### Mi ez?
 
-Az aiplus-office ingyenes AI+ modul a Claude-hoz. A Claude vele Word, Excel, PowerPoint és PDF formátumú fájlokat
+Az AI+ Iroda (aiplus-office) ingyenes AI+ modul a Claude-hoz. A Claude vele Word, Excel, PowerPoint és PDF formátumú fájlokat
 készít és szerkeszt, négy ingyenes, nyílt forrású programmal: WordCraft (Word), GridCraft (Excel), DeckCraft
 (PowerPoint) és PdfCraft (PDF). Magyar irodai mintákat is kap: árajánlat, árlista, prezentáció. Minden kész fájlt
 gépi ellenőrzés néz át, mielőtt a Claude odaadja.
@@ -104,7 +104,7 @@ Ha valami nem működik, nézd meg a [hibaelhárítási leírást](https://githu
 
 ### What it is
 
-aiplus-office is a free AI+ module for Claude. With it, Claude creates and edits files in Word, Excel, PowerPoint and
+AI+ Iroda (aiplus-office) is a free AI+ module for Claude. With it, Claude creates and edits files in Word, Excel, PowerPoint and
 PDF formats, using four free, open-source programs: WordCraft (Word), GridCraft (Excel), DeckCraft (PowerPoint) and
 PdfCraft (PDF). It also gets Hungarian office examples: an offer, a price list, a presentation. Every finished file is
 checked mechanically before Claude hands it over.

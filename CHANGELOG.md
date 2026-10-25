@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 — 2026-10-25
+
+- Shown name „AI+ Iroda” (ITLine's naming rule: every AI+ modul is „AI+ <name>” with an `aiplus-` id, free or
+  licensed; the id stays `aiplus-office`). The description, both READMEs (with the module mark), the user guide and the
+  troubleshooting guide say so.
+
 ## 0.1.7 — 2026-10-25
 
 - A user guide (`docs/user-guide.md`, shipped as `USER-GUIDE.md`) from install to the first Hungarian office job, and a
