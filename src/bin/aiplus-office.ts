@@ -211,6 +211,7 @@ export async function main(argv: string[], partial: Partial<CliDeps> = {}): Prom
           stdout: deps.stdout,
           stderr: deps.stderr,
           usage: usage(),
+          version: VERSION,
           register: { launcher: defaultLauncherPath(), entryArgs: [app.id, "mcp"] },
         });
         if (code !== undefined) return code;

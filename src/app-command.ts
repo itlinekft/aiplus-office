@@ -35,6 +35,8 @@ export interface AppCommandContext {
   stdout: (text: string) => void;
   stderr: (text: string) => void;
   usage: string;
+  /** The plugin version (the MCP proxy reports it while the app downloads). */
+  version?: string;
   /** Script + arguments the `--register` entry runs; default the bundle with `[<app>, "mcp"]`. */
   register?: { launcher: string; entryArgs: string[] };
 }
@@ -79,7 +81,7 @@ export async function runAppCommand(app: CraftApp, command: string, rest: string
           ...(ctx.register ? { launcher: ctx.register.launcher, entryArgs: ctx.register.entryArgs } : {}),
         });
       }
-      return runMcp(app, rest, { prog: ctx.prog, provision: ctx.provision, stderr: ctx.stderr });
+      return runMcp(app, rest, { prog: ctx.prog, provision: ctx.provision, stderr: ctx.stderr, ...(ctx.version ? { serverVersion: ctx.version } : {}) });
     }
     default:
       return undefined;

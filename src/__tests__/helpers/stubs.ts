@@ -56,7 +56,8 @@ export function readLog(file: string): { t: number; ev: string; key?: string; id
 /**
  * Fake `gridcraft-cli mcp` for the gateway tests (change office-mcp-grid-deck). Lists the 21 upstream tool names
  * (with `screenshot`), answers every request at once, echoes a `tools/call`'s name and arguments back as its text, and
- * logs each received message to $STUB_LOG.
+ * logs each received message to $STUB_LOG. $STUB_INIT_DELAY (ms) delays its `initialize` answer, a slow first start
+ * (change office-mcp-lazy-start).
  */
 export const GRID_MCP_STUB = `
 const fs = require("node:fs");
@@ -69,7 +70,7 @@ readline.createInterface({ input: process.stdin }).on("line", (line) => {
   const m = JSON.parse(line);
   log(m);
   if (m.id === undefined) return;
-  if (m.method === "initialize") send({ id: m.id, result: { protocolVersion: "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "gridcraft" }, instructions: "GridCraft is a spreadsheet app." } });
+  if (m.method === "initialize") setTimeout(() => send({ id: m.id, result: { protocolVersion: "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "gridcraft" }, instructions: "GridCraft is a spreadsheet app." } }), Number(process.env.STUB_INIT_DELAY || 0));
   else if (m.method === "tools/list") send({ id: m.id, result: { tools: TOOLS.map((name) => ({ name, inputSchema: { type: "object" } })) } });
   else if (m.method === "tools/call") send({ id: m.id, result: { content: [{ type: "text", text: JSON.stringify(m.params) }], isError: false } });
   else send({ id: m.id, result: {} });

@@ -8259,6 +8259,7 @@ ${app2.name}'s MCP server has no path confinement: it can read and write any
 path the user can. Start or register it only with --allow-unconfined.`;
 }
 var CANCEL_GRACE_MS = 5e3;
+var INIT_GRACE_MS = 2e3;
 function defaultMcpDeps(app2) {
   return {
     prog: "aiplus-office",
@@ -8271,7 +8272,9 @@ function defaultMcpDeps(app2) {
     onSignal: (signal, handler) => {
       process.on(signal, handler);
     },
-    cancelGraceMs: CANCEL_GRACE_MS
+    cancelGraceMs: CANCEL_GRACE_MS,
+    initGraceMs: INIT_GRACE_MS,
+    serverVersion: "0.0.0"
   };
 }
 function parseMcpArgs(argv) {
@@ -8345,14 +8348,6 @@ ${usage2}
 `);
     return 1;
   }
-  let bin;
-  try {
-    bin = (await deps.provision({ preferInstalled: true })).binary;
-  } catch (e) {
-    deps.stderr(`${deps.prog}: ${e.message}
-`);
-    return 69;
-  }
   let spawnArgs;
   let gateway;
   if (confined) {
@@ -8376,139 +8371,358 @@ ${usage2}
     spawnArgs = ["mcp"];
   }
   if (parsed.compact && app2.mcp.compactFlag) spawnArgs.push(app2.mcp.compactFlag);
-  const child = deps.spawn(bin, spawnArgs, { stdio: ["pipe", "pipe", "inherit"] });
-  return new Promise((resolve6) => {
-    let inflight2;
-    let hasInflight = false;
-    let eof = false;
-    let exitOverride;
-    const queue = [];
-    const rewrite = /* @__PURE__ */ new Map();
+  return new Promise((resolveRun) => {
+    let finished = false;
+    const finish = (code) => {
+      if (finished) return;
+      finished = true;
+      resolveRun(code);
+    };
     const toClient = (o) => deps.stdout.write(`${JSON.stringify(o)}
 `);
-    const toChild = (line) => {
-      if (child.stdin && !child.stdin.destroyed) child.stdin.write(`${line}
+    const log = (text) => deps.stderr(`[${deps.prog}] ${app2.id}: ${text}
 `);
+    let state = { kind: "pending" };
+    const buffered = [];
+    let eof = false;
+    let local = false;
+    let wentLocal = false;
+    let clientInit;
+    let initForwarded = false;
+    let initAnswered = false;
+    let gate;
+    let graceTimer;
+    let exitOverride;
+    let child;
+    let server;
+    const startedAt = Date.now();
+    const seconds = () => Math.round((Date.now() - startedAt) / 1e3);
+    const statusTool = `${app2.id}_status`;
+    const failedText = (message) => refusalText(
+      `A(z) ${app2.name} let\xF6lt\xE9se nem siker\xFClt, ez\xE9rt ez az eszk\xF6z most nem fut. \xDAj munkamenetben \xFAjra megpr\xF3b\xE1lom. A hiba: ${message}`,
+      `downloading ${app2.name} failed, so this tool cannot run now; a new session tries again. The error: ${message}`
+    );
+    const statusText = () => {
+      if (state.kind === "failed") return failedText(state.message);
+      if (!local && server) {
+        return refusalText(
+          `A(z) ${app2.name} k\xE9sz, az eszk\xF6zei el\xE9rhet\u0151k. Ha nem l\xE1tszanak, ind\xEDts \xFAj munkamenetet.`,
+          `${app2.name} is ready and its tools are available. If they do not show, start a new session.`
+        );
+      }
+      if (state.kind === "ready") {
+        return refusalText(`A(z) ${app2.name} indul (${seconds()} m\xE1sodperce), p\xE1r perc m\xFAlva pr\xF3b\xE1ld \xFAjra.`, `${app2.name} is starting (for ${seconds()} s); try again in a few minutes.`);
+      }
+      return refusalText(
+        `A(z) ${app2.name} let\xF6lt\xE9se folyamatban (${seconds()} m\xE1sodperce), p\xE1r perc m\xFAlva pr\xF3b\xE1ld \xFAjra.`,
+        `${app2.name} is being downloaded (for ${seconds()} s); try again in a few minutes.`
+      );
     };
-    const maybeClose = () => {
-      if (eof && !hasInflight && queue.length === 0 && child.stdin && !child.stdin.destroyed) child.stdin.end();
+    const notReadyText = () => state.kind === "failed" ? failedText(state.message) : state.kind === "ready" ? refusalText(`A(z) ${app2.name} indul, p\xE1r perc m\xFAlva pr\xF3b\xE1ld \xFAjra.`, `${app2.name} is starting; try again in a few minutes.`) : refusalText(`A(z) ${app2.name} let\xF6lt\xE9se folyamatban, p\xE1r perc m\xFAlva pr\xF3b\xE1ld \xFAjra.`, `${app2.name} is being downloaded; try again in a few minutes.`);
+    const initializeResult = (params) => {
+      const requested = params?.protocolVersion;
+      const protocolVersion = typeof requested === "string" && PROTOCOL_VERSIONS.includes(requested) ? requested : PROTOCOL_VERSIONS[PROTOCOL_VERSIONS.length - 1];
+      const instructions = state.kind === "failed" ? failedText(state.message) : refusalText(
+        `A(z) ${app2.name} program let\xF6lt\xE9se vagy els\u0151 ind\xEDt\xE1sa folyamatban. Am\xEDg tart, az eszk\xF6zei nem futnak; a ${statusTool} eszk\xF6z megmutatja az \xE1llapotot. Ha k\xE9sz, az eszk\xF6z\xF6k megjelennek.`,
+        `${app2.name} is being downloaded or started for the first time. Until it is ready its tools cannot run; ${statusTool} reports the state. When it is ready the tools appear.`
+      );
+      const result2 = { protocolVersion, capabilities: { tools: { listChanged: true } }, serverInfo: { name: `${deps.prog}-${app2.id}`, version: deps.serverVersion }, instructions };
+      return gateway ? gateway.annotateInitialize(result2) : result2;
     };
-    const pump = () => {
-      if (hasInflight) return;
-      const next = queue.shift();
-      if (!next) return maybeClose();
-      hasInflight = true;
-      inflight2 = next.id;
-      toChild(next.raw);
+    const statusToolDef = {
+      name: statusTool,
+      description: refusalText(`A(z) ${app2.name} let\xF6lt\xE9s\xE9nek \xE9s ind\xEDt\xE1s\xE1nak \xE1llapota.`, `the state of the ${app2.name} download and start.`),
+      inputSchema: { type: "object", properties: {} }
     };
-    child.stdin?.on("error", () => {
-    });
-    let cancelTimer;
-    const onCancelled = (requestId, line) => {
-      const queued = queue.findIndex((q) => sameId(q.id, requestId));
-      if (queued >= 0) {
-        queue.splice(queued, 1);
+    const textResult = (text, isError) => ({ content: [{ type: "text", text }], isError });
+    const localLine = (line) => {
+      let msg;
+      try {
+        msg = JSON.parse(line);
+      } catch {
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } });
         return;
       }
-      toChild(line);
-      if (hasInflight && sameId(inflight2, requestId)) {
-        clearTimeout(cancelTimer);
-        cancelTimer = setTimeout(() => {
-          if (!hasInflight || !sameId(inflight2, requestId)) return;
+      if (Array.isArray(msg) || msg === null || typeof msg !== "object") {
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+        return;
+      }
+      const { method, id, params } = msg;
+      if (typeof method !== "string" || id === void 0) return;
+      const reply = (result2) => toClient({ jsonrpc: "2.0", id, result: result2 });
+      switch (method) {
+        case "initialize":
+          if (!clientInit) clientInit = { id, params };
+          initAnswered = true;
+          return reply(initializeResult(params));
+        case "ping":
+          return reply({});
+        case "tools/list":
+          return reply({ tools: [statusToolDef] });
+        case "tools/call": {
+          const name = params?.name;
+          if (name === statusTool) return reply(textResult(statusText(), state.kind === "failed"));
+          return reply(textResult(notReadyText(), true));
+        }
+        case "resources/list":
+          return reply({ resources: [] });
+        case "resources/templates/list":
+          return reply({ resourceTemplates: [] });
+        case "prompts/list":
+          return reply({ prompts: [] });
+        default:
+          toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: `method not available while ${app2.name} is not ready: ${method}` } });
+      }
+    };
+    const goLocal = (why) => {
+      clearTimeout(graceTimer);
+      if (local || initAnswered || finished) return;
+      local = true;
+      wentLocal = true;
+      log(`${why}; answering from ${deps.prog} until it is ready`);
+      if (clientInit && initForwarded) {
+        initAnswered = true;
+        toClient({ jsonrpc: "2.0", id: clientInit.id, result: initializeResult(clientInit.params) });
+      }
+      for (const line of buffered.splice(0)) localLine(line);
+    };
+    let serverEofSent = false;
+    const drain = () => {
+      while (server && !local && gate === void 0 && buffered.length > 0) {
+        const line = buffered.shift();
+        const init = initRequest(line);
+        if (init && !initForwarded) {
+          initForwarded = true;
+          gate = init.id;
+        }
+        server.line(line);
+      }
+      if (eof && server && !local && gate === void 0 && buffered.length === 0 && !serverEofSent) {
+        serverEofSent = true;
+        server.eof();
+      }
+    };
+    const startServer = (bin, handshake) => {
+      const c = deps.spawn(bin, spawnArgs, { stdio: ["pipe", "pipe", "inherit"] });
+      child = c;
+      let inflight2;
+      let hasInflight = false;
+      let passEof = false;
+      const queue = [];
+      const rewrite = /* @__PURE__ */ new Map();
+      const toChild = (line) => {
+        if (c.stdin && !c.stdin.destroyed) c.stdin.write(`${line}
+`);
+      };
+      const maybeClose = () => {
+        if (passEof && !hasInflight && queue.length === 0 && c.stdin && !c.stdin.destroyed) c.stdin.end();
+      };
+      const pump = () => {
+        if (hasInflight) return;
+        const next = queue.shift();
+        if (!next) return maybeClose();
+        hasInflight = true;
+        inflight2 = next.id;
+        toChild(next.raw);
+      };
+      c.stdin?.on("error", () => {
+      });
+      let cancelTimer;
+      const onCancelled = (requestId, line) => {
+        const queued = queue.findIndex((q) => sameId(q.id, requestId));
+        if (queued >= 0) {
+          queue.splice(queued, 1);
+          return;
+        }
+        toChild(line);
+        if (hasInflight && sameId(inflight2, requestId)) {
+          clearTimeout(cancelTimer);
+          cancelTimer = setTimeout(() => {
+            if (!hasInflight || !sameId(inflight2, requestId)) return;
+            hasInflight = false;
+            inflight2 = void 0;
+            pump();
+          }, deps.cancelGraceMs);
+          cancelTimer.unref();
+        }
+      };
+      const passLine = (line) => {
+        let msg;
+        try {
+          msg = JSON.parse(line);
+        } catch {
+          return toChild(line);
+        }
+        const single = msg && !Array.isArray(msg) ? msg : void 0;
+        if (gateway && Array.isArray(msg)) {
+          toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+          return;
+        }
+        if (wentLocal && single?.method === "tools/call" && single.id !== void 0 && single.params?.name === statusTool) {
+          toClient({ jsonrpc: "2.0", id: single.id, result: textResult(statusText(), false) });
+          return;
+        }
+        if (gateway && single) {
+          const policy = methodPolicy(single.method, single.id, single.params);
+          if (policy === "drop") return;
+          if (policy === "reject") {
+            toClient({ jsonrpc: "2.0", id: single.id, error: { code: -32601, message: `method not available through ${deps.prog}: ${String(single.method)}` } });
+            return;
+          }
+          if (single.id !== void 0 && (single.method === "initialize" || single.method === "tools/list")) rewrite.set(single.id, single.method);
+        }
+        if (single?.method === "tools/call" && single.id !== void 0) {
+          let raw = line;
+          if (gateway) {
+            const params = single.params ?? {};
+            const decision = gateway.check(params.name, params.arguments);
+            if (!decision.ok) {
+              toClient({ jsonrpc: "2.0", id: single.id, result: { content: [{ type: "text", text: decision.message }], isError: true } });
+              return;
+            }
+            raw = JSON.stringify({ ...single, params: { ...params, arguments: decision.arguments } });
+          }
+          queue.push({ raw, id: single.id });
+          pump();
+        } else if (single?.method === "notifications/cancelled" && single.jsonrpc === "2.0" && single.id === void 0 && // a notification carries no id; anything else passes through untouched
+        single.params?.requestId !== void 0) {
+          onCancelled(single.params.requestId, line);
+        } else toChild(line);
+      };
+      server = {
+        line: passLine,
+        eof: () => {
+          passEof = true;
+          maybeClose();
+        }
+      };
+      const serverRl = readline.createInterface({ input: c.stdout });
+      serverRl.on("line", (line) => {
+        let msg;
+        try {
+          msg = JSON.parse(line);
+        } catch {
+          deps.stderr(`${line}
+`);
+          return;
+        }
+        const isResponse = !!msg && !Array.isArray(msg) && msg.id !== void 0 && msg.method === void 0;
+        const answersGate = gate !== void 0 && isResponse && sameId(msg?.id, gate);
+        if (answersGate && local) {
+          gate = void 0;
+          rewrite.delete(msg?.id);
+          const error = msg.error;
+          if (error) log(`the server refused initialize (${String(error.message)}); passing through anyway`);
+          toChild(JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }));
+          local = false;
+          toClient({ jsonrpc: "2.0", method: "notifications/tools/list_changed" });
+          log(`ready after ${seconds()} s; tools/list_changed sent`);
+          drain();
+          return;
+        }
+        if (answersGate) {
+          gate = void 0;
+          initAnswered = true;
+          clearTimeout(graceTimer);
+        }
+        const pending = gateway && isResponse ? rewrite.get(msg?.id) : void 0;
+        if (gateway && pending && msg) {
+          rewrite.delete(msg.id);
+          const result2 = msg.result;
+          if (result2 !== void 0) toClient({ ...msg, result: pending === "tools/list" ? gateway.filterToolList(result2) : gateway.annotateInitialize(result2) });
+          else deps.stdout.write(`${line}
+`);
+        } else deps.stdout.write(`${line}
+`);
+        if (hasInflight && msg && !Array.isArray(msg) && msg.id !== void 0 && sameId(msg.id, inflight2)) {
           hasInflight = false;
           inflight2 = void 0;
           pump();
-        }, deps.cancelGraceMs);
-        cancelTimer.unref();
-      }
+        }
+        if (answersGate) drain();
+      });
+      c.on("error", (e) => {
+        deps.stderr(`${deps.prog}: failed to start ${app2.cli}: ${e.message}
+`);
+        finish(1);
+      });
+      c.on("exit", (code, signal) => {
+        clearTimeout(cancelTimer);
+        clearTimeout(graceTimer);
+        clientRl.close();
+        setImmediate(() => finish(exitOverride ?? (signal ? 1 : code ?? 1)));
+      });
+      if (handshake) {
+        initForwarded = true;
+        gate = HANDSHAKE_ID;
+        toChild(JSON.stringify({ jsonrpc: "2.0", id: HANDSHAKE_ID, method: "initialize", params: clientInit?.params ?? DEFAULT_INIT_PARAMS }));
+      } else drain();
     };
     const clientRl = readline.createInterface({ input: deps.stdin });
     clientRl.on("line", (line) => {
       if (line.trim() === "") return;
-      let msg;
-      try {
-        msg = JSON.parse(line);
-      } catch {
-        return toChild(line);
+      if (local) return localLine(line);
+      const init = initRequest(line);
+      if (init && !clientInit) {
+        clientInit = init;
+        graceTimer = setTimeout(() => goLocal(`not ready ${deps.initGraceMs} ms after the client's initialize`), deps.initGraceMs);
+        graceTimer.unref();
       }
-      const single = msg && !Array.isArray(msg) ? msg : void 0;
-      if (gateway && Array.isArray(msg)) {
-        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
-        return;
-      }
-      if (gateway && single) {
-        const policy = methodPolicy(single.method, single.id, single.params);
-        if (policy === "drop") return;
-        if (policy === "reject") {
-          toClient({ jsonrpc: "2.0", id: single.id, error: { code: -32601, message: `method not available through ${deps.prog}: ${String(single.method)}` } });
-          return;
-        }
-        if (single.id !== void 0 && (single.method === "initialize" || single.method === "tools/list")) rewrite.set(single.id, single.method);
-      }
-      if (single?.method === "tools/call" && single.id !== void 0) {
-        let raw = line;
-        if (gateway) {
-          const params = single.params ?? {};
-          const decision = gateway.check(params.name, params.arguments);
-          if (!decision.ok) {
-            toClient({ jsonrpc: "2.0", id: single.id, result: { content: [{ type: "text", text: decision.message }], isError: true } });
-            return;
-          }
-          raw = JSON.stringify({ ...single, params: { ...params, arguments: decision.arguments } });
-        }
-        queue.push({ raw, id: single.id });
-        pump();
-      } else if (single?.method === "notifications/cancelled" && single.jsonrpc === "2.0" && single.id === void 0 && // a notification carries no id; anything else passes through untouched
-      single.params?.requestId !== void 0) {
-        onCancelled(single.params.requestId, line);
-      } else toChild(line);
+      buffered.push(line);
+      drain();
     });
     clientRl.on("close", () => {
       eof = true;
-      maybeClose();
+      if (local) {
+        if (state.kind === "failed") finish(69);
+        else if (state.kind === "pending") log("the client closed the connection; finishing the download before exit");
+        else if (child && child.stdin && !child.stdin.destroyed) child.stdin.end();
+      } else drain();
     });
-    const serverRl = readline.createInterface({ input: child.stdout });
-    serverRl.on("line", (line) => {
-      let msg;
-      try {
-        msg = JSON.parse(line);
-      } catch {
-        deps.stderr(`${line}
+    deps.onSignal("SIGINT", () => {
+      exitOverride = 130;
+      if (child) child.kill();
+      else finish(130);
+    });
+    deps.onSignal("SIGTERM", () => {
+      exitOverride = 143;
+      if (child) child.kill();
+      else finish(143);
+    });
+    deps.provision({ preferInstalled: true }).then(
+      (report) => {
+        state = { kind: "ready" };
+        if (finished) return;
+        if (!local) return startServer(report.binary, false);
+        if (eof) {
+          log("provisioned; the client is gone, so the server is not started");
+          return finish(0);
+        }
+        log(`provisioned after ${seconds()} s; starting the server`);
+        startServer(report.binary, true);
+      },
+      (e) => {
+        const message = e?.message ?? String(e);
+        state = { kind: "failed", message };
+        deps.stderr(`${deps.prog}: ${message}
 `);
-        return;
+        if (finished) return;
+        goLocal("provisioning failed");
+        if (eof) finish(69);
       }
-      const pending = gateway && msg && !Array.isArray(msg) && msg.id !== void 0 ? rewrite.get(msg.id) : void 0;
-      if (gateway && pending && msg && msg.method === void 0) {
-        rewrite.delete(msg.id);
-        const result2 = msg.result;
-        if (result2 !== void 0) toClient({ ...msg, result: pending === "tools/list" ? gateway.filterToolList(result2) : gateway.annotateInitialize(result2) });
-        else deps.stdout.write(`${line}
-`);
-      } else deps.stdout.write(`${line}
-`);
-      if (hasInflight && msg && !Array.isArray(msg) && msg.id !== void 0 && sameId(msg.id, inflight2)) {
-        hasInflight = false;
-        inflight2 = void 0;
-        pump();
-      }
-    });
-    const onSignal = (code) => () => {
-      exitOverride = code;
-      child.kill();
-    };
-    deps.onSignal("SIGINT", onSignal(130));
-    deps.onSignal("SIGTERM", onSignal(143));
-    child.on("error", (e) => {
-      deps.stderr(`${deps.prog}: failed to start ${app2.cli}: ${e.message}
-`);
-      resolve6(1);
-    });
-    child.on("exit", (code, signal) => {
-      clearTimeout(cancelTimer);
-      clientRl.close();
-      setImmediate(() => resolve6(exitOverride ?? (signal ? 1 : code ?? 1)));
-    });
+    );
   });
+}
+var PROTOCOL_VERSIONS = ["2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25"];
+var HANDSHAKE_ID = "aiplus-office-lazy-start-initialize";
+var DEFAULT_INIT_PARAMS = { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "aiplus-office", version: "0" } };
+function initRequest(line) {
+  try {
+    const m = JSON.parse(line);
+    return m && !Array.isArray(m) && m.method === "initialize" && m.id !== void 0 ? { id: m.id, params: m.params } : void 0;
+  } catch {
+    return void 0;
+  }
 }
 
 // src/mcp-register.ts
@@ -8672,7 +8886,7 @@ ${ctx.usage}
           ...ctx.register ? { launcher: ctx.register.launcher, entryArgs: ctx.register.entryArgs } : {}
         });
       }
-      return runMcp(app2, rest, { prog: ctx.prog, provision: ctx.provision, stderr: ctx.stderr });
+      return runMcp(app2, rest, { prog: ctx.prog, provision: ctx.provision, stderr: ctx.stderr, ...ctx.version ? { serverVersion: ctx.version } : {} });
     }
     default:
       return void 0;
@@ -11016,6 +11230,7 @@ async function main(argv, partial = {}) {
           stdout: deps.stdout,
           stderr: deps.stderr,
           usage: usage(),
+          version: VERSION,
           register: { launcher: defaultLauncherPath(), entryArgs: [app2.id, "mcp"] }
         });
         if (code !== void 0) return code;

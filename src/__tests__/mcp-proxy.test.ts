@@ -83,7 +83,7 @@ describe("root translation + option handling", () => {
     expect(parseMcpArgs(["-h"]).kind).toBe("help");
   });
 
-  it("X10 provisioning failure: nothing on stdout, error on stderr, exit 69", async () => {
+  it("X10 provisioning failure with a client that sent nothing: nothing on stdout, error on stderr, exit 69 once stdin closes", async () => {
     const f = fakeSpawn();
     const h = harness({
       provision: async () => {
@@ -91,6 +91,7 @@ describe("root translation + option handling", () => {
       },
       spawn: f.spawn as never,
     });
+    h.stdin.end(); // the proxy keeps answering until the client goes (change office-mcp-lazy-start)
     expect(await runPhoto([], h.deps)).toBe(69);
     expect(h.out()).toBe("");
     expect(h.err()).toContain("no network");
