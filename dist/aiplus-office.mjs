@@ -33,9 +33,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/yaml/dist/nodes/identity.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/identity.js
 var require_identity = __commonJS({
-  "node_modules/yaml/dist/nodes/identity.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/identity.js"(exports) {
     "use strict";
     var ALIAS = Symbol.for("yaml.alias");
     var DOC = Symbol.for("yaml.document");
@@ -90,9 +90,9 @@ var require_identity = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/visit.js
+// ../aiplus-office/node_modules/yaml/dist/visit.js
 var require_visit = __commonJS({
-  "node_modules/yaml/dist/visit.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/visit.js"(exports) {
     "use strict";
     var identity = require_identity();
     var BREAK = Symbol("break visit");
@@ -110,17 +110,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path8) {
-      const ctrl = callVisitor(key, node, visitor, path8);
+    function visit_(key, node, visitor, path9) {
+      const ctrl = callVisitor(key, node, visitor, path9);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path8, ctrl);
-        return visit_(key, ctrl, visitor, path8);
+        replaceNode(key, path9, ctrl);
+        return visit_(key, ctrl, visitor, path9);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path8 = Object.freeze(path8.concat(node));
+          path9 = Object.freeze(path9.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path8);
+            const ci = visit_(i, node.items[i], visitor, path9);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -131,13 +131,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path8 = Object.freeze(path8.concat(node));
-          const ck = visit_("key", node.key, visitor, path8);
+          path9 = Object.freeze(path9.concat(node));
+          const ck = visit_("key", node.key, visitor, path9);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path8);
+          const cv = visit_("value", node.value, visitor, path9);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -158,17 +158,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path8) {
-      const ctrl = await callVisitor(key, node, visitor, path8);
+    async function visitAsync_(key, node, visitor, path9) {
+      const ctrl = await callVisitor(key, node, visitor, path9);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path8, ctrl);
-        return visitAsync_(key, ctrl, visitor, path8);
+        replaceNode(key, path9, ctrl);
+        return visitAsync_(key, ctrl, visitor, path9);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path8 = Object.freeze(path8.concat(node));
+          path9 = Object.freeze(path9.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path8);
+            const ci = await visitAsync_(i, node.items[i], visitor, path9);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -179,13 +179,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path8 = Object.freeze(path8.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path8);
+          path9 = Object.freeze(path9.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path9);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path8);
+          const cv = await visitAsync_("value", node.value, visitor, path9);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -212,23 +212,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path8) {
+    function callVisitor(key, node, visitor, path9) {
       if (typeof visitor === "function")
-        return visitor(key, node, path8);
+        return visitor(key, node, path9);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path8);
+        return visitor.Map?.(key, node, path9);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path8);
+        return visitor.Seq?.(key, node, path9);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path8);
+        return visitor.Pair?.(key, node, path9);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path8);
+        return visitor.Scalar?.(key, node, path9);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path8);
+        return visitor.Alias?.(key, node, path9);
       return void 0;
     }
-    function replaceNode(key, path8, node) {
-      const parent = path8[path8.length - 1];
+    function replaceNode(key, path9, node) {
+      const parent = path9[path9.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -248,9 +248,9 @@ var require_visit = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/directives.js
+// ../aiplus-office/node_modules/yaml/dist/doc/directives.js
 var require_directives = __commonJS({
-  "node_modules/yaml/dist/doc/directives.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/doc/directives.js"(exports) {
     "use strict";
     var identity = require_identity();
     var visit = require_visit();
@@ -419,9 +419,9 @@ var require_directives = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/anchors.js
+// ../aiplus-office/node_modules/yaml/dist/doc/anchors.js
 var require_anchors = __commonJS({
-  "node_modules/yaml/dist/doc/anchors.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/doc/anchors.js"(exports) {
     "use strict";
     var identity = require_identity();
     var visit = require_visit();
@@ -489,9 +489,9 @@ var require_anchors = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/applyReviver.js
+// ../aiplus-office/node_modules/yaml/dist/doc/applyReviver.js
 var require_applyReviver = __commonJS({
-  "node_modules/yaml/dist/doc/applyReviver.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/doc/applyReviver.js"(exports) {
     "use strict";
     function applyReviver(reviver, obj, key, val) {
       if (val && typeof val === "object") {
@@ -539,9 +539,9 @@ var require_applyReviver = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/toJS.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/toJS.js
 var require_toJS = __commonJS({
-  "node_modules/yaml/dist/nodes/toJS.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/toJS.js"(exports) {
     "use strict";
     var identity = require_identity();
     function toJS(value, arg, ctx) {
@@ -569,9 +569,9 @@ var require_toJS = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Node.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/Node.js
 var require_Node = __commonJS({
-  "node_modules/yaml/dist/nodes/Node.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/Node.js"(exports) {
     "use strict";
     var applyReviver = require_applyReviver();
     var identity = require_identity();
@@ -610,9 +610,9 @@ var require_Node = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Alias.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/Alias.js
 var require_Alias = __commonJS({
-  "node_modules/yaml/dist/nodes/Alias.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/Alias.js"(exports) {
     "use strict";
     var anchors = require_anchors();
     var visit = require_visit();
@@ -728,9 +728,9 @@ var require_Alias = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Scalar.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/Scalar.js
 var require_Scalar = __commonJS({
-  "node_modules/yaml/dist/nodes/Scalar.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/Scalar.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Node = require_Node();
@@ -758,9 +758,9 @@ var require_Scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/createNode.js
+// ../aiplus-office/node_modules/yaml/dist/doc/createNode.js
 var require_createNode = __commonJS({
-  "node_modules/yaml/dist/doc/createNode.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/doc/createNode.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var identity = require_identity();
@@ -833,17 +833,17 @@ var require_createNode = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Collection.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/Collection.js
 var require_Collection = __commonJS({
-  "node_modules/yaml/dist/nodes/Collection.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/Collection.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path8, value) {
+    function collectionFromPath(schema, path9, value) {
       let v = value;
-      for (let i = path8.length - 1; i >= 0; --i) {
-        const k = path8[i];
+      for (let i = path9.length - 1; i >= 0; --i) {
+        const k = path9[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -862,7 +862,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path8) => path8 == null || typeof path8 === "object" && !!path8[Symbol.iterator]().next().done;
+    var isEmptyPath = (path9) => path9 == null || typeof path9 === "object" && !!path9[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -892,11 +892,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path8, value) {
-        if (isEmptyPath(path8))
+      addIn(path9, value) {
+        if (isEmptyPath(path9))
           this.add(value);
         else {
-          const [key, ...rest] = path8;
+          const [key, ...rest] = path9;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -910,8 +910,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path8) {
-        const [key, ...rest] = path8;
+      deleteIn(path9) {
+        const [key, ...rest] = path9;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -925,8 +925,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path8, keepScalar) {
-        const [key, ...rest] = path8;
+      getIn(path9, keepScalar) {
+        const [key, ...rest] = path9;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -944,8 +944,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path8) {
-        const [key, ...rest] = path8;
+      hasIn(path9) {
+        const [key, ...rest] = path9;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -955,8 +955,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path8, value) {
-        const [key, ...rest] = path8;
+      setIn(path9, value) {
+        const [key, ...rest] = path9;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -976,9 +976,9 @@ var require_Collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyComment.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyComment.js
 var require_stringifyComment = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyComment.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyComment.js"(exports) {
     "use strict";
     var stringifyComment = (str) => str.replace(/^(?!$)(?: $)?/gm, "#");
     function indentComment(comment, indent) {
@@ -993,9 +993,9 @@ var require_stringifyComment = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/foldFlowLines.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/foldFlowLines.js
 var require_foldFlowLines = __commonJS({
-  "node_modules/yaml/dist/stringify/foldFlowLines.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/foldFlowLines.js"(exports) {
     "use strict";
     var FOLD_FLOW = "flow";
     var FOLD_BLOCK = "block";
@@ -1129,9 +1129,9 @@ ${indent}${text.slice(fold + 1, end2)}`;
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyString.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyString.js
 var require_stringifyString = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyString.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyString.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var foldFlowLines = require_foldFlowLines();
@@ -1412,9 +1412,9 @@ ${indent}`);
   }
 });
 
-// node_modules/yaml/dist/stringify/stringify.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringify.js
 var require_stringify = __commonJS({
-  "node_modules/yaml/dist/stringify/stringify.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringify.js"(exports) {
     "use strict";
     var anchors = require_anchors();
     var identity = require_identity();
@@ -1536,9 +1536,9 @@ ${ctx.indent}${str}`;
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyPair.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyPair.js
 var require_stringifyPair = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyPair.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyPair.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -1669,9 +1669,9 @@ ${ctx.indent}`;
   }
 });
 
-// node_modules/yaml/dist/log.js
+// ../aiplus-office/node_modules/yaml/dist/log.js
 var require_log = __commonJS({
-  "node_modules/yaml/dist/log.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/log.js"(exports) {
     "use strict";
     var node_process = __require("process");
     function debug(logLevel, ...messages) {
@@ -1691,9 +1691,9 @@ var require_log = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/merge.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/merge.js
 var require_merge = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/merge.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/merge.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -1751,9 +1751,9 @@ var require_merge = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/addPairToJSMap.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/addPairToJSMap.js
 var require_addPairToJSMap = __commonJS({
-  "node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports) {
     "use strict";
     var log = require_log();
     var merge = require_merge();
@@ -1815,9 +1815,9 @@ var require_addPairToJSMap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Pair.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/Pair.js
 var require_Pair = __commonJS({
-  "node_modules/yaml/dist/nodes/Pair.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/Pair.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var stringifyPair = require_stringifyPair();
@@ -1855,9 +1855,9 @@ var require_Pair = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyCollection.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyCollection.js
 var require_stringifyCollection = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyCollection.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyCollection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var stringify = require_stringify();
@@ -2006,9 +2006,9 @@ ${indent}${end}`;
   }
 });
 
-// node_modules/yaml/dist/nodes/YAMLMap.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/YAMLMap.js
 var require_YAMLMap = __commonJS({
-  "node_modules/yaml/dist/nodes/YAMLMap.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/YAMLMap.js"(exports) {
     "use strict";
     var stringifyCollection = require_stringifyCollection();
     var addPairToJSMap = require_addPairToJSMap();
@@ -2150,9 +2150,9 @@ var require_YAMLMap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/map.js
+// ../aiplus-office/node_modules/yaml/dist/schema/common/map.js
 var require_map = __commonJS({
-  "node_modules/yaml/dist/schema/common/map.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/common/map.js"(exports) {
     "use strict";
     var identity = require_identity();
     var YAMLMap = require_YAMLMap();
@@ -2172,9 +2172,9 @@ var require_map = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/YAMLSeq.js
+// ../aiplus-office/node_modules/yaml/dist/nodes/YAMLSeq.js
 var require_YAMLSeq = __commonJS({
-  "node_modules/yaml/dist/nodes/YAMLSeq.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/nodes/YAMLSeq.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var stringifyCollection = require_stringifyCollection();
@@ -2288,9 +2288,9 @@ var require_YAMLSeq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/seq.js
+// ../aiplus-office/node_modules/yaml/dist/schema/common/seq.js
 var require_seq = __commonJS({
-  "node_modules/yaml/dist/schema/common/seq.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/common/seq.js"(exports) {
     "use strict";
     var identity = require_identity();
     var YAMLSeq = require_YAMLSeq();
@@ -2310,9 +2310,9 @@ var require_seq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/string.js
+// ../aiplus-office/node_modules/yaml/dist/schema/common/string.js
 var require_string = __commonJS({
-  "node_modules/yaml/dist/schema/common/string.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/common/string.js"(exports) {
     "use strict";
     var stringifyString = require_stringifyString();
     var string = {
@@ -2329,9 +2329,9 @@ var require_string = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/null.js
+// ../aiplus-office/node_modules/yaml/dist/schema/common/null.js
 var require_null = __commonJS({
-  "node_modules/yaml/dist/schema/common/null.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/common/null.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var nullTag = {
@@ -2347,9 +2347,9 @@ var require_null = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/bool.js
+// ../aiplus-office/node_modules/yaml/dist/schema/core/bool.js
 var require_bool = __commonJS({
-  "node_modules/yaml/dist/schema/core/bool.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/core/bool.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var boolTag = {
@@ -2371,9 +2371,9 @@ var require_bool = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyNumber.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyNumber.js
 var require_stringifyNumber = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyNumber.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyNumber.js"(exports) {
     "use strict";
     function stringifyNumber({ format, minFractionDigits, tag, value }) {
       if (typeof value === "bigint")
@@ -2398,9 +2398,9 @@ var require_stringifyNumber = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/float.js
+// ../aiplus-office/node_modules/yaml/dist/schema/core/float.js
 var require_float = __commonJS({
-  "node_modules/yaml/dist/schema/core/float.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/core/float.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var stringifyNumber = require_stringifyNumber();
@@ -2444,9 +2444,9 @@ var require_float = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/int.js
+// ../aiplus-office/node_modules/yaml/dist/schema/core/int.js
 var require_int = __commonJS({
-  "node_modules/yaml/dist/schema/core/int.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/core/int.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
     var intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
@@ -2489,9 +2489,9 @@ var require_int = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/schema.js
+// ../aiplus-office/node_modules/yaml/dist/schema/core/schema.js
 var require_schema = __commonJS({
-  "node_modules/yaml/dist/schema/core/schema.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/core/schema.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -2517,9 +2517,9 @@ var require_schema = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/json/schema.js
+// ../aiplus-office/node_modules/yaml/dist/schema/json/schema.js
 var require_schema2 = __commonJS({
-  "node_modules/yaml/dist/schema/json/schema.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/json/schema.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var map = require_map();
@@ -2584,9 +2584,9 @@ var require_schema2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/binary.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/binary.js
 var require_binary = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/binary.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/binary.js"(exports) {
     "use strict";
     var node_buffer = __require("buffer");
     var Scalar = require_Scalar();
@@ -2650,9 +2650,9 @@ var require_binary = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/pairs.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/pairs.js
 var require_pairs = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/pairs.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/pairs.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -2728,9 +2728,9 @@ ${cn.comment}` : item.comment;
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/omap.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/omap.js
 var require_omap = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/omap.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/omap.js"(exports) {
     "use strict";
     var identity = require_identity();
     var toJS = require_toJS();
@@ -2806,9 +2806,9 @@ var require_omap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/bool.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/bool.js
 var require_bool2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/bool.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/bool.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     function boolStringify({ value, source }, ctx) {
@@ -2838,9 +2838,9 @@ var require_bool2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/float.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/float.js
 var require_float2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/float.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/float.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var stringifyNumber = require_stringifyNumber();
@@ -2887,9 +2887,9 @@ var require_float2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/int.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/int.js
 var require_int2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/int.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/int.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
     var intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
@@ -2966,9 +2966,9 @@ var require_int2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/set.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/set.js
 var require_set = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/set.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/set.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -3055,9 +3055,9 @@ var require_set = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
 var require_timestamp = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/timestamp.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
     function parseSexagesimal(str, asBigInt) {
@@ -3143,9 +3143,9 @@ var require_timestamp = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/schema.js
+// ../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/schema.js
 var require_schema3 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/schema.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/yaml-1.1/schema.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -3187,9 +3187,9 @@ var require_schema3 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/tags.js
+// ../aiplus-office/node_modules/yaml/dist/schema/tags.js
 var require_tags = __commonJS({
-  "node_modules/yaml/dist/schema/tags.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/tags.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -3281,9 +3281,9 @@ var require_tags = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/Schema.js
+// ../aiplus-office/node_modules/yaml/dist/schema/Schema.js
 var require_Schema = __commonJS({
-  "node_modules/yaml/dist/schema/Schema.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/schema/Schema.js"(exports) {
     "use strict";
     var identity = require_identity();
     var map = require_map();
@@ -3313,9 +3313,9 @@ var require_Schema = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyDocument.js
+// ../aiplus-office/node_modules/yaml/dist/stringify/stringifyDocument.js
 var require_stringifyDocument = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyDocument.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/stringify/stringifyDocument.js"(exports) {
     "use strict";
     var identity = require_identity();
     var stringify = require_stringify();
@@ -3393,9 +3393,9 @@ var require_stringifyDocument = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/Document.js
+// ../aiplus-office/node_modules/yaml/dist/doc/Document.js
 var require_Document = __commonJS({
-  "node_modules/yaml/dist/doc/Document.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/doc/Document.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var Collection = require_Collection();
@@ -3471,9 +3471,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path8, value) {
+      addIn(path9, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path8, value);
+          this.contents.addIn(path9, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3548,14 +3548,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path8) {
-        if (Collection.isEmptyPath(path8)) {
+      deleteIn(path9) {
+        if (Collection.isEmptyPath(path9)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path8) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path9) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3570,10 +3570,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path8, keepScalar) {
-        if (Collection.isEmptyPath(path8))
+      getIn(path9, keepScalar) {
+        if (Collection.isEmptyPath(path9))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path8, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path9, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3584,10 +3584,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path8) {
-        if (Collection.isEmptyPath(path8))
+      hasIn(path9) {
+        if (Collection.isEmptyPath(path9))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path8) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path9) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3604,13 +3604,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path8, value) {
-        if (Collection.isEmptyPath(path8)) {
+      setIn(path9, value) {
+        if (Collection.isEmptyPath(path9)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path8), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path9), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path8, value);
+          this.contents.setIn(path9, value);
         }
       }
       /**
@@ -3702,9 +3702,9 @@ var require_Document = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/errors.js
+// ../aiplus-office/node_modules/yaml/dist/errors.js
 var require_errors = __commonJS({
-  "node_modules/yaml/dist/errors.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/errors.js"(exports) {
     "use strict";
     var YAMLError = class extends Error {
       constructor(name, pos, code, message) {
@@ -3767,9 +3767,9 @@ ${pointer}
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-props.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-props.js
 var require_resolve_props = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-props.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-props.js"(exports) {
     "use strict";
     function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIndent, startOnNewline }) {
       let spaceBefore = false;
@@ -3901,9 +3901,9 @@ var require_resolve_props = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-contains-newline.js
+// ../aiplus-office/node_modules/yaml/dist/compose/util-contains-newline.js
 var require_util_contains_newline = __commonJS({
-  "node_modules/yaml/dist/compose/util-contains-newline.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/util-contains-newline.js"(exports) {
     "use strict";
     function containsNewline(key) {
       if (!key)
@@ -3943,9 +3943,9 @@ var require_util_contains_newline = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-flow-indent-check.js
+// ../aiplus-office/node_modules/yaml/dist/compose/util-flow-indent-check.js
 var require_util_flow_indent_check = __commonJS({
-  "node_modules/yaml/dist/compose/util-flow-indent-check.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/util-flow-indent-check.js"(exports) {
     "use strict";
     var utilContainsNewline = require_util_contains_newline();
     function flowIndentCheck(indent, fc, onError) {
@@ -3961,9 +3961,9 @@ var require_util_flow_indent_check = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-map-includes.js
+// ../aiplus-office/node_modules/yaml/dist/compose/util-map-includes.js
 var require_util_map_includes = __commonJS({
-  "node_modules/yaml/dist/compose/util-map-includes.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/util-map-includes.js"(exports) {
     "use strict";
     var identity = require_identity();
     function mapIncludes(ctx, items, search) {
@@ -3977,9 +3977,9 @@ var require_util_map_includes = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-map.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-block-map.js
 var require_resolve_block_map = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-map.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-block-map.js"(exports) {
     "use strict";
     var Pair = require_Pair();
     var YAMLMap = require_YAMLMap();
@@ -3996,10 +3996,10 @@ var require_resolve_block_map = __commonJS({
       let offset = bm.offset;
       let commentEnd = null;
       for (const collItem of bm.items) {
-        const { start, key, sep, value } = collItem;
+        const { start, key, sep: sep2, value } = collItem;
         const keyProps = resolveProps.resolveProps(start, {
           indicator: "explicit-key-ind",
-          next: key ?? sep?.[0],
+          next: key ?? sep2?.[0],
           offset,
           onError,
           parentIndent: bm.indent,
@@ -4013,7 +4013,7 @@ var require_resolve_block_map = __commonJS({
             else if ("indent" in key && key.indent !== bm.indent)
               onError(offset, "BAD_INDENT", startColMsg);
           }
-          if (!keyProps.anchor && !keyProps.tag && !sep) {
+          if (!keyProps.anchor && !keyProps.tag && !sep2) {
             commentEnd = keyProps.end;
             if (keyProps.comment) {
               if (map.comment)
@@ -4037,7 +4037,7 @@ var require_resolve_block_map = __commonJS({
         ctx.atKey = false;
         if (utilMapIncludes.mapIncludes(ctx, map.items, keyNode))
           onError(keyStart, "DUPLICATE_KEY", "Map keys must be unique");
-        const valueProps = resolveProps.resolveProps(sep ?? [], {
+        const valueProps = resolveProps.resolveProps(sep2 ?? [], {
           indicator: "map-value-ind",
           next: value,
           offset: keyNode.range[2],
@@ -4053,7 +4053,7 @@ var require_resolve_block_map = __commonJS({
             if (ctx.options.strict && keyProps.start < valueProps.found.offset - 1024)
               onError(keyNode.range, "KEY_OVER_1024_CHARS", "The : indicator must be at most 1024 chars after the start of an implicit block mapping key");
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep, null, valueProps, onError);
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep2, null, valueProps, onError);
           if (ctx.schema.compat)
             utilFlowIndentCheck.flowIndentCheck(bm.indent, value, onError);
           offset = valueNode.range[2];
@@ -4085,9 +4085,9 @@ var require_resolve_block_map = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-seq.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-block-seq.js
 var require_resolve_block_seq = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-seq.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-block-seq.js"(exports) {
     "use strict";
     var YAMLSeq = require_YAMLSeq();
     var resolveProps = require_resolve_props();
@@ -4136,15 +4136,15 @@ var require_resolve_block_seq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-end.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-end.js
 var require_resolve_end = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-end.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-end.js"(exports) {
     "use strict";
     function resolveEnd(end, offset, reqSpace, onError) {
       let comment = "";
       if (end) {
         let hasSpace = false;
-        let sep = "";
+        let sep2 = "";
         for (const token of end) {
           const { source, type } = token;
           switch (type) {
@@ -4158,13 +4158,13 @@ var require_resolve_end = __commonJS({
               if (!comment)
                 comment = cb;
               else
-                comment += sep + cb;
-              sep = "";
+                comment += sep2 + cb;
+              sep2 = "";
               break;
             }
             case "newline":
               if (comment)
-                sep += source;
+                sep2 += source;
               hasSpace = true;
               break;
             default:
@@ -4179,9 +4179,9 @@ var require_resolve_end = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-flow-collection.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-flow-collection.js
 var require_resolve_flow_collection = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-flow-collection.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-flow-collection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -4207,18 +4207,18 @@ var require_resolve_flow_collection = __commonJS({
       let offset = fc.offset + fc.start.source.length;
       for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
-        const { start, key, sep, value } = collItem;
+        const { start, key, sep: sep2, value } = collItem;
         const props = resolveProps.resolveProps(start, {
           flow: fcName,
           indicator: "explicit-key-ind",
-          next: key ?? sep?.[0],
+          next: key ?? sep2?.[0],
           offset,
           onError,
           parentIndent: fc.indent,
           startOnNewline: false
         });
         if (!props.found) {
-          if (!props.anchor && !props.tag && !sep && !value) {
+          if (!props.anchor && !props.tag && !sep2 && !value) {
             if (i === 0 && props.comma)
               onError(props.comma, "UNEXPECTED_TOKEN", `Unexpected , in ${fcName}`);
             else if (i < fc.items.length - 1)
@@ -4272,8 +4272,8 @@ var require_resolve_flow_collection = __commonJS({
             }
           }
         }
-        if (!isMap && !sep && !props.found) {
-          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep, null, props, onError);
+        if (!isMap && !sep2 && !props.found) {
+          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep2, null, props, onError);
           coll.items.push(valueNode);
           offset = valueNode.range[2];
           if (isBlock(value))
@@ -4285,7 +4285,7 @@ var require_resolve_flow_collection = __commonJS({
           if (isBlock(key))
             onError(keyNode.range, "BLOCK_IN_FLOW", blockMsg);
           ctx.atKey = false;
-          const valueProps = resolveProps.resolveProps(sep ?? [], {
+          const valueProps = resolveProps.resolveProps(sep2 ?? [], {
             flow: fcName,
             indicator: "map-value-ind",
             next: value,
@@ -4296,8 +4296,8 @@ var require_resolve_flow_collection = __commonJS({
           });
           if (valueProps.found) {
             if (!isMap && !props.found && ctx.options.strict) {
-              if (sep)
-                for (const st of sep) {
+              if (sep2)
+                for (const st of sep2) {
                   if (st === valueProps.found)
                     break;
                   if (st.type === "newline") {
@@ -4314,7 +4314,7 @@ var require_resolve_flow_collection = __commonJS({
             else
               onError(valueProps.start, "MISSING_CHAR", `Missing , or : between ${fcName} items`);
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep, null, valueProps, onError) : null;
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep2, null, valueProps, onError) : null;
           if (valueNode) {
             if (isBlock(value))
               onError(valueNode.range, "BLOCK_IN_FLOW", blockMsg);
@@ -4373,9 +4373,9 @@ var require_resolve_flow_collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-collection.js
+// ../aiplus-office/node_modules/yaml/dist/compose/compose-collection.js
 var require_compose_collection = __commonJS({
-  "node_modules/yaml/dist/compose/compose-collection.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/compose-collection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -4438,9 +4438,9 @@ var require_compose_collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-scalar.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-block-scalar.js
 var require_resolve_block_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-scalar.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-block-scalar.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     function resolveBlockScalar(ctx, scalar, onError) {
@@ -4494,7 +4494,7 @@ var require_resolve_block_scalar = __commonJS({
           chompStart = i + 1;
       }
       let value = "";
-      let sep = "";
+      let sep2 = "";
       let prevMoreIndented = false;
       for (let i = 0; i < contentStart; ++i)
         value += lines2[i][0].slice(trimIndent) + "\n";
@@ -4511,24 +4511,24 @@ var require_resolve_block_scalar = __commonJS({
           indent = "";
         }
         if (type === Scalar.Scalar.BLOCK_LITERAL) {
-          value += sep + indent.slice(trimIndent) + content;
-          sep = "\n";
+          value += sep2 + indent.slice(trimIndent) + content;
+          sep2 = "\n";
         } else if (indent.length > trimIndent || content[0] === "	") {
-          if (sep === " ")
-            sep = "\n";
-          else if (!prevMoreIndented && sep === "\n")
-            sep = "\n\n";
-          value += sep + indent.slice(trimIndent) + content;
-          sep = "\n";
+          if (sep2 === " ")
+            sep2 = "\n";
+          else if (!prevMoreIndented && sep2 === "\n")
+            sep2 = "\n\n";
+          value += sep2 + indent.slice(trimIndent) + content;
+          sep2 = "\n";
           prevMoreIndented = true;
         } else if (content === "") {
-          if (sep === "\n")
+          if (sep2 === "\n")
             value += "\n";
           else
-            sep = "\n";
+            sep2 = "\n";
         } else {
-          value += sep + content;
-          sep = " ";
+          value += sep2 + content;
+          sep2 = " ";
           prevMoreIndented = false;
         }
       }
@@ -4621,9 +4621,9 @@ var require_resolve_block_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-flow-scalar.js
+// ../aiplus-office/node_modules/yaml/dist/compose/resolve-flow-scalar.js
 var require_resolve_flow_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-flow-scalar.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/resolve-flow-scalar.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var resolveEnd = require_resolve_end();
@@ -4711,25 +4711,25 @@ var require_resolve_flow_scalar = __commonJS({
         trimBoth = /^[ \t]+|[ \t]+$/g;
       }
       let res = match[1].replace(trimEnd, "");
-      let sep = " ";
+      let sep2 = " ";
       let pos = line.lastIndex;
       while (match = line.exec(source)) {
         const lm = match[1].replace(trimBoth, "");
         if (lm === "") {
-          if (sep === "\n")
-            res += sep;
+          if (sep2 === "\n")
+            res += sep2;
           else
-            sep = "\n";
+            sep2 = "\n";
         } else {
-          res += sep + lm;
-          sep = " ";
+          res += sep2 + lm;
+          sep2 = " ";
         }
         pos = line.lastIndex;
       }
       const last = /[ \t]*(.*)/sy;
       last.lastIndex = pos;
       match = last.exec(source);
-      return res + sep + (match?.[1] ?? "");
+      return res + sep2 + (match?.[1] ?? "");
     }
     function doubleQuotedValue(source, onError) {
       let res = "";
@@ -4842,9 +4842,9 @@ var require_resolve_flow_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-scalar.js
+// ../aiplus-office/node_modules/yaml/dist/compose/compose-scalar.js
 var require_compose_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/compose-scalar.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/compose-scalar.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -4923,9 +4923,9 @@ var require_compose_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-empty-scalar-position.js
+// ../aiplus-office/node_modules/yaml/dist/compose/util-empty-scalar-position.js
 var require_util_empty_scalar_position = __commonJS({
-  "node_modules/yaml/dist/compose/util-empty-scalar-position.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/util-empty-scalar-position.js"(exports) {
     "use strict";
     function emptyScalarPosition(offset, before, pos) {
       if (before) {
@@ -4953,9 +4953,9 @@ var require_util_empty_scalar_position = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-node.js
+// ../aiplus-office/node_modules/yaml/dist/compose/compose-node.js
 var require_compose_node = __commonJS({
-  "node_modules/yaml/dist/compose/compose-node.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/compose-node.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var identity = require_identity();
@@ -5059,9 +5059,9 @@ var require_compose_node = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-doc.js
+// ../aiplus-office/node_modules/yaml/dist/compose/compose-doc.js
 var require_compose_doc = __commonJS({
-  "node_modules/yaml/dist/compose/compose-doc.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/compose-doc.js"(exports) {
     "use strict";
     var Document = require_Document();
     var composeNode = require_compose_node();
@@ -5102,9 +5102,9 @@ var require_compose_doc = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/composer.js
+// ../aiplus-office/node_modules/yaml/dist/compose/composer.js
 var require_composer = __commonJS({
-  "node_modules/yaml/dist/compose/composer.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/compose/composer.js"(exports) {
     "use strict";
     var node_process = __require("process");
     var directives = require_directives();
@@ -5310,9 +5310,9 @@ ${end.comment}` : end.comment;
   }
 });
 
-// node_modules/yaml/dist/parse/cst-scalar.js
+// ../aiplus-office/node_modules/yaml/dist/parse/cst-scalar.js
 var require_cst_scalar = __commonJS({
-  "node_modules/yaml/dist/parse/cst-scalar.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/cst-scalar.js"(exports) {
     "use strict";
     var resolveBlockScalar = require_resolve_block_scalar();
     var resolveFlowScalar = require_resolve_flow_scalar();
@@ -5495,9 +5495,9 @@ var require_cst_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/cst-stringify.js
+// ../aiplus-office/node_modules/yaml/dist/parse/cst-stringify.js
 var require_cst_stringify = __commonJS({
-  "node_modules/yaml/dist/parse/cst-stringify.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/cst-stringify.js"(exports) {
     "use strict";
     var stringify = (cst) => "type" in cst ? stringifyToken(cst) : stringifyItem(cst);
     function stringifyToken(token) {
@@ -5539,14 +5539,14 @@ var require_cst_stringify = __commonJS({
         }
       }
     }
-    function stringifyItem({ start, key, sep, value }) {
+    function stringifyItem({ start, key, sep: sep2, value }) {
       let res = "";
       for (const st of start)
         res += st.source;
       if (key)
         res += stringifyToken(key);
-      if (sep)
-        for (const st of sep)
+      if (sep2)
+        for (const st of sep2)
           res += st.source;
       if (value)
         res += stringifyToken(value);
@@ -5556,9 +5556,9 @@ var require_cst_stringify = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/cst-visit.js
+// ../aiplus-office/node_modules/yaml/dist/parse/cst-visit.js
 var require_cst_visit = __commonJS({
-  "node_modules/yaml/dist/parse/cst-visit.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/cst-visit.js"(exports) {
     "use strict";
     var BREAK = Symbol("break visit");
     var SKIP = Symbol("skip children");
@@ -5571,9 +5571,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path8) => {
+    visit.itemAtPath = (cst, path9) => {
       let item = cst;
-      for (const [field, index] of path8) {
+      for (const [field, index] of path9) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5582,23 +5582,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path8) => {
-      const parent = visit.itemAtPath(cst, path8.slice(0, -1));
-      const field = path8[path8.length - 1][0];
+    visit.parentCollection = (cst, path9) => {
+      const parent = visit.itemAtPath(cst, path9.slice(0, -1));
+      const field = path9[path9.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path8, item, visitor) {
-      let ctrl = visitor(item, path8);
+    function _visit(path9, item, visitor) {
+      let ctrl = visitor(item, path9);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path8.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path9.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5609,18 +5609,18 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path8);
+            ctrl = ctrl(item, path9);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path8) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path9) : ctrl;
     }
     exports.visit = visit;
   }
 });
 
-// node_modules/yaml/dist/parse/cst.js
+// ../aiplus-office/node_modules/yaml/dist/parse/cst.js
 var require_cst = __commonJS({
-  "node_modules/yaml/dist/parse/cst.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/cst.js"(exports) {
     "use strict";
     var cstScalar = require_cst_scalar();
     var cstStringify = require_cst_stringify();
@@ -5720,9 +5720,9 @@ var require_cst = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/lexer.js
+// ../aiplus-office/node_modules/yaml/dist/parse/lexer.js
 var require_lexer = __commonJS({
-  "node_modules/yaml/dist/parse/lexer.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/lexer.js"(exports) {
     "use strict";
     var cst = require_cst();
     function isEmpty(ch) {
@@ -6309,9 +6309,9 @@ var require_lexer = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/line-counter.js
+// ../aiplus-office/node_modules/yaml/dist/parse/line-counter.js
 var require_line_counter = __commonJS({
-  "node_modules/yaml/dist/parse/line-counter.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/line-counter.js"(exports) {
     "use strict";
     var LineCounter = class {
       constructor() {
@@ -6340,9 +6340,9 @@ var require_line_counter = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/parser.js
+// ../aiplus-office/node_modules/yaml/dist/parse/parser.js
 var require_parser = __commonJS({
-  "node_modules/yaml/dist/parse/parser.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/parse/parser.js"(exports) {
     "use strict";
     var node_process = __require("process");
     var cst = require_cst();
@@ -6713,18 +6713,18 @@ var require_parser = __commonJS({
         if (this.type === "map-value-ind") {
           const prev = getPrevProps(this.peek(2));
           const start = getFirstKeyStartProps(prev);
-          let sep;
+          let sep2;
           if (scalar.end) {
-            sep = scalar.end;
-            sep.push(this.sourceToken);
+            sep2 = scalar.end;
+            sep2.push(this.sourceToken);
             delete scalar.end;
           } else
-            sep = [this.sourceToken];
+            sep2 = [this.sourceToken];
           const map = {
             type: "block-map",
             offset: scalar.offset,
             indent: scalar.indent,
-            items: [{ start, key: scalar, sep }]
+            items: [{ start, key: scalar, sep: sep2 }]
           };
           this.onKeyLine = true;
           this.stack[this.stack.length - 1] = map;
@@ -6877,15 +6877,15 @@ var require_parser = __commonJS({
                 } else if (isFlowToken(it.key) && !includesToken(it.sep, "newline")) {
                   const start2 = getFirstKeyStartProps(it.start);
                   const key = it.key;
-                  const sep = it.sep;
-                  sep.push(this.sourceToken);
+                  const sep2 = it.sep;
+                  sep2.push(this.sourceToken);
                   delete it.key;
                   delete it.sep;
                   this.stack.push({
                     type: "block-map",
                     offset: this.offset,
                     indent: this.indent,
-                    items: [{ start: start2, key, sep }]
+                    items: [{ start: start2, key, sep: sep2 }]
                   });
                 } else if (start.length > 0) {
                   it.sep = it.sep.concat(start, this.sourceToken);
@@ -6914,14 +6914,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs8 = this.flowScalar(this.type);
+              const fs10 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start, key: fs8, sep: [] });
+                map.items.push({ start, key: fs10, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs8);
+                this.stack.push(fs10);
               } else {
-                Object.assign(it, { key: fs8, sep: [] });
+                Object.assign(it, { key: fs10, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -7049,13 +7049,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs8 = this.flowScalar(this.type);
+              const fs10 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs8, sep: [] });
+                fc.items.push({ start: [], key: fs10, sep: [] });
               else if (it.sep)
-                this.stack.push(fs8);
+                this.stack.push(fs10);
               else
-                Object.assign(it, { key: fs8, sep: [] });
+                Object.assign(it, { key: fs10, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -7079,13 +7079,13 @@ var require_parser = __commonJS({
             const prev = getPrevProps(parent);
             const start = getFirstKeyStartProps(prev);
             fixFlowSeqItems(fc);
-            const sep = fc.end.splice(1, fc.end.length);
-            sep.push(this.sourceToken);
+            const sep2 = fc.end.splice(1, fc.end.length);
+            sep2.push(this.sourceToken);
             const map = {
               type: "block-map",
               offset: fc.offset,
               indent: fc.indent,
-              items: [{ start, key: fc, sep }]
+              items: [{ start, key: fc, sep: sep2 }]
             };
             this.onKeyLine = true;
             this.stack[this.stack.length - 1] = map;
@@ -7214,9 +7214,9 @@ var require_parser = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/public-api.js
+// ../aiplus-office/node_modules/yaml/dist/public-api.js
 var require_public_api = __commonJS({
-  "node_modules/yaml/dist/public-api.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/public-api.js"(exports) {
     "use strict";
     var composer = require_composer();
     var Document = require_Document();
@@ -7311,9 +7311,9 @@ var require_public_api = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/index.js
+// ../aiplus-office/node_modules/yaml/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/yaml/dist/index.js"(exports) {
+  "../aiplus-office/node_modules/yaml/dist/index.js"(exports) {
     "use strict";
     var composer = require_composer();
     var Document = require_Document();
@@ -7364,7 +7364,7 @@ var require_dist = __commonJS({
 });
 
 // src/bin/aiplus-office.ts
-import * as fs7 from "node:fs";
+import * as fs9 from "node:fs";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
 // src/exec.ts
@@ -7373,23 +7373,238 @@ function spawn(command, args = [], options = {}) {
   return nodeSpawn(command, args, { windowsHide: true, ...options });
 }
 function execFileAsync(file, args = [], options = {}) {
-  return new Promise((resolve5, reject) => {
+  return new Promise((resolve6, reject) => {
     execFile(file, args, { encoding: "utf8", windowsHide: true, ...options }, (err2, stdout, stderr) => {
       if (err2) reject(Object.assign(err2, { stdout, stderr }));
-      else resolve5({ stdout, stderr });
+      else resolve6({ stdout, stderr });
     });
   });
 }
 
 // src/mcp-proxy.ts
-import * as path2 from "node:path";
+import * as fs3 from "node:fs";
+import * as path3 from "node:path";
 import * as readline from "node:readline";
+
+// src/mcp-gateway.ts
+import * as fs from "node:fs";
+import * as path from "node:path";
+var GRID_TOOLS = [
+  "execute_command",
+  "list_commands",
+  "inspect_workbook",
+  "read_range",
+  "write_range",
+  "set_cell",
+  "get_cell",
+  "evaluate_formula",
+  "select",
+  "format_range",
+  "insert_chart",
+  "create_table",
+  "sort_range",
+  "filter",
+  "open_workbook",
+  "save_workbook",
+  "new_workbook",
+  "undo",
+  "redo",
+  "list_functions"
+];
+var EXEC_NAMESPACES = [
+  "arrange",
+  "cell",
+  "chart",
+  "data",
+  "document",
+  "draw",
+  "edit",
+  "file",
+  "formulas",
+  "history",
+  "home",
+  "insert",
+  "object",
+  "pageLayout",
+  "pivot",
+  "range",
+  "review",
+  "selection",
+  "shape",
+  "sheet",
+  "slicer",
+  "table",
+  "view"
+];
+var FILE_COMMANDS = [
+  "file.new",
+  "file.open",
+  "file.save",
+  "file.saveAs",
+  "file.saveBytes",
+  "file.close",
+  "file.exportCsv",
+  "file.exportHtml",
+  "file.exportPdf",
+  "file.properties",
+  "file.options",
+  "file.printPreview"
+];
+var DENIED_COMMANDS = ["view.newWindow", "file.print"];
+var FOREIGN_PATH_KEYS = ["file", "files", "filename", "filepath", "dir", "directory", "folder", "url", "uri", "href"];
+var GATEWAY_METHODS = [
+  "initialize",
+  "ping",
+  "tools/list",
+  "tools/call",
+  "resources/list",
+  "resources/templates/list",
+  "resources/read",
+  "prompts/list",
+  "prompts/get"
+];
+function methodPolicy(method, id, params) {
+  if (typeof method !== "string") return "forward";
+  if (id === void 0) return method.startsWith("notifications/") ? "forward" : "drop";
+  if (!GATEWAY_METHODS.includes(method)) return "reject";
+  if (method === "resources/read") {
+    const uri = params?.uri;
+    return typeof uri === "string" && uri.startsWith("gridcraft://") ? "forward" : "reject";
+  }
+  return "forward";
+}
+var GatewayRefusal = class extends Error {
+  name = "GatewayRefusal";
+};
+function refusalText(hu, en) {
+  return `${hu} English: ${en}`;
+}
+function samePathPrefix(root, candidate, platform) {
+  const norm = (p) => platform === "win32" ? p.toLowerCase() : p;
+  const r = norm(root);
+  const c = norm(candidate);
+  if (c === r) return true;
+  const withSep = r.endsWith(path.sep) ? r : r + path.sep;
+  return c.startsWith(withSep);
+}
+function confinePath(root, p, platform = process.platform) {
+  if (typeof p !== "string" || p.trim() === "") {
+    throw new GatewayRefusal(refusalText("Hi\xE1nyzik a f\xE1jl el\xE9r\xE9si \xFAtja.", "the file path is missing."));
+  }
+  if (p.includes("\0")) throw new GatewayRefusal(refusalText("\xC9rv\xE9nytelen el\xE9r\xE9si \xFAt.", "invalid path."));
+  const realRoot = fs.realpathSync(root);
+  const abs = path.resolve(realRoot, p);
+  const tail = [];
+  let cur = abs;
+  let real;
+  for (; ; ) {
+    let st;
+    try {
+      st = fs.lstatSync(cur);
+    } catch {
+      st = void 0;
+    }
+    if (st) {
+      try {
+        real = fs.realpathSync(cur);
+      } catch {
+        throw outside(realRoot, p);
+      }
+      break;
+    }
+    const parent = path.dirname(cur);
+    if (parent === cur) break;
+    tail.unshift(path.basename(cur));
+    cur = parent;
+  }
+  const candidate = real === void 0 ? abs : path.join(real, ...tail);
+  if (!samePathPrefix(realRoot, candidate, platform)) throw outside(realRoot, p);
+  return candidate;
+}
+function outside(root, p) {
+  return new GatewayRefusal(
+    refusalText(
+      `Ez a f\xE1jl a megengedett mapp\xE1n k\xEDv\xFCl van, ez\xE9rt nem ny\xFAlok hozz\xE1: ${p}. A megengedett mappa: ${root}.`,
+      `path refused, it is outside the allowed folder ${root}: ${p}.`
+    )
+  );
+}
+function confineParams(root, value, platform) {
+  if (Array.isArray(value)) return value.map((v) => confineParams(root, v, platform));
+  if (value === null || typeof value !== "object") return value;
+  const out = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (k === "path") out[k] = confinePath(root, v, platform);
+    else if (FOREIGN_PATH_KEYS.includes(k.toLowerCase()) && v !== null && v !== false) {
+      throw new GatewayRefusal(
+        refusalText(`A(z) \u201E${k}\u201D param\xE9ter f\xE1jlt, mapp\xE1t vagy webc\xEDmet adna meg, ezt nem engedem.`, `parameter "${k}" would name a file, folder or URL; refused.`)
+      );
+    } else out[k] = confineParams(root, v, platform);
+  }
+  return out;
+}
+function commandRefusal(id) {
+  if (typeof id !== "string" || !/^[A-Za-z][\w-]*(\.[\w-]+)+$/.test(id)) {
+    return refusalText("Ismeretlen parancsazonos\xEDt\xF3.", "unknown command id.");
+  }
+  const ns = id.split(".")[0];
+  const denied = DENIED_COMMANDS.includes(id) || !EXEC_NAMESPACES.includes(ns) || ns === "file" && !FILE_COMMANDS.includes(id);
+  if (!denied) return void 0;
+  return refusalText(
+    `A(z) ${id} parancsot ez a kapcsolat nem futtatja (weblinket nyitna, szkriptet futtatna, ablakot vagy nyomtat\xE1st ind\xEDtana, vagy nem ismert).`,
+    `command ${id} is not run through this connection (it would open a link, run a script, open a window or print, or it is unknown).`
+  );
+}
+function createGateway(appName, root, platform = process.platform) {
+  const allowed = new Set(GRID_TOOLS);
+  return {
+    root,
+    check(name, args) {
+      if (typeof name !== "string" || !allowed.has(name)) {
+        return {
+          ok: false,
+          message: refusalText(
+            `A(z) ${String(name)} eszk\xF6zt ez a kapcsolat nem k\xEDn\xE1lja (a ${appName} ablak\xE1t ig\xE9nyli, vagy nem ismert).`,
+            `tool ${String(name)} is not offered through this connection (it needs the ${appName} window, or it is unknown).`
+          )
+        };
+      }
+      const a = args && typeof args === "object" && !Array.isArray(args) ? args : {};
+      try {
+        if (name === "execute_command") {
+          const why = commandRefusal(a.command);
+          if (why) return { ok: false, message: why };
+          const params = a.params === void 0 ? void 0 : confineParams(root, a.params, platform);
+          return { ok: true, arguments: params === void 0 ? { ...a } : { ...a, params } };
+        }
+        return { ok: true, arguments: confineParams(root, a, platform) };
+      } catch (e) {
+        if (e instanceof GatewayRefusal) return { ok: false, message: e.message };
+        throw e;
+      }
+    },
+    filterToolList(result2) {
+      const r = result2;
+      if (!r || !Array.isArray(r.tools)) return result2;
+      return { ...r, tools: r.tools.filter((t) => typeof t?.name === "string" && allowed.has(t.name)) };
+    },
+    annotateInitialize(result2) {
+      const r = result2;
+      if (!r || typeof r !== "object") return result2;
+      const note = `Files: only inside ${root}; a relative path is resolved against it (aiplus-office checks every path). execute_command does not run link.*, automate.*, window or print commands.`;
+      const base = typeof r.instructions === "string" ? `${r.instructions}
+
+` : "";
+      return { ...r, instructions: `${base}${note}` };
+    }
+  };
+}
 
 // src/provision.ts
 import { createHash } from "node:crypto";
-import * as fs from "node:fs";
+import * as fs2 from "node:fs";
 import * as os from "node:os";
-import * as path from "node:path";
+import * as path2 from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
@@ -7423,14 +7638,16 @@ var CRAFT_APPS = [
     "GridCraft",
     "spreadsheets: formulas, evaluation, conversion",
     { list: COMMANDS_JSON, run: "run [--in FILE] --cmd 'id={json}'\u2026 [--out FILE] | eval | check | convert" },
-    { confinement: false, toolClass: "small", tools: 21, bridgeFlag: "--connect" }
+    // gridcraft-cli mcp (0.12.1) has no root option: the proxy confines it and lists 20 of its 21 tools (no `screenshot`).
+    { confinement: "gateway", toolClass: "small", tools: 20, bridgeFlag: "--connect" }
   ),
   app(
     "deckcraft",
     "DeckCraft",
     "presentation slides and export",
     { list: ["commands"], describe: ["describe", "<id>"], run: "run [--in FILE] [--cmd ID[=JSON]\u2026] [--save OUT] [--export OUT] | render | convert" },
-    { confinement: false, toolClass: "small", tools: 25, bridgeFlag: "--connect" }
+    // --automation-read-root/--automation-write-root measured on 0.10.0 and 0.11.1 (2026-10-25).
+    { confinement: "automation-roots", toolClass: "small", tools: 25, bridgeFlag: "--connect" }
   ),
   app(
     "pdfcraft",
@@ -7523,15 +7740,15 @@ function assertLibc(app2, deps) {
   }
 }
 function craftRoot(deps) {
-  if (deps.env.AIPLUS_OFFICE_HOME) return path.resolve(deps.env.AIPLUS_OFFICE_HOME);
+  if (deps.env.AIPLUS_OFFICE_HOME) return path2.resolve(deps.env.AIPLUS_OFFICE_HOME);
   const platform = deps.platform ?? process.platform;
-  if (platform === "win32") return path.join(deps.env.LOCALAPPDATA || path.join(deps.homedir(), "AppData", "Local"), "aiplus-office");
-  if (platform === "darwin") return path.join(deps.homedir(), "Library", "Caches", "aiplus-office");
+  if (platform === "win32") return path2.join(deps.env.LOCALAPPDATA || path2.join(deps.homedir(), "AppData", "Local"), "aiplus-office");
+  if (platform === "darwin") return path2.join(deps.homedir(), "Library", "Caches", "aiplus-office");
   const xdg = deps.env.XDG_CACHE_HOME;
-  return path.join(xdg && path.isAbsolute(xdg) ? xdg : path.join(deps.homedir(), ".cache"), "aiplus-office");
+  return path2.join(xdg && path2.isAbsolute(xdg) ? xdg : path2.join(deps.homedir(), ".cache"), "aiplus-office");
 }
 function cacheRoot(app2, deps) {
-  return path.join(craftRoot(deps), app2.id);
+  return path2.join(craftRoot(deps), app2.id);
 }
 function normaliseVersion(raw, appName = "craft app") {
   const v = raw.trim().replace(/^v/, "");
@@ -7551,7 +7768,7 @@ function compareSemver(a, b) {
 }
 function validBinary(file, platform) {
   try {
-    const st = fs.statSync(file);
+    const st = fs2.statSync(file);
     if (!st.isFile() || st.size === 0) return false;
     return platform === "win32" || (st.mode & 73) !== 0;
   } catch {
@@ -7560,7 +7777,7 @@ function validBinary(file, platform) {
 }
 function subdirs(dir) {
   try {
-    return fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && e.name !== "__MACOSX").map((e) => e.name);
+    return fs2.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory() && e.name !== "__MACOSX").map((e) => e.name);
   } catch {
     return [];
   }
@@ -7568,13 +7785,13 @@ function subdirs(dir) {
 function findByBasename(dir, name, out = []) {
   let entries;
   try {
-    entries = fs.readdirSync(dir, { withFileTypes: true });
+    entries = fs2.readdirSync(dir, { withFileTypes: true });
   } catch {
     return out;
   }
   for (const e of entries) {
     if (e.name === "__MACOSX") continue;
-    const p = path.join(dir, e.name);
+    const p = path2.join(dir, e.name);
     if (e.isDirectory()) findByBasename(p, name, out);
     else if (e.isFile() && e.name === name) out.push(p);
   }
@@ -7582,11 +7799,11 @@ function findByBasename(dir, name, out = []) {
 }
 function locateBinary(app2, tree, platform, assetName) {
   const name = binName(app2, platform);
-  const rel = platform === "linux" || platform === "freebsd" ? path.join("bin", name) : name;
-  for (const base of [tree, ...subdirs(tree).map((d) => path.join(tree, d))]) {
-    const p = path.join(base, rel);
+  const rel = platform === "linux" || platform === "freebsd" ? path2.join("bin", name) : name;
+  for (const base of [tree, ...subdirs(tree).map((d) => path2.join(tree, d))]) {
+    const p = path2.join(base, rel);
     try {
-      if (fs.statSync(p).isFile()) return p;
+      if (fs2.statSync(p).isFile()) return p;
     } catch {
     }
   }
@@ -7638,12 +7855,12 @@ function exe(name, platform = process.platform) {
 }
 function assertTreeSafe(tree) {
   const walk = (dir) => {
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      const p = path.join(dir, e.name);
-      const st = fs.lstatSync(p);
+    for (const e of fs2.readdirSync(dir, { withFileTypes: true })) {
+      const p = path2.join(dir, e.name);
+      const st = fs2.lstatSync(p);
       if (st.isDirectory()) walk(p);
       else if (!st.isFile()) {
-        throw new ProvisionError(`extracted entry "${path.relative(tree, p)}" is not a regular file or directory; refusing to install`);
+        throw new ProvisionError(`extracted entry "${path2.relative(tree, p)}" is not a regular file or directory; refusing to install`);
       }
     }
   };
@@ -7651,7 +7868,7 @@ function assertTreeSafe(tree) {
 }
 function systemTar(platform, env) {
   if (platform !== "win32") return exe("tar", platform);
-  return path.win32.join(env.SystemRoot || env.SYSTEMROOT || "C:\\Windows", "System32", exe("tar", platform));
+  return path2.win32.join(env.SystemRoot || env.SYSTEMROOT || "C:\\Windows", "System32", exe("tar", platform));
 }
 async function listArchive(deps, archive) {
   const tar = systemTar(deps.platform, deps.env);
@@ -7700,7 +7917,7 @@ async function downloadFile(deps, url, dest, maxBytes = MAX_ASSET_BYTES) {
         yield chunk;
       }
     },
-    fs.createWriteStream(dest)
+    fs2.createWriteStream(dest)
   );
   return hash.digest("hex");
 }
@@ -7724,13 +7941,13 @@ async function downloadVerified(deps, release, assetName, dest, repo) {
   const cap = assetInfo.size ? assetInfo.size + 1024 * 1024 : MAX_ASSET_BYTES;
   const actual = await downloadFile(deps, assetInfo.browser_download_url, dest, cap);
   if (actual !== expected) {
-    fs.rmSync(dest, { force: true });
+    fs2.rmSync(dest, { force: true });
     throw new ProvisionError(`checksum mismatch for ${assetName}: expected ${expected}, got ${actual}`);
   }
 }
 function readLatestCache(root, now) {
   try {
-    const rec = JSON.parse(fs.readFileSync(path.join(root, "latest.json"), "utf8"));
+    const rec = JSON.parse(fs2.readFileSync(path2.join(root, "latest.json"), "utf8"));
     if (typeof rec.tag !== "string" || typeof rec.checkedAt !== "number") return void 0;
     if (rec.checkedAt > now || now - rec.checkedAt >= LATEST_TTL_MS) return void 0;
     return rec.tag;
@@ -7739,7 +7956,7 @@ function readLatestCache(root, now) {
   }
 }
 function installedVersions(app2, root, platform) {
-  return subdirs(root).filter((d) => /^\d+\.\d+\.\d+[0-9A-Za-z._+-]*$/.test(d) && !d.includes("..")).filter((d) => cachedBinary(app2, path.join(root, d), platform) !== void 0).sort((a, b) => compareSemver(b, a));
+  return subdirs(root).filter((d) => /^\d+\.\d+\.\d+[0-9A-Za-z._+-]*$/.test(d) && !d.includes("..")).filter((d) => cachedBinary(app2, path2.join(root, d), platform) !== void 0).sort((a, b) => compareSemver(b, a));
 }
 async function resolveVersion(app2, deps, root) {
   const prefix = envPrefix(app2);
@@ -7751,8 +7968,8 @@ async function resolveVersion(app2, deps, root) {
     const release = await apiJson(deps, `${deps.apiBase}/repos/${app2.repo}/releases/latest`);
     const version = normaliseVersion(release.tag_name, app2.name);
     try {
-      fs.mkdirSync(root, { recursive: true });
-      fs.writeFileSync(path.join(root, "latest.json"), JSON.stringify({ tag: release.tag_name, checkedAt: deps.now() }));
+      fs2.mkdirSync(root, { recursive: true });
+      fs2.writeFileSync(path2.join(root, "latest.json"), JSON.stringify({ tag: release.tag_name, checkedAt: deps.now() }));
     } catch {
     }
     return { version, source: "latest", release };
@@ -7781,7 +7998,7 @@ async function overrideReport(app2, deps, started) {
   const bin = deps.env[varName];
   let reason;
   try {
-    const st = fs.statSync(bin);
+    const st = fs2.statSync(bin);
     if (!st.isFile()) reason = "not a file";
     else if (deps.platform !== "win32" && (st.mode & 73) === 0) reason = "not executable";
   } catch {
@@ -7789,7 +8006,7 @@ async function overrideReport(app2, deps, started) {
   }
   if (reason) throw new ProvisionError(`${varName}=${bin}: ${reason}`);
   const version = deps.probeVersion ? await probeBinaryVersion(deps, bin) : null;
-  return { app: app2.id, version, source: "override", asset: null, cacheHit: false, binary: path.resolve(bin), durationMs: deps.now() - started };
+  return { app: app2.id, version, source: "override", asset: null, cacheHit: false, binary: path2.resolve(bin), durationMs: deps.now() - started };
 }
 var inflight = /* @__PURE__ */ new Map();
 function singleFlight(key, run2) {
@@ -7800,7 +8017,7 @@ function singleFlight(key, run2) {
 }
 function commitTree(tree, finalDir, verifyExisting) {
   try {
-    fs.renameSync(tree, finalDir);
+    fs2.renameSync(tree, finalDir);
     return false;
   } catch (e) {
     const code = e.code;
@@ -7813,11 +8030,11 @@ function commitTree(tree, finalDir, verifyExisting) {
 }
 function installVerified(o) {
   return singleFlight(`install:${o.finalDir}`, async () => {
-    const staging = path.join(o.cacheDir, `.staging-${process.pid}-${o.deps.randomId()}`);
+    const staging = path2.join(o.cacheDir, `.staging-${process.pid}-${o.deps.randomId()}`);
     try {
-      const tree = path.join(staging, "tree");
-      fs.mkdirSync(tree, { recursive: true });
-      const archive = path.join(staging, o.asset);
+      const tree = path2.join(staging, "tree");
+      fs2.mkdirSync(tree, { recursive: true });
+      const archive = path2.join(staging, o.asset);
       await downloadVerified(o.deps, o.release, o.asset, archive, o.repo);
       await o.list(archive);
       await o.extract(archive, tree);
@@ -7826,29 +8043,29 @@ function installVerified(o) {
       const raced = commitTree(tree, o.finalDir, o.verifyExisting);
       return { raced, value: raced ? void 0 : value };
     } finally {
-      fs.rmSync(staging, { recursive: true, force: true });
+      fs2.rmSync(staging, { recursive: true, force: true });
     }
   });
 }
 function sweepStaleStaging(root, now) {
   let entries;
   try {
-    entries = fs.readdirSync(root);
+    entries = fs2.readdirSync(root);
   } catch {
     return;
   }
   for (const name of entries) {
     if (!name.startsWith(".staging-")) continue;
-    const p = path.join(root, name);
+    const p = path2.join(root, name);
     try {
-      if (now - fs.statSync(p).mtimeMs > STALE_STAGING_MS) fs.rmSync(p, { recursive: true, force: true });
+      if (now - fs2.statSync(p).mtimeMs > STALE_STAGING_MS) fs2.rmSync(p, { recursive: true, force: true });
     } catch {
     }
   }
 }
 function cachedBinary(app2, dir, platform) {
   try {
-    const bin = locateBinary(app2, dir, platform, path.basename(dir));
+    const bin = locateBinary(app2, dir, platform, path2.basename(dir));
     return bin && validBinary(bin, platform) ? bin : void 0;
   } catch {
     return void 0;
@@ -7857,7 +8074,7 @@ function cachedBinary(app2, dir, platform) {
 var ASSET_MARKER = ".aiplus-office-asset";
 function readAssetMarker(versionDir) {
   try {
-    return fs.readFileSync(path.join(versionDir, ASSET_MARKER), "utf8").trim() || void 0;
+    return fs2.readFileSync(path2.join(versionDir, ASSET_MARKER), "utf8").trim() || void 0;
   } catch {
     return void 0;
   }
@@ -7873,12 +8090,12 @@ async function provisionManaged(app2, deps, started) {
   assetCandidates(app2, deps.platform, deps.arch, "0.0.0");
   assertLibc(app2, deps);
   const root = cacheRoot(app2, deps);
-  fs.mkdirSync(root, { recursive: true });
+  fs2.mkdirSync(root, { recursive: true });
   sweepStaleStaging(root, deps.now());
   const resolved = await resolveVersion(app2, deps, root);
   const { version } = resolved;
   const candidates = assetCandidates(app2, deps.platform, deps.arch, version);
-  const versionDir = path.join(root, version);
+  const versionDir = path2.join(root, version);
   const report = (binary2, cacheHit, asset2) => ({
     app: app2.id,
     version,
@@ -7888,11 +8105,11 @@ async function provisionManaged(app2, deps, started) {
     binary: binary2,
     durationMs: deps.now() - started
   });
-  if (fs.existsSync(versionDir)) {
+  if (fs2.existsSync(versionDir)) {
     const hit = cachedBinary(app2, versionDir, deps.platform);
     if (hit) return report(hit, true, readAssetMarker(versionDir) ?? candidates[candidates.length - 1]);
     deps.log(`[aiplus-office] cache entry ${versionDir} is damaged; re-provisioning`);
-    fs.rmSync(versionDir, { recursive: true, force: true });
+    fs2.rmSync(versionDir, { recursive: true, force: true });
   }
   const tag = `v${version}`;
   const release = resolved.release ?? await apiJson(deps, `${deps.apiBase}/repos/${app2.repo}/releases/tags/${tag}`);
@@ -7910,16 +8127,16 @@ async function provisionManaged(app2, deps, started) {
     validate: (tree) => {
       const located = locateBinary(app2, tree, deps.platform, asset);
       if (!located) throw new ProvisionError(`no ${binName(app2, deps.platform)} found in ${asset}`);
-      const rel = path.relative(tree, located);
-      fs.chmodSync(located, 493);
-      fs.rmSync(path.join(path.dirname(located), desktopName(app2, deps.platform)), { force: true });
-      fs.writeFileSync(path.join(tree, ASSET_MARKER), `${asset}
+      const rel = path2.relative(tree, located);
+      fs2.chmodSync(located, 493);
+      fs2.rmSync(path2.join(path2.dirname(located), desktopName(app2, deps.platform)), { force: true });
+      fs2.writeFileSync(path2.join(tree, ASSET_MARKER), `${asset}
 `);
       return rel;
     },
     verifyExisting: (dir) => cachedBinary(app2, dir, deps.platform) !== void 0
   });
-  const binary = installed.raced ? cachedBinary(app2, versionDir, deps.platform) : path.join(versionDir, installed.value);
+  const binary = installed.raced ? cachedBinary(app2, versionDir, deps.platform) : path2.join(versionDir, installed.value);
   const out = report(binary, false, asset);
   if (deps.platform === "darwin") {
     try {
@@ -7944,7 +8161,7 @@ function mcpUsage(app2, prog = "aiplus-office") {
        ${cmd} --register
 
 Runs the ${app2.name} stdio MCP server confined to <dir> (default: the current
-directory) for both reads and writes. Register it in the project's
+directory) for both reads and writes${app2.mcp.confinement === "gateway" ? ` (checked by ${prog}: ${app2.name}'s own server has no confinement)` : ""}. Register it in the project's
 .mcp.json with --register (opt-in).${app2.mcp.compactFlag ? `
 --compact lists only the helper tools (${app2.mcp.tools} tools otherwise); every command stays reachable.` : ""}` : `usage: ${cmd} --allow-unconfined${compact}
        ${cmd} --register --allow-unconfined${compact}
@@ -7992,6 +8209,13 @@ function parseMcpArgs(argv) {
     }
   }
   return { kind: "run", root, allowUnconfined, compact };
+}
+function isDirectory(p) {
+  try {
+    return fs3.statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
 }
 function sameId(a, b) {
   return a === b;
@@ -8041,11 +8265,22 @@ ${usage2}
     return 69;
   }
   let spawnArgs;
+  let gateway;
   if (confined) {
-    const root = path2.resolve(deps.cwd(), parsed.root ?? ".");
+    const root = path3.resolve(deps.cwd(), parsed.root ?? ".");
     deps.stderr(`[${deps.prog}] mcp root: ${root}
 `);
-    spawnArgs = app2.mcp.confinement === "root" ? ["mcp", "--root", root] : ["mcp", "--automation-read-root", root, "--automation-write-root", root];
+    if (app2.mcp.confinement === "gateway") {
+      if (!isDirectory(root)) {
+        deps.stderr(`${deps.prog}: the mcp root ${root} is not an existing folder; refusing to start
+`);
+        return 1;
+      }
+      gateway = createGateway(app2.name, root);
+      deps.stderr(`[${deps.prog}] ${app2.name}: files confined by ${deps.prog} to ${root}
+`);
+      spawnArgs = ["mcp"];
+    } else spawnArgs = app2.mcp.confinement === "root" ? ["mcp", "--root", root] : ["mcp", "--automation-read-root", root, "--automation-write-root", root];
   } else {
     deps.stderr(`[${deps.prog}] warning: ${app2.name}'s MCP server is unconfined \u2014 it can read and write any path the user can
 `);
@@ -8053,12 +8288,15 @@ ${usage2}
   }
   if (parsed.compact && app2.mcp.compactFlag) spawnArgs.push(app2.mcp.compactFlag);
   const child = deps.spawn(bin, spawnArgs, { stdio: ["pipe", "pipe", "inherit"] });
-  return new Promise((resolve5) => {
+  return new Promise((resolve6) => {
     let inflight2;
     let hasInflight = false;
     let eof = false;
     let exitOverride;
     const queue = [];
+    const rewrite = /* @__PURE__ */ new Map();
+    const toClient = (o) => deps.stdout.write(`${JSON.stringify(o)}
+`);
     const toChild = (line) => {
       if (child.stdin && !child.stdin.destroyed) child.stdin.write(`${line}
 `);
@@ -8105,8 +8343,31 @@ ${usage2}
         return toChild(line);
       }
       const single = msg && !Array.isArray(msg) ? msg : void 0;
+      if (gateway && Array.isArray(msg)) {
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+        return;
+      }
+      if (gateway && single) {
+        const policy = methodPolicy(single.method, single.id, single.params);
+        if (policy === "drop") return;
+        if (policy === "reject") {
+          toClient({ jsonrpc: "2.0", id: single.id, error: { code: -32601, message: `method not available through ${deps.prog}: ${String(single.method)}` } });
+          return;
+        }
+        if (single.id !== void 0 && (single.method === "initialize" || single.method === "tools/list")) rewrite.set(single.id, single.method);
+      }
       if (single?.method === "tools/call" && single.id !== void 0) {
-        queue.push({ raw: line, id: single.id });
+        let raw = line;
+        if (gateway) {
+          const params = single.params ?? {};
+          const decision = gateway.check(params.name, params.arguments);
+          if (!decision.ok) {
+            toClient({ jsonrpc: "2.0", id: single.id, result: { content: [{ type: "text", text: decision.message }], isError: true } });
+            return;
+          }
+          raw = JSON.stringify({ ...single, params: { ...params, arguments: decision.arguments } });
+        }
+        queue.push({ raw, id: single.id });
         pump();
       } else if (single?.method === "notifications/cancelled" && single.jsonrpc === "2.0" && single.id === void 0 && // a notification carries no id; anything else passes through untouched
       single.params?.requestId !== void 0) {
@@ -8127,7 +8388,14 @@ ${usage2}
 `);
         return;
       }
-      deps.stdout.write(`${line}
+      const pending = gateway && msg && !Array.isArray(msg) && msg.id !== void 0 ? rewrite.get(msg.id) : void 0;
+      if (gateway && pending && msg && msg.method === void 0) {
+        rewrite.delete(msg.id);
+        const result2 = msg.result;
+        if (result2 !== void 0) toClient({ ...msg, result: pending === "tools/list" ? gateway.filterToolList(result2) : gateway.annotateInitialize(result2) });
+        else deps.stdout.write(`${line}
+`);
+      } else deps.stdout.write(`${line}
 `);
       if (hasInflight && msg && !Array.isArray(msg) && msg.id !== void 0 && sameId(msg.id, inflight2)) {
         hasInflight = false;
@@ -8144,19 +8412,19 @@ ${usage2}
     child.on("error", (e) => {
       deps.stderr(`${deps.prog}: failed to start ${app2.cli}: ${e.message}
 `);
-      resolve5(1);
+      resolve6(1);
     });
     child.on("exit", (code, signal) => {
       clearTimeout(cancelTimer);
       clientRl.close();
-      setImmediate(() => resolve5(exitOverride ?? (signal ? 1 : code ?? 1)));
+      setImmediate(() => resolve6(exitOverride ?? (signal ? 1 : code ?? 1)));
     });
   });
 }
 
 // src/mcp-register.ts
-import * as fs2 from "node:fs";
-import * as path3 from "node:path";
+import * as fs4 from "node:fs";
+import * as path4 from "node:path";
 import { fileURLToPath } from "node:url";
 function defaultLauncherPath(name = "aiplus-office") {
   return fileURLToPath(new URL(`../cli/${name}`, import.meta.url));
@@ -8166,7 +8434,7 @@ function serverName(app2) {
 }
 function isSymlink(p) {
   try {
-    return fs2.lstatSync(p).isSymbolicLink();
+    return fs4.lstatSync(p).isSymbolicLink();
   } catch {
     return false;
   }
@@ -8193,17 +8461,17 @@ function registerMcp(app2, partial = {}) {
     );
     return 1;
   }
-  const file = path3.join(deps.cwd, ".mcp.json");
+  const file = path4.join(deps.cwd, ".mcp.json");
   if (isSymlink(file)) {
     deps.stderr(`${deps.prog}: ${file} is a symbolic link; refusing to write through it
 `);
     return 1;
   }
-  const looksLikeRoot = fs2.existsSync(path3.join(deps.cwd, ".git")) || fs2.existsSync(path3.join(deps.cwd, ".claude")) || fs2.existsSync(file);
+  const looksLikeRoot = fs4.existsSync(path4.join(deps.cwd, ".git")) || fs4.existsSync(path4.join(deps.cwd, ".claude")) || fs4.existsSync(file);
   let config = {};
-  if (fs2.existsSync(file)) {
+  if (fs4.existsSync(file)) {
     try {
-      const parsed = JSON.parse(fs2.readFileSync(file, "utf8"));
+      const parsed = JSON.parse(fs4.readFileSync(file, "utf8"));
       if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("not a JSON object");
       config = parsed;
     } catch (e) {
@@ -8226,9 +8494,9 @@ function registerMcp(app2, partial = {}) {
   servers[name] = { type: "stdio", command: deps.execPath, args };
   config.mcpServers = servers;
   const tmp = `${file}.${process.pid}.tmp`;
-  fs2.writeFileSync(tmp, `${JSON.stringify(config, null, 2)}
+  fs4.writeFileSync(tmp, `${JSON.stringify(config, null, 2)}
 `);
-  fs2.renameSync(tmp, file);
+  fs4.renameSync(tmp, file);
   deps.stderr(`${deps.prog}: registered "${name}" in ${file}
 `);
   deps.stderr("  note: the entry holds absolute paths and is machine-specific (do not commit it for a team).\n");
@@ -8253,7 +8521,7 @@ function registerMcp(app2, partial = {}) {
 
 // src/app-command.ts
 function execPassthrough(prog, bin, args) {
-  return new Promise((resolve5) => {
+  return new Promise((resolve6) => {
     const child = spawn(bin, args, { stdio: "inherit" });
     const forward = (sig) => () => child.kill(sig);
     const handlers = ["SIGINT", "SIGTERM"].map((sig) => [sig, forward(sig)]);
@@ -8265,9 +8533,9 @@ function execPassthrough(prog, bin, args) {
       release();
       process.stderr.write(`${prog}: failed to run ${bin}: ${e.message}
 `);
-      resolve5(1);
+      resolve6(1);
     });
-    child.on("exit", (code, signal) => (release(), resolve5(signal ? signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1 : code ?? 1)));
+    child.on("exit", (code, signal) => (release(), resolve6(signal ? signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1 : code ?? 1)));
   });
 }
 async function runAppCommand(app2, command, rest, ctx) {
@@ -8324,12 +8592,12 @@ ${ctx.usage}
 
 // src/doc-prepare.ts
 import { randomBytes } from "node:crypto";
-import * as fs3 from "node:fs";
+import * as fs5 from "node:fs";
 import * as os2 from "node:os";
-import * as path4 from "node:path";
+import * as path5 from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
-// node_modules/fflate/esm/index.mjs
+// ../aiplus-office/node_modules/fflate/esm/index.mjs
 import { createRequire } from "module";
 var require2 = createRequire("/");
 var _a;
@@ -9335,9 +9603,9 @@ function findOnPath(name, pathVar, platform = process.platform, pathExt = ".EXE;
   const exts = platform === "win32" ? ["", ...pathExt.split(";").filter(Boolean)] : [""];
   for (const dir of (pathVar ?? "").split(platform === "win32" ? ";" : ":").filter(Boolean)) {
     for (const ext of exts) {
-      const f = path4.join(dir, name + ext);
+      const f = path5.join(dir, name + ext);
       try {
-        if (fs3.statSync(f).isFile()) return f;
+        if (fs5.statSync(f).isFile()) return f;
       } catch {
       }
     }
@@ -9453,33 +9721,33 @@ function splitFrontmatter(text) {
 var isScalar = (v) => ["string", "number", "boolean"].includes(typeof v);
 function realOrResolve(p) {
   try {
-    return fs3.realpathSync(p);
+    return fs5.realpathSync(p);
   } catch {
-    return path4.resolve(p);
+    return path5.resolve(p);
   }
 }
 var within = (child, parent) => {
-  const rel = path4.relative(parent, child);
-  return rel === "" || !rel.startsWith("..") && !path4.isAbsolute(rel);
+  const rel = path5.relative(parent, child);
+  return rel === "" || !rel.startsWith("..") && !path5.isAbsolute(rel);
 };
 function confinement(mdDir, allow, cwd) {
-  const roots = [realOrResolve(mdDir), ...allow.map((a) => realOrResolve(path4.resolve(cwd, a)))];
+  const roots = [realOrResolve(mdDir), ...allow.map((a) => realOrResolve(path5.resolve(cwd, a)))];
   return { roots, allows: (p) => roots.some((r) => within(realOrResolve(p), r)) };
 }
 function resolveTemplatesDir(p, fm, mdDir, conf, deps) {
-  if (p.templatesDir) return path4.resolve(deps.cwd, p.templatesDir);
+  if (p.templatesDir) return path5.resolve(deps.cwd, p.templatesDir);
   if (typeof fm.templates_dir === "string" && fm.templates_dir) {
-    const dir = path4.resolve(mdDir, fm.templates_dir);
+    const dir = path5.resolve(mdDir, fm.templates_dir);
     if (!conf.allows(dir)) throw new PrepareError(`frontmatter templates_dir "${fm.templates_dir}" resolves outside the input's directory (${dir}); pass --allow-path or --templates-dir`, 1);
     return dir;
   }
-  if (deps.env.AIPLUS_OFFICE_TEMPLATES_DIR) return path4.resolve(deps.cwd, deps.env.AIPLUS_OFFICE_TEMPLATES_DIR);
-  for (const d of [path4.join(deps.cwd, "templates"), path4.join(deps.homedir, "Documents", "templates")]) if (isDir(d)) return d;
+  if (deps.env.AIPLUS_OFFICE_TEMPLATES_DIR) return path5.resolve(deps.cwd, deps.env.AIPLUS_OFFICE_TEMPLATES_DIR);
+  for (const d of [path5.join(deps.cwd, "templates"), path5.join(deps.homedir, "Documents", "templates")]) if (isDir(d)) return d;
   throw new PrepareError("no templates directory found (--templates-dir, frontmatter templates_dir, $AIPLUS_OFFICE_TEMPLATES_DIR, ./templates, ~/Documents/templates)", 1);
 }
 var isDir = (d) => {
   try {
-    return fs3.statSync(d).isDirectory();
+    return fs5.statSync(d).isDirectory();
   } catch {
     return false;
   }
@@ -9501,7 +9769,7 @@ function stripComments(xml) {
 function readTemplateMeta(dir) {
   const read = (f) => {
     try {
-      return stripComments(fs3.readFileSync(path4.join(dir, f), "utf8"));
+      return stripComments(fs5.readFileSync(path5.join(dir, f), "utf8"));
     } catch {
       return "";
     }
@@ -9723,7 +9991,7 @@ function collectVariables(p, fm, meta, inputPath, deps) {
   const now = deps.now();
   const pad = (n) => String(n).padStart(2, "0");
   set("$date", formatDate(now, typeof fm.language === "string" ? fm.language : "en"), "system");
-  set("$fileName", path4.basename(inputPath), "system");
+  set("$fileName", path5.basename(inputPath), "system");
   set("$year", String(now.getFullYear()), "system");
   set("$month", pad(now.getMonth() + 1), "system");
   set("$day", pad(now.getDate()), "system");
@@ -9743,42 +10011,42 @@ function collectVariables(p, fm, meta, inputPath, deps) {
 function resolveTemplate(p, fm, mdDir, conf, deps) {
   const name = p.template ?? (typeof fm.template === "string" ? fm.template : "default");
   if (!TEMPLATE_NAME.test(name)) throw new PrepareError(`invalid template name "${name}" (letters, digits, _ and - only)`, 2);
-  const dir = path4.join(resolveTemplatesDir(p, fm, mdDir, conf, deps), name);
-  const file = path4.join(dir, "template.docx");
-  if (!fs3.existsSync(file)) throw new PrepareError(`template not found: ${file}`, 1);
+  const dir = path5.join(resolveTemplatesDir(p, fm, mdDir, conf, deps), name);
+  const file = path5.join(dir, "template.docx");
+  if (!fs5.existsSync(file)) throw new PrepareError(`template not found: ${file}`, 1);
   return { name, dir, path: file };
 }
 function makePlace(report, outDir) {
   return (bytes, mime, alt) => {
     if (!report.pictures) return `![${alt}](data:${mime};base64,${Buffer.from(bytes).toString("base64")})`;
     const n = String(report.pictures.length + 1).padStart(4, "0");
-    const file = path4.posix.join("images", `${n}${mime === "image/jpeg" ? ".jpg" : `.${mime.split("/")[1]}`}`);
-    fs3.mkdirSync(path4.join(outDir, "images"), { recursive: true });
-    writeAtomic(path4.join(outDir, file), bytes);
+    const file = path5.posix.join("images", `${n}${mime === "image/jpeg" ? ".jpg" : `.${mime.split("/")[1]}`}`);
+    fs5.mkdirSync(path5.join(outDir, "images"), { recursive: true });
+    writeAtomic(path5.join(outDir, file), bytes);
     report.pictures.push({ marker: `CRAFTIMG${n}`, file, alt });
     return `CRAFTIMG${n}`;
   };
 }
 function documentTitle(fm, body, inputPath) {
   for (const k of ["document_title", "document_name"]) if (typeof fm[k] === "string") return fm[k];
-  return /^#\s+(.+)$/m.exec(body)?.[1]?.trim() ?? path4.basename(inputPath, path4.extname(inputPath));
+  return /^#\s+(.+)$/m.exec(body)?.[1]?.trim() ?? path5.basename(inputPath, path5.extname(inputPath));
 }
 async function runPrepare(p, deps) {
-  const inputPath = path4.resolve(deps.cwd, p.input);
+  const inputPath = path5.resolve(deps.cwd, p.input);
   let text;
   try {
-    text = fs3.readFileSync(inputPath, "utf8");
+    text = fs5.readFileSync(inputPath, "utf8");
   } catch {
     throw new PrepareError(`cannot read ${p.input}`, 1);
   }
-  const mdDir = path4.dirname(inputPath);
+  const mdDir = path5.dirname(inputPath);
   const { data: fm, body: rawBody } = splitFrontmatter(text);
   const conf = confinement(mdDir, p.allowPaths, deps.cwd);
   const template = resolveTemplate(p, fm, mdDir, conf, deps);
   const meta = readTemplateMeta(template.dir);
   const vars = collectVariables(p, fm, meta, inputPath, deps);
   const ctx = { values: vars.values, angle: angleNames(meta), unresolved: /* @__PURE__ */ new Set(), ignored: vars.ignored };
-  const templateBytes = fs3.readFileSync(template.path);
+  const templateBytes = fs5.readFileSync(template.path);
   const filled = fillDocx(templateBytes, ctx);
   const report = {
     template: template.name,
@@ -9794,24 +10062,24 @@ async function runPrepare(p, deps) {
     images: { inlined: 0, skipped: [], remote: [] }
   };
   if (templateHasImages(templateBytes)) report.pictures = [];
-  const outDir = path4.resolve(deps.cwd, p.out);
+  const outDir = path5.resolve(deps.cwd, p.out);
   const body = await prepareBody(rawBody, { place: makePlace(report, outDir), mdDir, conf, report, ctx, deps });
   report.title = documentTitle(fm, body, inputPath);
   for (const [k, src] of [...vars.sources].sort(([a], [b]) => a.localeCompare(b))) report.vars[k] = src;
   report.defaulted = [...vars.sources].filter(([, src]) => src === "default").map(([k]) => k).sort();
   report.unresolved = [...ctx.unresolved].sort();
   report.ignored = [...vars.ignored].sort();
-  fs3.mkdirSync(outDir, { recursive: true });
-  writeAtomic(path4.join(outDir, "template.filled.docx"), filled);
-  writeAtomic(path4.join(outDir, "body.md"), body);
-  writeAtomic(path4.join(outDir, "prepare.json"), `${JSON.stringify(report, null, 2)}
+  fs5.mkdirSync(outDir, { recursive: true });
+  writeAtomic(path5.join(outDir, "template.filled.docx"), filled);
+  writeAtomic(path5.join(outDir, "body.md"), body);
+  writeAtomic(path5.join(outDir, "prepare.json"), `${JSON.stringify(report, null, 2)}
 `);
   return report;
 }
 function writeAtomic(file, data) {
   const tmp = `${file}.${randomBytes(6).toString("hex")}.tmp`;
-  fs3.writeFileSync(tmp, data, { flag: "wx" });
-  fs3.renameSync(tmp, file);
+  fs5.writeFileSync(tmp, data, { flag: "wx" });
+  fs5.renameSync(tmp, file);
 }
 async function prepareBody(raw, c) {
   const out = [];
@@ -9845,16 +10113,16 @@ function substitute(prose, c) {
 function resolveImage(ref, c) {
   let file;
   try {
-    file = /^file:/i.test(ref) ? fileURLToPath2(ref) : path4.resolve(c.mdDir, safeDecode(ref));
+    file = /^file:/i.test(ref) ? fileURLToPath2(ref) : path5.resolve(c.mdDir, safeDecode(ref));
   } catch {
     return { skip: "invalid path" };
   }
-  if (!fs3.existsSync(file)) return { skip: "file not found" };
-  const real = fs3.realpathSync(file);
+  if (!fs5.existsSync(file)) return { skip: "file not found" };
+  const real = fs5.realpathSync(file);
   if (!c.conf.allows(real)) return { skip: "outside the input's directory and --allow-path" };
-  const mime = IMAGE_TYPES[path4.extname(real).toLowerCase()];
+  const mime = IMAGE_TYPES[path5.extname(real).toLowerCase()];
   if (!mime) return { skip: "unsupported image type" };
-  if (fs3.statSync(real).size > MAX_IMAGE_BYTES) return { skip: "image too large" };
+  if (fs5.statSync(real).size > MAX_IMAGE_BYTES) return { skip: "image too large" };
   return { real, mime };
 }
 function inlineImages(prose, c) {
@@ -9870,7 +10138,7 @@ function inlineImages(prose, c) {
       return whole;
     }
     c.report.images.inlined++;
-    return c.place(fs3.readFileSync(img.real), img.mime, alt);
+    return c.place(fs5.readFileSync(img.real), img.mime, alt);
   });
 }
 var safeDecode = (s) => {
@@ -9883,17 +10151,17 @@ var safeDecode = (s) => {
 async function renderViaMmdc(source, deps) {
   const mmdc = deps.which("mmdc");
   if (!mmdc) return { error: "mmdc not found on PATH: Mermaid blocks left as code (install @mermaid-js/mermaid-cli or accept code blocks)" };
-  const tmp = fs3.mkdtempSync(path4.join(os2.tmpdir(), "aiplus-office-mmd-"));
+  const tmp = fs5.mkdtempSync(path5.join(os2.tmpdir(), "aiplus-office-mmd-"));
   try {
-    const input = path4.join(tmp, "diagram.mmd");
-    const output = path4.join(tmp, "diagram.png");
-    fs3.writeFileSync(input, source);
+    const input = path5.join(tmp, "diagram.mmd");
+    const output = path5.join(tmp, "diagram.png");
+    fs5.writeFileSync(input, source);
     await deps.run(mmdc, ["-i", input, "-o", output, "-b", "white", "-w", "1400", "-s", "2"], { timeout: 12e4 });
-    return fs3.existsSync(output) ? { png: fs3.readFileSync(output) } : { error: "mmdc exited 0 but wrote no image: block left as code" };
+    return fs5.existsSync(output) ? { png: fs5.readFileSync(output) } : { error: "mmdc exited 0 but wrote no image: block left as code" };
   } catch (e) {
     return { error: `mmdc failed (${e.message.split("\n")[0].slice(0, 120)}): block left as code` };
   } finally {
-    fs3.rmSync(tmp, { recursive: true, force: true });
+    fs5.rmSync(tmp, { recursive: true, force: true });
   }
 }
 async function renderMermaid(seg, c) {
@@ -9909,21 +10177,21 @@ async function renderMermaid(seg, c) {
 }
 
 // src/status.ts
-import * as fs4 from "node:fs";
-import * as path5 from "node:path";
+import * as fs6 from "node:fs";
+import * as path6 from "node:path";
 function dirBytes(dir) {
   let total = 0;
   let entries;
   try {
-    entries = fs4.readdirSync(dir, { withFileTypes: true });
+    entries = fs6.readdirSync(dir, { withFileTypes: true });
   } catch {
     return 0;
   }
   for (const e of entries) {
-    const p = path5.join(dir, e.name);
+    const p = path6.join(dir, e.name);
     try {
       if (e.isDirectory()) total += dirBytes(p);
-      else if (e.isFile()) total += fs4.statSync(p).size;
+      else if (e.isFile()) total += fs6.statSync(p).size;
     } catch {
     }
   }
@@ -9950,12 +10218,12 @@ function statusRoot(deps) {
 }
 
 // src/verify.ts
-import * as fs6 from "node:fs";
-import * as path7 from "node:path";
+import * as fs8 from "node:fs";
+import * as path8 from "node:path";
 
 // src/hu-guards.ts
-import * as fs5 from "node:fs";
-import * as path6 from "node:path";
+import * as fs7 from "node:fs";
+import * as path7 from "node:path";
 var HU_LONG = /[őűŐŰ]/;
 var MONTHS2 = "janu\xE1r|febru\xE1r|m\xE1rcius|\xE1prilis|m\xE1jus|j\xFAnius|j\xFAlius|augusztus|szeptember|okt\xF3ber|november|december";
 var SIGN = "[-+\u2212]?";
@@ -10010,14 +10278,14 @@ function unzip(buf) {
   }
 }
 var utf8 = (b) => b ? new TextDecoder().decode(b) : "";
-function sourceText(file, buf = fs5.readFileSync(file)) {
+function sourceText(file, buf = fs7.readFileSync(file)) {
   const zip = unzip(buf);
   if (zip) {
     const parts = Object.keys(zip).filter((n) => n.endsWith(".xml") && /^(xl\/(sharedStrings|worksheets\/|charts\/)|word\/|ppt\/(slides|charts|notesSlides)\/)/.test(n)).sort();
     return parts.map((n) => texts(utf8(zip[n])).join(" ")).join("\n");
   }
   const raw = utf8(buf);
-  return /\.html?$/i.test(path6.extname(file)) ? decode(raw.replace(/<[^>]*>/g, " ")) : raw;
+  return /\.html?$/i.test(path7.extname(file)) ? decode(raw.replace(/<[^>]*>/g, " ")) : raw;
 }
 function huWords(text) {
   const seen = /* @__PURE__ */ new Set();
@@ -10058,7 +10326,7 @@ function sheetParts(zip) {
   for (const m of rels.matchAll(/<Relationship\b[^>]*>/g)) {
     const id = /\bId="([^"]+)"/.exec(m[0])?.[1];
     const t = /\bTarget="([^"]+)"/.exec(m[0])?.[1];
-    if (id && t) target.set(id, t.startsWith("/") ? t.slice(1) : path6.posix.join("xl", t));
+    if (id && t) target.set(id, t.startsWith("/") ? t.slice(1) : path7.posix.join("xl", t));
   }
   const out = [];
   for (const m of wb.matchAll(/<sheet\b[^>]*>/g)) {
@@ -10142,7 +10410,7 @@ function defaultVerifyDeps() {
     stdout: (t) => process.stdout.write(t),
     stderr: (t) => process.stderr.write(t),
     provisionPdfcraft: () => provision("pdfcraft"),
-    exists: (f) => fs6.existsSync(f)
+    exists: (f) => fs8.existsSync(f)
   };
 }
 var FLAG_ONLY = /* @__PURE__ */ new Set(["has-video", "has-audio", "no-audio", "alpha", "hu-numbers"]);
@@ -10234,10 +10502,10 @@ function parseVerifyArgs(argv) {
   if (file === void 0) throw new UsageError("no file given");
   if (assertions.length === 0) throw new UsageError("no assertion given");
   for (const a of assertions) {
-    if (a.kind === "frame-diff") a.ref = path7.resolve(a.ref);
-    if (a.kind === "hu-glyphs") a.source = path7.resolve(a.source);
+    if (a.kind === "frame-diff") a.ref = path8.resolve(a.ref);
+    if (a.kind === "hu-glyphs") a.source = path8.resolve(a.source);
   }
-  return { file: path7.resolve(file), assertions, json };
+  return { file: path8.resolve(file), assertions, json };
 }
 var ToolMissing = class extends Error {
   tool;
@@ -10252,7 +10520,7 @@ var tolText = (raw) => raw.replace("+/-", "\xB1").replace("+-", "\xB1");
 var ProbeTimeout = class extends Error {
 };
 async function run(deps, tool, args, opts) {
-  const bare = !path7.isAbsolute(tool);
+  const bare = !path8.isAbsolute(tool);
   try {
     return await deps.exec(bare ? exe(tool) : tool, args, opts);
   } catch (e) {
@@ -10378,7 +10646,7 @@ async function evaluate(a, file, deps, prober, pdfBin) {
     }
     case "hu-glyphs": {
       const words = huWordsFrom(a.source);
-      const expected = `every word with \u0151/\u0171 from ${path7.basename(a.source)} in the PDF text`;
+      const expected = `every word with \u0151/\u0171 from ${path8.basename(a.source)} in the PDF text`;
       if (words.length === 0) return result("--hu-glyphs", expected, "the source holds no word with \u0151/\u0171", true);
       const bin = await pdfBin();
       const missing = missingWords(words, (await run(deps, bin, ["text", file])).stdout.toString());
@@ -10393,7 +10661,7 @@ async function evaluate(a, file, deps, prober, pdfBin) {
     case "hu-numbers": {
       let cells;
       try {
-        cells = scanHuNumbers(fs6.readFileSync(file));
+        cells = scanHuNumbers(fs8.readFileSync(file));
       } catch {
         return result("--hu-numbers", "an XLSX workbook", "not an XLSX workbook", false);
       }
@@ -10672,7 +10940,7 @@ async function main(argv, partial = {}) {
 function isEntry() {
   try {
     const entry = process.argv[1];
-    return !!entry && fs7.realpathSync(entry) === fs7.realpathSync(fileURLToPath3(import.meta.url));
+    return !!entry && fs9.realpathSync(entry) === fs9.realpathSync(fileURLToPath3(import.meta.url));
   } catch {
     return false;
   }

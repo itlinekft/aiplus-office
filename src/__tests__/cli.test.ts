@@ -112,7 +112,8 @@ describe("apps", () => {
     const rows = JSON.parse(c.out.join(""));
     expect(rows).toHaveLength(4);
     expect(rows.find((r: { id: string }) => r.id === "pdfcraft")).toMatchObject({ mcp: { confinement: "root", toolClass: "large", tools: 175 }, repo: "storytold/pdfcraft" });
-    expect(rows.find((r: { id: string }) => r.id === "gridcraft")).toMatchObject({ mcp: { confinement: false } });
+    expect(rows.find((r: { id: string }) => r.id === "gridcraft")).toMatchObject({ mcp: { confinement: "gateway", tools: 20 } });
+    expect(rows.find((r: { id: string }) => r.id === "deckcraft")).toMatchObject({ mcp: { confinement: "automation-roots", tools: 25 } });
   });
 
   it("apps (text) lists every id", async () => {
@@ -233,23 +234,14 @@ describe("exec (subprocess)", () => {
     expect(fs.existsSync(path.join(cwd, ".mcp.json"))).toBe(false);
   });
 
-  it("mcp --register on an unconfined app without the flag exits 1 and writes nothing", () => {
-    const cwd = tmpDir();
-    fs.mkdirSync(path.join(cwd, ".git"));
-    const r = runCli(["gridcraft", "mcp", "--register"], {}, cwd);
-    expect(r.status).toBe(1);
-    expect(r.stderr).toContain("--allow-unconfined");
-    expect(fs.existsSync(path.join(cwd, ".mcp.json"))).toBe(false);
-  });
-
-  it("mcp --register --allow-unconfined writes aiplus-office-gridcraft; extra options are rejected", () => {
+  it("mcp --register writes aiplus-office-gridcraft confined to the project (gateway); extra options are rejected", () => {
     const cwd = tmpDir();
     fs.mkdirSync(path.join(cwd, ".git"));
     expect(runCli(["gridcraft", "mcp", "--register", "--root", "/x"], {}, cwd).status).toBe(1);
-    const ok = runCli(["gridcraft", "mcp", "--register", "--allow-unconfined"], {}, cwd);
+    const ok = runCli(["gridcraft", "mcp", "--register"], {}, cwd);
     expect(ok.status).toBe(0);
     const cfg = JSON.parse(fs.readFileSync(path.join(cwd, ".mcp.json"), "utf8"));
-    expect(cfg.mcpServers["aiplus-office-gridcraft"].args.slice(1)).toEqual(["gridcraft", "mcp", "--allow-unconfined"]);
+    expect(cfg.mcpServers["aiplus-office-gridcraft"].args.slice(1)).toEqual(["gridcraft", "mcp", "--root", cwd]);
   });
 
   it("mcp --register on a confined app pins --root to the project directory", () => {

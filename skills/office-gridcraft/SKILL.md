@@ -103,11 +103,16 @@ Measured 2026-10-24 on GridCraft 0.11.1 (the plugin's `docs/MEASURED.md`); upstr
   them plainly that ő and ű will be missing from it; for a chart with those letters use DeckCraft's `insert.chart`
   (`office-data-visual`).
 
-## MCP route (not registered)
+## MCP route (registered, confined by aiplus-office)
 
-GridCraft's MCP server advertises **no path confinement** (it can read and write any file the user can), so the plugin
-does not register it and `aiplus-office gridcraft mcp` refuses without `--allow-unconfined`. Use the bash route in the
-project folder. GUI bridging (`--connect`) is out of scope.
+GridCraft's own MCP server has **no path confinement**, so the plugin registers `aiplus-office-gridcraft` behind a
+gateway: 20 of its 21 tools (the window-only `screenshot` is left out), every `path` resolved inside the project folder
+(a relative path is resolved against it), and `execute_command` limited to in-workbook commands plus the file commands
+open, save, save as and export, whose paths are checked too. A refused call comes back as a tool error, Hungarian then
+English. Use MCP in a client without a shell (Claude Desktop chat): `new_workbook` or `open_workbook`, then
+`write_range` / `set_cell`, `read_range` / `get_cell` / `evaluate_formula` to read back, `format_range`, and
+`save_workbook` with an `.xlsx` path. The same traps apply (ő/ű in GridCraft's own PDF). The bash route stays the
+default where there is a shell. GUI bridging (`--connect`) is out of scope.
 
 ## Recipes
 

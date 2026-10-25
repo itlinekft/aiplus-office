@@ -39,13 +39,14 @@ describe("manifests", () => {
 describe(".mcp.json", () => {
   const servers = json(".mcp.json").mcpServers as Record<string, { command: string; args: string[] }>;
 
-  it("registers only the confined apps, WordCraft and PdfCraft (PdfCraft compact), rooted at the project", () => {
-    expect(Object.keys(servers).sort()).toEqual(["aiplus-office-pdfcraft", "aiplus-office-wordcraft"]);
+  it("registers the four apps, all confined (GridCraft by the gateway), PdfCraft compact, rooted at the project (change office-mcp-grid-deck)", () => {
+    expect(Object.keys(servers).sort()).toEqual(["aiplus-office-deckcraft", "aiplus-office-gridcraft", "aiplus-office-pdfcraft", "aiplus-office-wordcraft"]);
     for (const [name, s] of Object.entries(servers)) {
       expect(s.command).toBe("node");
       expect(s.args[0]).toBe("${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs");
       expect(s.args.slice(2, 5), name).toEqual(["mcp", "--root", "${CLAUDE_PROJECT_DIR}"]);
-      expect(s.args.join(" ")).not.toMatch(/gridcraft|deckcraft|--allow-unconfined/);
+      expect(s.args.join(" ")).not.toMatch(/--allow-unconfined/);
+      expect(name).toBe(`aiplus-office-${s.args[1]}`);
       const app = CRAFT_APPS.find((a) => a.id === s.args[1]);
       expect(app?.mcp.confinement, name).not.toBe(false);
     }

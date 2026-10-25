@@ -43,13 +43,14 @@ export interface CliDialect {
 }
 
 /**
- * How the MCP server confines file access: `automation-roots` = `--automation-read-root` +
- * `--automation-write-root`; `root` = a single `--root` (PdfCraft); `false` = none advertised.
+ * How file access is confined: `automation-roots` = the server's `--automation-read-root` +
+ * `--automation-write-root` (WordCraft, DeckCraft); `root` = the server's single `--root` (PdfCraft); `gateway` = the
+ * server has none and the proxy confines it (`src/mcp-gateway.ts`, GridCraft); `false` = none at all.
  */
-export type Confinement = false | "automation-roots" | "root";
+export type Confinement = false | "automation-roots" | "root" | "gateway";
 
 export interface McpPolicy {
-  /** Confinement mechanism the server advertises (probe 0.4, latest releases), or `false`. */
+  /** Confinement mechanism (measured on the latest releases, 2026-10-25), or `false`. */
   confinement: Confinement;
   /** `--compact` lists only helper tools (every command stays reachable via a `run`/`tool_call` tool). */
   compactFlag?: "--compact";
@@ -117,14 +118,16 @@ export const CRAFT_APPS: readonly CraftApp[] = [
     "GridCraft",
     "spreadsheets: formulas, evaluation, conversion",
     { list: COMMANDS_JSON, run: "run [--in FILE] --cmd 'id={json}'… [--out FILE] | eval | check | convert" },
-    { confinement: false, toolClass: "small", tools: 21, bridgeFlag: "--connect" },
+    // gridcraft-cli mcp (0.12.1) has no root option: the proxy confines it and lists 20 of its 21 tools (no `screenshot`).
+    { confinement: "gateway", toolClass: "small", tools: 20, bridgeFlag: "--connect" },
   ),
   app(
     "deckcraft",
     "DeckCraft",
     "presentation slides and export",
     { list: ["commands"], describe: ["describe", "<id>"], run: "run [--in FILE] [--cmd ID[=JSON]…] [--save OUT] [--export OUT] | render | convert" },
-    { confinement: false, toolClass: "small", tools: 25, bridgeFlag: "--connect" },
+    // --automation-read-root/--automation-write-root measured on 0.10.0 and 0.11.1 (2026-10-25).
+    { confinement: "automation-roots", toolClass: "small", tools: 25, bridgeFlag: "--connect" },
   ),
   app(
     "pdfcraft",

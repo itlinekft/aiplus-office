@@ -130,12 +130,14 @@ record_step() { # record_step NN-step "upstream ids comma-separated" verify-repo
 
 - **Default to the bash route** (`aiplus-office <app> exec`). It works for every app, costs no tool slots, and every
   command and result is visible.
-- **MCP** is for clients without a shell (Claude Desktop chat). The plugin registers two confined servers:
-  `aiplus-office-wordcraft` and `aiplus-office-pdfcraft` (PdfCraft with `--compact`: 17 tools instead of 175), both
-  confined to the project folder for reads and writes.
-- **GridCraft and DeckCraft are not registered as MCP servers**: their servers advertise no path confinement and could
-  read and write any file the user can. Use them through the bash route in the project folder. `aiplus-office <app> mcp
-  --allow-unconfined` exists, but say plainly to the user what it means before using it.
+- **MCP** is for clients without a shell (Claude Desktop chat). The plugin registers four servers, each confined to the
+  project folder for reads and writes: `aiplus-office-wordcraft` (16 tools), `aiplus-office-gridcraft` (20 tools),
+  `aiplus-office-deckcraft` (25 tools) and `aiplus-office-pdfcraft` (`--compact`: 17 tools instead of 175).
+- **GridCraft's own server has no confinement**, so aiplus-office confines it: a path outside the project folder, a
+  window-only tool, or a command that would open a link, run a script, open a window or print is refused with a
+  Hungarian-then-English tool error. Do not retry such a call another way; tell the user what was refused.
+- Paths over MCP: give WordCraft and DeckCraft an **absolute** path inside the project folder (a relative one is
+  refused); GridCraft also takes a path relative to the folder.
 - Issue MCP tool calls one at a time and wait for each result.
 
 ## Out of scope
