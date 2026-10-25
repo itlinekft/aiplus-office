@@ -1,0 +1,12 @@
+aiplus-office
+Copyright (c) 2026 ITLine Kft.
+
+Portions of this plugin (the provisioning command, the MCP proxy, the output checks, the template filler and the
+skills it grew from) are derived from an MIT-licensed package, Copyright (c) 2026 Robert Csakany. The original
+copyright and permission notice are reproduced in LICENSE.
+
+The office apps this plugin drives (WordCraft, GridCraft, DeckCraft, PdfCraft) are separate projects of the storytold
+organisation on GitHub (https://github.com/storytold), licensed MIT OR Apache-2.0. They are not part of this plugin:
+the `aiplus-office` command downloads their official release binaries on first use and checks each against the
+release's SHA256SUMS.txt. "WordCraft", "GridCraft", "DeckCraft", "PdfCraft" and "ArtCraft" are the names of those
+projects; this plugin is not affiliated with or endorsed by them.

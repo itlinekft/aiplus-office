@@ -1,0 +1,30 @@
+{
+  "name": "aiplus-office",
+  "version": "0.1.5",
+  "private": true,
+  "description": "ITLine AI+ office building block: a Claude plugin that creates and edits DOCX, XLSX, PPTX and PDF files with the free ArtCraft apps (WordCraft, GridCraft, DeckCraft, PdfCraft), driven headless through their CLIs.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "aiplus-office": "cli/aiplus-office"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.8"
+  }
+}

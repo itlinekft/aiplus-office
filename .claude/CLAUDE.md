@@ -1,0 +1,3 @@
+# aiplus-office
+
+@../AGENTS.md

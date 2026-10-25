@@ -1,0 +1,18 @@
+{
+  "name": "aiplus-office-dev",
+  "owner": {
+    "name": "ITLine Kft."
+  },
+  "metadata": {
+    "description": "Local development marketplace of the aiplus-office plugin (not published)."
+  },
+  "plugins": [
+    {
+      "name": "aiplus-office",
+      "source": "./",
+      "version": "0.1.5",
+      "description": "Office files (DOCX, XLSX, PPTX, PDF) with the free ArtCraft apps, headless, for Claude. Early alpha apps.",
+      "category": "productivity"
+    }
+  ]
+}

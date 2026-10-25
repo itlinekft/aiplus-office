@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+// aiplus-office launcher.
+//
+// Checkout with dev dependencies: run `src/bin/aiplus-office.ts` through tsx (the working tree, not a stale
+// bundle). Plugin install (no node_modules): run the committed esbuild bundle `dist/aiplus-office.mjs` in a `node`
+// subprocess (a real entry `process.argv[1]` is what the CLI's `isEntry()` guard needs). Arguments, stdio, exit
+// code and signals pass through.
+//
+// Ported from the upstream package's CLI launcher. See change: office-plugin-v1 (design D5, D6).
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const srcCli = join(pkgRoot, "src", "bin", "aiplus-office.ts");
+const distCli = join(pkgRoot, "dist", "aiplus-office.mjs");
+
+function resolveTsx() {
+  try {
+    return createRequire(import.meta.url).resolve("tsx");
+  } catch {
+    return undefined;
+  }
+}
+
+const args = process.argv.slice(2);
+const tsx = existsSync(srcCli) ? resolveTsx() : undefined;
+
+let argv;
+if (tsx) argv = ["--import", tsx, srcCli, ...args];
+else if (existsSync(distCli)) argv = [distCli, ...args];
+else {
+  console.error("[aiplus-office] neither src/bin/aiplus-office.ts (with tsx) nor dist/aiplus-office.mjs is available — run `npm run build`");
+  process.exit(1);
+}
+
+const child = spawn(process.execPath, argv, { stdio: "inherit", windowsHide: true });
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => child.kill(sig));
+child.on("error", (e) => {
+  console.error(`[aiplus-office] failed to launch: ${e.message}`);
+  process.exit(1);
+});
+child.on("exit", (code, signal) => {
+  if (signal) process.exit(signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1);
+  process.exit(code ?? 1);
+});

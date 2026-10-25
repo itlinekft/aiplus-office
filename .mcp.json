@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "aiplus-office-wordcraft": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs", "wordcraft", "mcp", "--root", "${CLAUDE_PROJECT_DIR}"]
+    },
+    "aiplus-office-pdfcraft": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs", "pdfcraft", "mcp", "--root", "${CLAUDE_PROJECT_DIR}", "--compact"]
+    }
+  }
+}
