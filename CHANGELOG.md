@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.11 — 2026-10-25
+
+- Four connectors: GridCraft (spreadsheets) and DeckCraft (slides) join WordCraft and PdfCraft. DeckCraft runs
+  confined to the project folder by its own server; GridCraft's server cannot confine paths, so a gateway in front of
+  it offers 20 of its 21 tools (not `screenshot`), keeps every path inside the project folder and refuses links,
+  scripts, windows and printing.
+- Downloads survive stalls: a transfer that delivers nothing for 45 s is resumed where it stopped (three more
+  attempts); a newer release that fails to install falls back to the installed version; the connectors start on the
+  installed version at once and the next command outside a connector updates it.
+- Shown name: `displayName` „AI+ Iroda” in the plugin and the marketplace entry (Claude Desktop showed „Aiplus office”).
+
 ## 0.1.10 — 2026-10-25
 
 - The plugin homepage is the AI+ Iroda page on itline.hu (https://www.itline.hu/ai-plus/iroda/), now live; the
