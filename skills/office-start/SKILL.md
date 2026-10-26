@@ -9,11 +9,13 @@ Run this the first time the user works with the plugin, when they ask how to sta
 command failed because Node.js or an app is missing. It checks the machine, explains the result in plain words, and
 never starts a download itself without a yes. Office jobs themselves belong to `office-router`.
 
-**Claude Desktop downloads the apps by itself.** It starts the module's four connectors as soon as it starts (right
-after the plugin is added, then at every start of Claude), and each connector fetches its app in the background the
-first time (measured on Windows 2026-10-26: all four within 10 s of the start, before any question). So on Claude
-Desktop the apps are usually there before this skill runs; say how they got there (3. below), never that they were
-already on the computer.
+**Claude Desktop downloads the apps by itself.** It starts the module's four connectors when Claude starts and when a
+session opens (not yet when the plugin is added), and each connector fetches its app in the background the first time
+(measured on Windows 2026-10-26: all four about 10 s after a new session opened, before any question). So on Claude
+Desktop the apps are usually there, or arriving, when this skill runs: say how they got there (3. below), never that
+they were already on the computer. An app `not installed` in a Claude Desktop session is usually still downloading:
+say so (HU: „a többi most töltődik le magától, pár perc”; EN: “the others are downloading by themselves, a few
+minutes”) and offer `install --all` only if a job then fails.
 
 **Answer in the user's language.** Every user-facing block below has a Hungarian (**HU**) and an English (**EN**)
 wording with the same facts: use the one that matches the user (Hungarian when unsure), in these words or close to them.

@@ -20,7 +20,7 @@ dolgozz másolaton, és az ügyfélnek szánt fájlt küldés előtt nézd át.
   `aiplus-office` telepítése. Claude Code: `/plugin install aiplus-office --marketplace itlinekft/aiplus-plugins`.
 - **Mi kell hozzá?** Node.js 20 vagy újabb (https://nodejs.org, „LTS”). A négy programot a modul maga tölti le a hivatalos
   GitHub-oldalukról, ellenőrzőlistával egyeztetve, a saját felhasználói mappádba; telepítő és rendszergazdai jog nem
-  kell. A Claude Desktop ezt rögtön az induláskor, a háttérben elvégzi, a Claude Code az első feladatnál.
+  kell. A Claude Desktop ezt magától, a háttérben elvégzi, amikor elindul vagy munkamenetet nyitsz, a Claude Code az első feladatnál.
 - **Mi hol működik?** A sima Chatben is megy mind a négy: ott a fájlok a Dokumentumok mappán belül az **„AI+ Iroda”**
   mappába kerülnek, oda tedd azt is, amin a Claude dolgozzon. **A saját mappádban** Claude Code-ban vagy a Claude
   Desktopban „This computer” környezetű munkamenetben dolgozhatsz. A felhőben futó munkamenet nem tudja letölteni a
@@ -88,7 +88,7 @@ or, on older versions:
   `github.com/storytold/<program>` (20–100 MB), checks it against the release's `SHA256SUMS.txt`, and keeps it in a
   per-user folder (`%LOCALAPPDATA%\aiplus-office` on Windows, `~/Library/Caches/aiplus-office` on macOS,
   `~/.cache/aiplus-office` on Linux). No installer, no administrator rights; nothing is installed system-wide. Claude
-  Desktop does this by itself, in the background, as soon as it starts the module; Claude Code at the first job. On
+  Desktop does this by itself, in the background, when it starts or a session opens; Claude Code at the first job. On
   Windows, Claude Desktop's copy is in Claude's own folder:
   `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (`aiplus-office status` names it).
 - For the workflow skills' checks: a Bash shell and `jq` (Claude Code on Windows uses Git Bash; `jq` is not part of it

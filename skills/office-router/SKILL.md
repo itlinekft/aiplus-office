@@ -15,7 +15,7 @@ loop; each app has its own skill for its dialect, traps and recipes: read it bef
 
 If the user is new to the plugin, asks how to start or what it needs („hogyan kezdjem”, „mi kell hozzá”, "how do I
 start"), or a command just failed because Node.js or an app is missing, run **`office-start`** first: it checks Node.js
-and the apps, says where they come from and how they got there (Claude Desktop fetches them by itself, in the background, when it starts), and says what works where. In short: a plain Chat in
+and the apps, says where they come from and how they got there (Claude Desktop fetches them by itself, in the background, when it starts or a session opens), and says what works where. In short: a plain Chat in
 Claude Desktop makes all four file types through the four registered servers below, but only in the „AI+ Iroda” folder
 of the user's Documents; **a folder of the user's choice needs Claude running on the user's own computer** (Claude Code, or a Claude Desktop session whose environment is „This
 computer"), where commands can run. A session in the cloud cannot download the apps (measured 2026-10-24).

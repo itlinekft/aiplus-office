@@ -15,8 +15,8 @@ gépi ellenőrzés néz át, mielőtt a Claude odaadja.
 - **Node.js 20 vagy újabb.** Ingyenes segédprogram: https://nodejs.org, az „LTS” jelű változat. Telepítés után indítsd
   újra a Claude-ot.
 - **Internet az első használatkor.** A négy programot a modul maga tölti le a hivatalos GitHub-oldalukról
-  (`github.com/storytold/<program>`), programonként 20–100 MB-ot. A Claude Desktop ezt rögtön az induláskor, a
-  háttérben elvégzi, kérdés nélkül; a Claude Code az első feladatnál. Minden letöltött fájlt összevet a kiadás
+  (`github.com/storytold/<program>`), programonként 20–100 MB-ot. A Claude Desktop ezt magától, a háttérben, kérdés
+  nélkül elvégzi, amikor elindul vagy munkamenetet nyitsz; a Claude Code az első feladatnál. Minden letöltött fájlt összevet a kiadás
   ellenőrzőlistájával (`SHA256SUMS.txt`); ha eltér, nem telepíti. Telepítő nem fut, rendszergazdai jog nem kell.
 
 ### Telepítés
@@ -118,8 +118,8 @@ checked mechanically before Claude hands it over.
 - **Node.js 20 or newer.** A free helper program: https://nodejs.org, the “LTS” version. Restart Claude after
   installing it.
 - **Internet on first use.** The module downloads the four programs itself from their official GitHub pages
-  (`github.com/storytold/<program>`), 20–100 MB each. Claude Desktop does it right when it starts, in the background,
-  without asking; Claude Code at the first job. It checks every downloaded file against the release's checklist
+  (`github.com/storytold/<program>`), 20–100 MB each. Claude Desktop does it by itself, in the background, without
+  asking, when it starts or a session opens; Claude Code at the first job. It checks every downloaded file against the release's checklist
   (`SHA256SUMS.txt`); a file that differs is not installed. No installer runs, no administrator rights are needed.
 
 ### Install

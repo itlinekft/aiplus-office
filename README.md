@@ -64,8 +64,8 @@ table is the design; what has actually been tried is kept in one block of `skill
 
 ## Install
 
-Requirements: **Node.js 20 or newer** on the machine. The four apps are downloaded once (20–100 MB each; Claude Desktop does it in the background as soon as it starts
-the module's connectors, Claude Code at the first job) from
+Requirements: **Node.js 20 or newer** on the machine. The four apps are downloaded once (20–100 MB each; Claude Desktop does it in the background when it starts the module's
+connectors, at its own start or when a session opens; Claude Code at the first job) from
 their official GitHub releases (`github.com/storytold/<app>`), each archive checked against the release's
 `SHA256SUMS.txt`, into a per-user cache (`~/.cache/aiplus-office` on Linux, `~/Library/Caches/aiplus-office` on macOS,
 `%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is redirected to

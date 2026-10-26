@@ -11,5 +11,6 @@
 
 ## 3. Release and measure
 
-- [ ] 3.1 Version 0.1.16, CHANGELOG, `docs/MEASURED.md`; build, tests, validate; release to the marketplace [REQ: Status names Claude Desktop's own copy] [REQ: Readiness check]
-- [ ] 3.2 Measured on Windows after the release: fresh install, emptied cache; `status` shows `desktop cache:`; „Hogyan kezdjem az AI+ Iroda modult?” gets the already-downloaded block with that folder [REQ: Provenance stated] [REQ: Readiness check]
+- [x] 3.1 Version 0.1.16, CHANGELOG, `docs/MEASURED.md`; build, tests, validate; release to the marketplace [REQ: Status names Claude Desktop's own copy] [REQ: Readiness check]
+- [x] 3.2 Measured on Windows after the release: fresh install, emptied cache; `status` shows `desktop cache:`; „Hogyan kezdjem az AI+ Iroda modult?” gets the already-downloaded block with that folder [REQ: Provenance stated] [REQ: Readiness check]
+- [x] 3.3 The 0.1.16 measurement showed the connectors start with Claude or a session, not on „Add”: copy corrected, an app still downloading in a Desktop session reported as such; version 0.1.17 [REQ: Readiness check]

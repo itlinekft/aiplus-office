@@ -14,6 +14,11 @@ The plugin and the marketplace removed and added again; Claude quit; the app cac
 - **Claude Desktop's cache is redirected.** It is a packaged app: the apps were in
   `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\aiplus-office`; `%LOCALAPPDATA%\aiplus-office`, the
   folder `office-start` named, did not exist outside Claude. (Deleting the unredirected path had emptied nothing.)
+- **0.1.16, plugin and marketplace removed and added again, cache emptied:** 60 s after „Add” no connector of the
+  module ran; opening a new Code session started them, and the four apps were in place about 10 s later (01:54:23–24).
+  Claude Desktop also started the removed plugin's connectors once more at its next start (interrupted downloads left
+  as `.staging-*`, swept by a later run after an hour). `office-start` then said two apps were there and two were
+  downloading by themselves, and named the `Packages\Claude_…\LocalCache` folder.
 - **„hogyan kezdjem?” without the module's name**, in a folder that another plugin also serves, got a general menu from
   Claude, not `office-start`; with the name it ran `office-start`.
 - **Code session:** „Készíts árlistát táblázatban három termékkel, 27% ÁFÁ-val” → `office-gridcraft`, `arlista-m7.xlsx`

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.17 — 2026-10-26
+
+- **When Claude Desktop downloads, said as measured.** Its connectors start when Claude starts and when a session opens,
+  not when the plugin is added (measured: nothing 60 s after „Add”, the four apps about 10 s after a new session).
+  `office-start` says so, and an app still downloading in a Claude Desktop session is reported as downloading, with
+  `install --all` offered only if a job then fails. README, user guide and router follow.
+
 ## 0.1.16 — 2026-10-26
 
 - **`status` names the folder Claude Desktop really uses on Windows.** Claude Desktop is a packaged app, so the apps it
