@@ -7383,6 +7383,7 @@ function execFileAsync(file, args = [], options = {}) {
 
 // src/mcp-proxy.ts
 import * as fs3 from "node:fs";
+import * as os2 from "node:os";
 import * as path3 from "node:path";
 import * as readline from "node:readline";
 
@@ -8269,6 +8270,7 @@ function defaultMcpDeps(app2) {
     stdout: process.stdout,
     stderr: (t) => process.stderr.write(t),
     cwd: () => process.cwd(),
+    chatRoot: defaultChatRoot,
     onSignal: (signal, handler) => {
       process.on(signal, handler);
     },
@@ -8279,6 +8281,7 @@ function defaultMcpDeps(app2) {
 }
 function parseMcpArgs(argv) {
   let root;
+  let noProject = false;
   let allowUnconfined = false;
   let compact = false;
   for (let i = 0; i < argv.length; i++) {
@@ -8291,6 +8294,10 @@ function parseMcpArgs(argv) {
     } else if (a === "--root" || a.startsWith("--root=")) {
       const v = a === "--root" ? argv[++i] : a.slice("--root=".length);
       if (!v || v.startsWith("--")) return { kind: "error", message: "--root needs a directory" };
+      if (v === "${CLAUDE_PROJECT_DIR}") {
+        noProject = true;
+        continue;
+      }
       const unexpanded = /\$\{[^}]*\}?/.exec(v);
       if (unexpanded) return { kind: "error", message: `--root holds an unexpanded variable (${unexpanded[0]}): the client did not substitute it; refusing to start` };
       root = v;
@@ -8300,7 +8307,13 @@ function parseMcpArgs(argv) {
       return { kind: "error", message: `unknown option for mcp: ${a}` };
     }
   }
-  return { kind: "run", root, allowUnconfined, compact };
+  return { kind: "run", root, ...noProject ? { noProject } : {}, allowUnconfined, compact };
+}
+function defaultChatRoot(env = process.env, home = os2.homedir()) {
+  if (env.AIPLUS_OFFICE_CHAT_ROOT) return env.AIPLUS_OFFICE_CHAT_ROOT;
+  const candidates = [env.OneDrive ? path3.join(env.OneDrive, "Documents") : "", path3.join(home, "Documents")].filter(Boolean);
+  const docs = candidates.find((d) => isDirectory(d)) ?? home;
+  return path3.join(docs, "AI+ Iroda");
 }
 function isDirectory(p) {
   try {
@@ -8351,7 +8364,19 @@ ${usage2}
   let spawnArgs;
   let gateway;
   if (confined) {
-    const root = path3.resolve(deps.cwd(), parsed.root ?? ".");
+    let root = path3.resolve(deps.cwd(), parsed.root ?? ".");
+    if (parsed.noProject) {
+      root = deps.chatRoot();
+      try {
+        fs3.mkdirSync(root, { recursive: true });
+      } catch (e) {
+        deps.stderr(`${deps.prog}: cannot create the chat folder ${root}: ${e.message}
+`);
+        return 1;
+      }
+      deps.stderr(`[${deps.prog}] no project folder from the client (plain Chat): files go to ${root}
+`);
+    }
     deps.stderr(`[${deps.prog}] mcp root: ${root}
 `);
     if (app2.mcp.confinement === "gateway") {
@@ -8896,7 +8921,7 @@ ${ctx.usage}
 // src/doc-prepare.ts
 import { randomBytes } from "node:crypto";
 import * as fs5 from "node:fs";
-import * as os2 from "node:os";
+import * as os3 from "node:os";
 import * as path5 from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
@@ -9922,7 +9947,7 @@ function defaultPrepareDeps(env = process.env) {
     stderr: (t) => process.stderr.write(t),
     env,
     cwd: process.cwd(),
-    homedir: os2.homedir(),
+    homedir: os3.homedir(),
     now: () => /* @__PURE__ */ new Date(),
     which,
     run: async (file, args, opts) => {
@@ -10454,7 +10479,7 @@ var safeDecode = (s) => {
 async function renderViaMmdc(source, deps) {
   const mmdc = deps.which("mmdc");
   if (!mmdc) return { error: "mmdc not found on PATH: Mermaid blocks left as code (install @mermaid-js/mermaid-cli or accept code blocks)" };
-  const tmp = fs5.mkdtempSync(path5.join(os2.tmpdir(), "aiplus-office-mmd-"));
+  const tmp = fs5.mkdtempSync(path5.join(os3.tmpdir(), "aiplus-office-mmd-"));
   try {
     const input = path5.join(tmp, "diagram.mmd");
     const output = path5.join(tmp, "diagram.png");
@@ -11052,7 +11077,7 @@ ${VERIFY_USAGE}
 }
 
 // src/bin/aiplus-office.ts
-var VERSION = "0.1.14";
+var VERSION = "0.1.15";
 var NODE_MIN_MAJOR = 20;
 function nodeLine(version) {
   const major = Number(/^v?(\d+)/.exec(version)?.[1]);

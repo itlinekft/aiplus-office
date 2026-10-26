@@ -11,4 +11,4 @@
 ## 3. Release and measure
 
 - [x] 3.1 Measured on Windows before the release: four connectors up in a plain Chat; XLSX, DOCX, PDF, PPTX made in Documents › „AI+ Iroda” [REQ: Plain Chat folder]
-- [ ] 3.2 Version 0.1.15, CHANGELOG, `docs/MEASURED.md`; build, tests, validate; release to the marketplace [REQ: Plain Chat folder] [REQ: Plain Chat said plainly]
+- [x] 3.2 Version 0.1.15, CHANGELOG, `docs/MEASURED.md`; build, tests, validate; release to the marketplace [REQ: Plain Chat folder] [REQ: Plain Chat said plainly]

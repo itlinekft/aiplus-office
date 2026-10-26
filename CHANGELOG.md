@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.15 — 2026-10-26
+
+- **A plain Chat in Claude Desktop now works with all four apps.** It has no project folder, and the connectors refused
+  to start without one; now they use the „AI+ Iroda” folder in the user's Documents (created on first use;
+  `AIPLUS_OFFICE_CHAT_ROOT` overrides). Measured on Windows 11: an XLSX, a DOCX, a PDF and a PPTX made in a plain Chat.
+- The copy says so everywhere: a plain Chat does all four, in that folder; a folder of your choice needs Claude Code or
+  a „This computer” session.
+
 ## 0.1.14 — 2026-10-26
 
 - When the module cannot run (Node.js or an app missing, a connector not running, a session in the cloud), the skills
