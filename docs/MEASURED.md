@@ -3,6 +3,30 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-26 — Windows 11, Claude Desktop 3.6556: plain Chat, Code sessions, the ArtCraft Launcher (changes office-honest-fallback, office-chat-folder)
+
+A Windows 11 test PC (Hungarian, administrator user), driven with desktape; screens read by three models.
+
+- **Plain Chat, before:** Claude Desktop starts the plugin's servers itself (`LocalMcpServerManager`), but passes
+  `${CLAUDE_PROJECT_DIR}` unsubstituted; all four refused it and Claude said no AI+ Iroda connector was available.
+- **Plain Chat, after (`--root ${CLAUDE_PROJECT_DIR}` → Documents › „AI+ Iroda”):** the four servers announced 16
+  (WordCraft), 25 (DeckCraft), 20 (GridCraft) and 17 (PdfCraft) tools; one Chat made `arlista.xlsx`, then
+  `arajanlat_Minta_Kft.docx`, `.pdf` and a two-slide `.pptx` in that folder (about 4 minutes for the three).
+- **Code session, „This computer”:** a price list (GridCraft, VAT by formula, totals 26 012 / 7 023 / 33 035 Ft), an offer
+  from a DOCX template (WordCraft, about 2 minutes), three slides from it (DeckCraft, about 2.5 minutes), the offer and
+  a terms PDF merged, the last page removed and a password set (PdfCraft), the total read back from the PDF.
+- **Without Node.js** the servers fail at once; after installing it and restarting Claude they still showed
+  „Reconnect” for 15 minutes („recent failure cached”), until Reconnect was clicked (GridCraft then up in 0.15 s).
+- **A cloud session** (Claude-mode chat with a shared folder before the fix) could not download the apps (GitHub 401)
+  and, before 0.1.14's rule, built the file with a generic library, saying so.
+- **A closing `python -c` check** hit the Windows Store stub (exit 49) and marked a correct GridCraft run as failed.
+- **Node launcher script** in place of `node` in `.mcp.json`: a Code session ran it; the plain Chat's starter did not
+  (connection closed): dropped.
+- **ArtCraft Launcher 0.8.1** (`windows-x64.msi`, SHA-256 as published): Edge warns that the file is rarely
+  downloaded; the wizard installs per user without UAC; WordCraft, GridCraft, DeckCraft, PdfCraft each installed in
+  4–12 s into `C:\Program Files\<App>` (no UAC prompt for an administrator); no file types registered. GridCraft drops
+  keys typed instantly after the key that starts a cell edit.
+
 ## 2026-10-24 — Linux x86_64, first real run (change office-plugin-v1)
 
 **Machine:** Ubuntu 22.04, glibc 2.35, Node.js v25.6.1, x86_64. Cache: the default `~/.cache/aiplus-office`.

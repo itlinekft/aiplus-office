@@ -30,6 +30,7 @@
  * office-mcp-lazy-start.
  */
 import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import * as readline from "node:readline";
 import type { Readable, Writable } from "node:stream";
@@ -82,6 +83,8 @@ export interface McpDeps {
   stdout: Writable;
   stderr: (text: string) => void;
   cwd: () => string;
+  /** The folder a client without a project folder (Claude Desktop's plain Chat) is confined to; created on use. */
+  chatRoot: () => string;
   onSignal: (signal: "SIGINT" | "SIGTERM", handler: () => void) => void;
   cancelGraceMs: number;
   /** See `INIT_GRACE_MS`. */
@@ -99,6 +102,7 @@ export function defaultMcpDeps(app: CraftApp): McpDeps {
     stdout: process.stdout,
     stderr: (t) => process.stderr.write(t),
     cwd: () => process.cwd(),
+    chatRoot: defaultChatRoot,
     onSignal: (signal, handler) => {
       process.on(signal, handler);
     },
@@ -108,10 +112,11 @@ export function defaultMcpDeps(app: CraftApp): McpDeps {
   };
 }
 
-type ParsedArgs = { kind: "run"; root?: string; allowUnconfined: boolean; compact: boolean } | { kind: "help" } | { kind: "error"; message: string };
+type ParsedArgs = { kind: "run"; root?: string; noProject?: boolean; allowUnconfined: boolean; compact: boolean } | { kind: "help" } | { kind: "error"; message: string };
 
 export function parseMcpArgs(argv: string[]): ParsedArgs {
   let root: string | undefined;
+  let noProject = false;
   let allowUnconfined = false;
   let compact = false;
   for (let i = 0; i < argv.length; i++) {
@@ -124,7 +129,13 @@ export function parseMcpArgs(argv: string[]): ParsedArgs {
     } else if (a === "--root" || a.startsWith("--root=")) {
       const v = a === "--root" ? argv[++i] : a.slice("--root=".length);
       if (!v || v.startsWith("--")) return { kind: "error", message: "--root needs a directory" };
-      // A client that did not substitute `${CLAUDE_PROJECT_DIR}` would otherwise confine the server to a literal path.
+      // Claude Desktop's plain Chat has no project folder and passes `${CLAUDE_PROJECT_DIR}` as it is (measured on
+      // Windows 2026-10-26): the server is then confined to the dedicated chat folder (`chatRoot`). Any other
+      // unsubstituted variable would confine the server to a literal path: refused.
+      if (v === "${CLAUDE_PROJECT_DIR}") {
+        noProject = true;
+        continue;
+      }
       const unexpanded = /\$\{[^}]*\}?/.exec(v);
       if (unexpanded) return { kind: "error", message: `--root holds an unexpanded variable (${unexpanded[0]}): the client did not substitute it; refusing to start` };
       root = v;
@@ -134,7 +145,18 @@ export function parseMcpArgs(argv: string[]): ParsedArgs {
       return { kind: "error", message: `unknown option for mcp: ${a}` };
     }
   }
-  return { kind: "run", root, allowUnconfined, compact };
+  return { kind: "run", root, ...(noProject ? { noProject } : {}), allowUnconfined, compact };
+}
+
+/**
+ * The plain Chat's folder: `AIPLUS_OFFICE_CHAT_ROOT` when set, else „AI+ Iroda” in the user's Documents folder (on
+ * Windows the redirected one, e.g. OneDrive, when the shell reports it), else in the home folder.
+ */
+export function defaultChatRoot(env: NodeJS.ProcessEnv = process.env, home: string = os.homedir()): string {
+  if (env.AIPLUS_OFFICE_CHAT_ROOT) return env.AIPLUS_OFFICE_CHAT_ROOT;
+  const candidates = [env.OneDrive ? path.join(env.OneDrive, "Documents") : "", path.join(home, "Documents")].filter(Boolean);
+  const docs = candidates.find((d) => isDirectory(d)) ?? home;
+  return path.join(docs, "AI+ Iroda");
 }
 
 function isDirectory(p: string): boolean {
@@ -180,7 +202,17 @@ export async function runMcp(app: CraftApp, argv: string[], partial: Partial<Mcp
   let spawnArgs: string[];
   let gateway: Gateway | undefined;
   if (confined) {
-    const root = path.resolve(deps.cwd(), parsed.root ?? ".");
+    let root = path.resolve(deps.cwd(), parsed.root ?? ".");
+    if (parsed.noProject) {
+      root = deps.chatRoot();
+      try {
+        fs.mkdirSync(root, { recursive: true });
+      } catch (e) {
+        deps.stderr(`${deps.prog}: cannot create the chat folder ${root}: ${(e as Error).message}\n`);
+        return 1;
+      }
+      deps.stderr(`[${deps.prog}] no project folder from the client (plain Chat): files go to ${root}\n`);
+    }
     deps.stderr(`[${deps.prog}] mcp root: ${root}\n`);
     if (app.mcp.confinement === "gateway") {
       if (!isDirectory(root)) {

@@ -33,16 +33,17 @@ PowerPoint. So:
 
 | Where the user works | Word (DOCX) | PDF | Excel (XLSX) | PowerPoint (PPTX) |
 |---|---|---|---|---|
-| Claude Desktop, plain Chat (no shell) | yes, MCP | yes, MCP | MCP, not measured yet | MCP, not measured yet |
+| Claude Desktop, plain Chat (no shell; Documents › „AI+ Iroda”) | yes, MCP | yes, MCP | yes, MCP | yes, MCP |
 | Claude Desktop, a “This computer” session | yes | yes | yes | yes |
 | Claude Code | yes | yes | yes | yes |
 | a session running in the cloud (Cowork measured) | not measured | not measured | no | no |
 
 All four apps are registered MCP servers, each confined to the project folder (`.mcp.json`; GridCraft and DeckCraft
 since change `office-mcp-grid-deck`, 2026-10-25). Up to 0.1.10 only WordCraft and PdfCraft were (the Desktop install
-dialog listed exactly `aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11), so
-the user-facing copy still says a plain Chat handles Word and PDF only; it changes once the two new connectors are
-measured in a plain Chat on Windows. Through the shell (the skills' recipes),
+dialog listed exactly `aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11), and a
+plain Chat passes no project folder: up to 0.1.14 every server refused the unsubstituted `${CLAUDE_PROJECT_DIR}` and
+none started there (measured 2026-10-26, Windows 11). Since 0.1.15 such a server is confined to the „AI+ Iroda” folder
+in the user's Documents (`AIPLUS_OFFICE_CHAT_ROOT` overrides), and a plain Chat made all four file types there. Through the shell (the skills' recipes),
 **Excel and PowerPoint files need Claude running on the user's own computer** (Claude Code, or a Claude Desktop session
 whose environment is “This computer”); a session in the cloud cannot download the apps (measured 2026-10-24: a Cowork session in the cloud made no file). The
 table is the design; what has actually been tried is kept in one block of `skills/office-start/SKILL.md`

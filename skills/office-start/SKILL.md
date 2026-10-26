@@ -18,14 +18,16 @@ session on the user's own computer): do not say MCP, shell, CLI or cache to the 
 
 If you have **no tool that runs commands** (a plain Chat in Claude Desktop), skip to **5. What works where** and say:
 
-> **HU:** Itt, a sima Chatben nem tudok programot futtatni a gépeden, ezért a gépet most nem tudom ellenőrizni. Word- és
-> PDF-fájlokkal itt is tudok dolgozni. Excel- és PowerPoint-fájlhoz olyan munkamenet kell, amelyben a Claude a saját
-> gépeden fut: a Claude Code, vagy a Claude Desktopban egy „This computer” környezetű munkamenet. Ott kérdezd újra:
-> „hogyan kezdjem?”
+> **HU:** Itt, a sima Chatben nem tudok programot futtatni a gépeden, ezért a gépet most nem tudom ellenőrizni. Word-,
+> Excel-, PowerPoint- és PDF-fájlokkal itt is tudok dolgozni, de csak egy mappában: a Dokumentumok mappán belül az
+> „AI+ Iroda” mappában (az első használatkor létrejön). Oda tedd azt is, amin dolgozzak. Ha a saját mappádban
+> dolgoznál, nyiss Claude Code-ot, vagy a Claude Desktopban egy „This computer” környezetű munkamenetet, és ott kérdezd
+> újra: „hogyan kezdjem?”
 >
-> **EN:** In a plain Chat I cannot run programs on your computer, so I cannot check it from here. I can work with Word
-> and PDF files here too. Excel and PowerPoint files need a session where Claude runs on your own computer: Claude Code,
-> or in Claude Desktop a session whose environment is “This computer”. Ask again there: “how do I start?”
+> **EN:** In a plain Chat I cannot run programs on your computer, so I cannot check it from here. I can work with Word,
+> Excel, PowerPoint and PDF files here too, but in one folder only: the „AI+ Iroda” folder in your Documents (created on
+> first use). Put there what I should work on. To work in a folder of your choice, open Claude Code, or in Claude
+> Desktop a session whose environment is “This computer”, and ask again there: “how do I start?”
 
 ## 2. Node.js
 
@@ -147,23 +149,19 @@ shows it as `override:`. Ask first, and say it like this:
 
 Say it plainly, once:
 
-> **HU:** **Word és PDF** a sima Chatben is megy: ehhez a modul két beépített kapcsolatot ad a Claude-nak, és ezek csak
-> a munkamappádhoz férnek hozzá. **Excel- és PowerPoint-fájlt a sima Chat nem tud készíteni.** Ezt a két programot a
-> Claude csak úgy tudja használni, hogy programot futtat a gépen, és a sima Chat erre nem képes; kapcsolatként
-> biztonsági okból nem kötöttük be őket, mert nem lehet őket a munkamappára korlátozni. **Excel- és PowerPoint-fájlhoz
-> a Claude-nak a saját gépeden kell futnia:** a Claude Code-ban, vagy a Claude Desktopban egy „This computer” környezetű
-> munkamenetben. A felhőben futó munkamenet nem tudja letölteni a programokat.
+> **HU:** **A sima Chatben is megy mind a négy** (Word, Excel, PowerPoint, PDF): a modul négy beépített kapcsolatot ad a
+> Claude-nak, és ezek csak egy mappához férnek hozzá, a Dokumentumok mappán belüli **„AI+ Iroda”** mappához. **A saját
+> mappádban** a Claude Code-ban, vagy a Claude Desktopban egy „This computer” környezetű munkamenetben dolgozhatsz: ott
+> az a mappa számít, amelyiket kiválasztod. A felhőben futó munkamenet nem tudja letölteni a programokat.
 >
-> **EN:** **Word and PDF** work in a plain Chat too: for these the module gives Claude two built-in connections, which
-> reach only your working folder. **A plain Chat cannot make Excel or PowerPoint files.** Claude can use those two
-> programs only by running a program on the computer, which a plain Chat cannot do; for safety they are not connected
-> the other way, because they cannot be limited to the working folder. **Excel and PowerPoint files need Claude running
-> on your own computer:** in Claude Code, or in Claude Desktop in a session whose environment is “This computer”. A
-> session running in the cloud cannot download the programs.
+> **EN:** **All four work in a plain Chat too** (Word, Excel, PowerPoint, PDF): the module gives Claude four built-in
+> connections, and they reach one folder only, the **„AI+ Iroda”** folder in your Documents. **To work in a folder of
+> your choice**, use Claude Code, or in Claude Desktop a session whose environment is “This computer”: there the folder
+> you pick counts. A session running in the cloud cannot download the programs.
 
 | HU: Ahol dolgozol · EN: Where you work | Word (DOCX) | PDF | Excel (XLSX) | PowerPoint (PPTX) |
 |---|---|---|---|---|
-| Claude Desktop, Chat | igen · yes | igen · yes | nem · no | nem · no |
+| Claude Desktop, Chat (Dokumentumok › „AI+ Iroda”) | igen · yes | igen · yes | igen · yes | igen · yes |
 | Claude Desktop, „This computer” munkamenet · session | igen · yes | igen · yes | igen · yes | igen · yes |
 | Claude Code | igen · yes | igen · yes | igen · yes | igen · yes |
 | Felhőben futó munkamenet · a session in the cloud | nem mértük · not measured | nem mértük · not measured | nem · no | nem · no |
@@ -175,12 +173,12 @@ This is what the plugin is built for; what has actually been tried is the next b
 <!-- office-start:tested: the ONLY place that says what has been tried. Update this block (both languages) when a
      measurement arrives (details and dates: docs/MEASURED.md of the repository); no other sentence restates it. -->
 
-> **HU: Amit eddig kipróbáltunk (2026. október 25.):**
+> **HU: Amit eddig kipróbáltunk (2026. október 26.):**
 > - Claude Code, Linux: mind a négy program letöltve; árlista, árajánlat és prezentáció elkészült és ellenőrizve.
-> - Claude Desktop, Windows 11: a modul telepíthető; telepítéskor a Word- és a PDF-kapcsolat jelenik meg. Hogy a
->   Chatben ezek el is indulnak-e, még nem mértük.
-> - Claude Desktop, Windows 11, „This computer” munkamenet: egy Excel-formátumú árlista körülbelül egy perc alatt
->   elkészült, és a Claude helyesen olvasta vissza.
+> - Claude Desktop, Windows 11, sima Chat: mind a négy kapcsolat elindult; egy árlista Excelben, egy árajánlat Wordben
+>   és PDF-ben, és két dia elkészült a Dokumentumok › „AI+ Iroda” mappában.
+> - Claude Desktop, Windows 11, „This computer” munkamenet: árlista Excelben, árajánlat a sablonból Wordben, három dia,
+>   PDF-ek összefűzése és jelszóval védése elkészült és ellenőrizve; egy-egy lépés fél perc és két és fél perc között.
 > - **Cowork a felhőben: nem működik.** A felhőben futó munkamenet nem tudta letölteni a programokat, így fájl sem
 >   készült. A saját gépen futó Cowork-ot még nem próbáltuk.
 > - macOS (Apple-processzoros Mac mini): mind a négy program letöltve és lefuttatva, az ellenőrzések rendben. A Claude
@@ -188,12 +186,13 @@ This is what the plugin is built for; what has actually been tried is the next b
 >
 > Ha valahol valami nem indul, írd meg nekünk, mit látsz.
 >
-> **EN: What we have tried so far (25 October 2026):**
+> **EN: What we have tried so far (26 October 2026):**
 > - Claude Code, Linux: all four programs downloaded; a price list, an offer and a presentation made and checked.
-> - Claude Desktop, Windows 11: the module installs; the install shows the Word and the PDF connection. Whether they
->   also start in Chat has not been measured yet.
-> - Claude Desktop, Windows 11, a “This computer” session: a price list in Excel format made in about a minute, and
->   Claude read it back correctly.
+> - Claude Desktop, Windows 11, a plain Chat: all four connections started; a price list in Excel, an offer in Word and
+>   PDF, and two slides made in Documents › „AI+ Iroda”.
+> - Claude Desktop, Windows 11, a “This computer” session: a price list in Excel, an offer from the template in Word,
+>   three slides, PDFs merged and password-protected, made and checked; each step took half a minute to two and a half
+>   minutes.
 > - **Cowork in the cloud: does not work.** The session running in the cloud could not download the programs, so no
 >   file was made. Cowork running on your own computer has not been tried yet.
 > - macOS (a Mac mini with an Apple processor): all four programs downloaded and run, the checks pass. Claude Desktop on

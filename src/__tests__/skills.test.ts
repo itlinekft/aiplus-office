@@ -250,9 +250,12 @@ describe("office-start (change office-first-run)", () => {
     expect(s.body).toContain("no administrator");
   });
 
-  it("says plainly that a plain Chat does Word and PDF only, in both languages", () => {
-    expect(s.body).toMatch(/Excel- és PowerPoint-fájlhoz\s+> a Claude-nak a saját gépeden kell futnia/);
-    expect(s.body).toMatch(/Excel and PowerPoint files need Claude running\s+> on your own computer/);
+  it("says plainly that a plain Chat does all four in the „AI+ Iroda” folder, in both languages (office-chat-folder)", () => {
+    expect(s.body).toMatch(/\*\*A sima Chatben is megy mind a négy\*\*/);
+    expect(s.body).toMatch(/\*\*All four work in a plain Chat too\*\*/);
+    expect(s.body).toMatch(/Dokumentumok mappán belüli \*\*„AI\+ Iroda”\*\*\s+mappához/);
+    expect(s.body).toMatch(/\*\*„AI\+ Iroda”\*\* folder in your Documents/);
+    expect(s.body).not.toMatch(/csak Word és PDF|Word and PDF only/);
     expect(s.body).toMatch(/A felhőben futó munkamenet nem tudja letölteni a programokat/);
     expect(s.body).toMatch(/session running in the cloud cannot download the programs/);
     expect(s.body).not.toMatch(/Cowork vagy|Cowork or/);
@@ -263,7 +266,7 @@ describe("office-start (change office-first-run)", () => {
     expect(count(/Cowork a felhőben: nem működik/g)).toBe(1);
     expect(count(/Cowork in the cloud: does not work/g)).toBe(1);
     const block = s.body.slice(s.body.indexOf("office-start:tested"), s.body.indexOf("## 7."));
-    for (const t of ["Cowork a felhőben: nem működik", "Cowork in the cloud: does not work", "„This computer” munkamenet", "“This computer” session", "macOS", "2026. október 25.", "25 October 2026"]) expect(block, t).toContain(t);
+    for (const t of ["Cowork a felhőben: nem működik", "Cowork in the cloud: does not work", "„This computer” munkamenet", "“This computer” session", "macOS", "sima Chat", "plain Chat", "2026. október 26.", "26 October 2026"]) expect(block, t).toContain(t);
   });
 
   it("offers an app already installed on the computer, plainly (office-windows-local)", () => {

@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it } from "vitest";
-import { parseMcpArgs, runMcp } from "../mcp-proxy.js";
+import { defaultChatRoot, parseMcpArgs, runMcp } from "../mcp-proxy.js";
 import type { ProvisionReport } from "../provision.js";
 import { getApp } from "../registry.js";
 import { cleanupTmp, tmpDir } from "./helpers/fixtures.js";
@@ -207,8 +207,8 @@ describe("cancellation validation", () => {
 });
 
 describe("unexpanded root (aiplus-office addition)", () => {
-  it("a --root that still holds ${…} is refused before provisioning or spawning", async () => {
-    for (const argv of [["--root", "${CLAUDE_PROJECT_DIR}"], ["--root=${CLAUDE_PROJECT_DIR}/x"], ["--root", "/a/${HOME"]]) {
+  it("a --root that still holds any other ${…} is refused before provisioning or spawning", async () => {
+    for (const argv of [["--root=${CLAUDE_PROJECT_DIR}/x"], ["--root", "/a/${HOME"], ["--root", "${HOME}"]]) {
       expect(parseMcpArgs(argv)).toMatchObject({ kind: "error", message: expect.stringContaining("unexpanded variable") });
       const f = fakeSpawn();
       let provisioned = false;
@@ -218,6 +218,31 @@ describe("unexpanded root (aiplus-office addition)", () => {
       expect(f.calls).toHaveLength(0);
     }
     expect(parseMcpArgs(["--root", "/proj/$HOME-literal"])).toMatchObject({ kind: "run", root: "/proj/$HOME-literal" });
+  });
+});
+
+describe("plain Chat: no project folder (change office-chat-folder)", () => {
+  it("an unsubstituted ${CLAUDE_PROJECT_DIR} runs confined to the chat folder, which is created", async () => {
+    expect(parseMcpArgs(["--root", "${CLAUDE_PROJECT_DIR}"])).toMatchObject({ kind: "run", noProject: true, root: undefined });
+    const chat = path.join(tmpDir(), "Documents", "AI+ Iroda");
+    const f = fakeSpawn();
+    const h = harness({ provision: async () => report("/bin/pc"), spawn: f.spawn as never, chatRoot: () => chat });
+    h.stdin.end();
+    expect(await runPhoto(["--root", "${CLAUDE_PROJECT_DIR}"], h.deps)).toBe(0);
+    expect(fs.statSync(chat).isDirectory()).toBe(true);
+    expect(f.calls[0].args).toEqual(["mcp", "--automation-read-root", chat, "--automation-write-root", chat]);
+    expect(h.err()).toContain(`no project folder from the client (plain Chat): files go to ${chat}`);
+  });
+
+  it("the default chat folder: the env override, else „AI+ Iroda” in Documents (OneDrive's when present), else home", () => {
+    const home = tmpDir();
+    expect(defaultChatRoot({ AIPLUS_OFFICE_CHAT_ROOT: "/x/y" }, home)).toBe("/x/y");
+    expect(defaultChatRoot({}, home)).toBe(path.join(home, "AI+ Iroda"));
+    fs.mkdirSync(path.join(home, "Documents"));
+    expect(defaultChatRoot({}, home)).toBe(path.join(home, "Documents", "AI+ Iroda"));
+    const od = path.join(home, "OneDrive");
+    fs.mkdirSync(path.join(od, "Documents"), { recursive: true });
+    expect(defaultChatRoot({ OneDrive: od }, home)).toBe(path.join(od, "Documents", "AI+ Iroda"));
   });
 });
 

@@ -16,8 +16,8 @@ loop; each app has its own skill for its dialect, traps and recipes: read it bef
 If the user is new to the plugin, asks how to start or what it needs („hogyan kezdjem”, „mi kell hozzá”, "how do I
 start"), or a command just failed because Node.js or an app is missing, run **`office-start`** first: it checks Node.js
 and the apps, says where they come from, asks before downloading, and says what works where. In short: a plain Chat in
-Claude Desktop can make **Word and PDF** files only (the two registered servers below); **Excel and PowerPoint files need
-Claude running on the user's own computer** (Claude Code, or a Claude Desktop session whose environment is „This
+Claude Desktop makes all four file types through the four registered servers below, but only in the „AI+ Iroda” folder
+of the user's Documents; **a folder of the user's choice needs Claude running on the user's own computer** (Claude Code, or a Claude Desktop session whose environment is „This
 computer"), where commands can run. A session in the cloud cannot download the apps (measured 2026-10-24).
 
 ## The command
@@ -156,7 +156,7 @@ record_step() { # record_step NN-step "upstream ids comma-separated" verify-repo
 - **Default to the bash route** (`aiplus-office <app> exec`). It works for every app, costs no tool slots, and every
   command and result is visible.
 - **MCP** is for clients without a shell (Claude Desktop chat). The plugin registers four servers, each confined to the
-  project folder for reads and writes: `aiplus-office-wordcraft` (16 tools), `aiplus-office-gridcraft` (20 tools),
+  project folder for reads and writes (a plain Chat passes none: then the „AI+ Iroda” folder in Documents): `aiplus-office-wordcraft` (16 tools), `aiplus-office-gridcraft` (20 tools),
   `aiplus-office-deckcraft` (25 tools) and `aiplus-office-pdfcraft` (`--compact`: 17 tools instead of 175).
 - **GridCraft's own server has no confinement**, so aiplus-office confines it: a path outside the project folder, a
   window-only tool, or a command that would open a link, run a script, open a window or print is refused with a
