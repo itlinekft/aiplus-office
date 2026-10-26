@@ -11,4 +11,4 @@
 
 ## 3. Measure
 
-- [ ] 3.1 Windows, Claude Desktop, fresh install: the plugin installs with the hook; with the connectors failed, the same Excel job in new Code sessions loads an AI+ Iroda skill before any generic route [REQ: Session routing context]
+- [x] 3.1 Windows, Claude Desktop, fresh install: the plugin installs with the hook; with the connectors failed, the same Excel job in new Code sessions loads an AI+ Iroda skill before any generic route [REQ: Session routing context]

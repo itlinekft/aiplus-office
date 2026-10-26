@@ -19,6 +19,12 @@ táblázatban három termékkel, 27% ÁFÁ-val, a fájl neve legyen <name>.xlsx�
 A SessionStart hook in a Desktop Code session runs in Git Bash (`/usr/bin/bash` 5.3.15) and its standard output reaches
 the context (a project hook that printed a test word: the session quoted it).
 
+**After 0.1.18** (the plugin's SessionStart hook; plugin and marketplace re-added, the card showed „Hooks · 1”; the first
+session started without Node.js, so the connectors were cached as failed; then Node.js restored): a new session quoted
+the hook's note as its start-of-session context, and the same request three times (`arlista-m12`, `-m13`, `-m14`) began
+each time with `Skill aiplus-office:office-router`, then `office-gridcraft` and the CLI; no Python, no hand-built file;
+all three workbooks made, about 45 s each.
+
 ## 2026-10-26 (night) — Windows 11, Claude Desktop 3.6556, aiplus-office 0.1.15 fresh install (change office-desktop-truth)
 
 The plugin and the marketplace removed and added again; Claude quit; the app cache emptied; Claude started.
