@@ -7,6 +7,7 @@
  *   aiplus-office verify <file> [assertions…]      mechanical output checks (`aiplus-office verify --help`)
  *   aiplus-office doc prepare <in.md> --out <dir>  fill a docx template + prepare the body for WordCraft
  *   aiplus-office <app> ensure|path|exec|mcp       per-app provisioning, bash route, stdio MCP server
+ *   aiplus-office jq <args…>                       a pinned, checked jq for the workflow gates (Git for Windows has none)
  *
  * Exit codes: 0 ok · 1 usage error / failed operation · 69 provisioning failure
  * (`exec` propagates the binary's own exit code; `verify` and `doc prepare` have their own: 2 = usage).
@@ -15,15 +16,16 @@
  */
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { runAppCommand } from "../app-command.js";
+import { execPassthrough, runAppCommand } from "../app-command.js";
 import { DOC_USAGE, prepareDoc } from "../doc-prepare.js";
+import { ensureJq, installedJq, JQ_VERSION } from "../jq.js";
 import { defaultLauncherPath } from "../mcp-register.js";
 import { defaultDeps, type ProvisionReport, provision } from "../provision.js";
 import { APP_IDS, CRAFT_APPS, getApp, isAppId } from "../registry.js";
 import { appStatus, desktopCacheRoots, statusRoot } from "../status.js";
 import { runVerify } from "../verify.js";
 
-export const VERSION = "0.1.18";
+export const VERSION = "0.1.19";
 
 /** Minimum Node.js major version (package.json `engines`); `status` says when the running one is older. */
 export const NODE_MIN_MAJOR = 20;
@@ -49,6 +51,7 @@ commands:
   <app> exec <args…>           run <app>-cli with <args…> verbatim (bash route)
   <app> mcp [--root <dir>]     stdio MCP server (confined apps), --allow-unconfined otherwise
   <app> mcp --register         add an aiplus-office-<app> entry to ./.mcp.json (opt-in)
+  jq <args…>                   run a pinned jq ${JQ_VERSION} (downloaded once, checked), for systems without jq
   --version                    print the aiplus-office version
 
 apps: ${APP_IDS.join(", ")}
@@ -72,6 +75,8 @@ export interface CliDeps {
   now: () => number;
   runVerify: (argv: string[]) => Promise<number>;
   runDocPrepare: (argv: string[], io: { stdout: (t: string) => void; stderr: (t: string) => void }) => Promise<number>;
+  /** `aiplus-office jq <argv…>`: provision the pinned jq, then run it with inherited stdio. */
+  runJq: (argv: string[]) => Promise<number>;
 }
 
 function defaultCliDeps(): CliDeps {
@@ -88,6 +93,16 @@ function defaultCliDeps(): CliDeps {
     now: d.now,
     runVerify: (argv) => runVerify(argv, {}),
     runDocPrepare: (argv, io) => prepareDoc(argv, io),
+    runJq: async (argv) => {
+      let bin: string;
+      try {
+        bin = await ensureJq(d);
+      } catch (e) {
+        process.stderr.write(`aiplus-office: jq: ${(e as Error).message}\n`);
+        return 69;
+      }
+      return execPassthrough("aiplus-office", bin, argv);
+    },
   };
 }
 
@@ -136,6 +151,7 @@ function statusCommand(rest: string[], deps: CliDeps): number {
   deps.stdout(`host: ${deps.platform}/${deps.arch}\n`);
   deps.stdout(`cache: ${statusRoot(deps)}\n`);
   for (const d of desktopCacheRoots(deps)) deps.stdout(`desktop cache: ${d} (Claude Desktop's own copy; open this folder)\n`);
+  deps.stdout(`jq: ${installedJq(deps) ? `${JQ_VERSION} in the cache (aiplus-office jq)` : `not in the cache (the skills use a jq on PATH, else aiplus-office jq downloads ${JQ_VERSION}, about 1 MB)`}\n`);
   for (const r of rows) {
     const inst = r.installed.length ? `${r.installed.join(", ")} (${formatBytes(r.cacheBytes)})` : "not installed";
     const use = r.wouldUse.version ? `${r.wouldUse.version} (${r.wouldUse.source})` : r.wouldUse.source;
@@ -194,6 +210,8 @@ export async function main(argv: string[], partial: Partial<CliDeps> = {}): Prom
       return deps.runVerify(rest);
     case "doc":
       return docCommand(rest, deps);
+    case "jq":
+      return deps.runJq(rest);
     case "--version":
     case "-V":
       deps.stdout(`aiplus-office ${VERSION}\n`);

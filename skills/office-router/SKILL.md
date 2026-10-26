@@ -26,9 +26,10 @@ Every shell call starts with this line, so `aiplus-office` resolves whether it i
 
 ```bash
 command -v aiplus-office >/dev/null || aiplus-office() { node "${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs" "$@"; }
+command -v jq >/dev/null || jq() { aiplus-office jq "$@"; }
 ```
 
-Shell state does not survive between tool calls: repeat the line in each call. Node.js 20 or newer is required.
+Shell state does not survive between tool calls: repeat both lines in each call. Node.js 20 or newer is required; `jq` comes from PATH, else from `aiplus-office jq`.
 
 ```bash
 aiplus-office apps                    # the 4 office apps (offline)
@@ -137,9 +138,9 @@ Workflow skills follow one convention (they link here, they do not restate it).
   recorded input) before using it.
 
 ```bash job-helper
-# Create the job once (SLUG per the rule above), then record each step after its gate passed. Needs jq.
+# Create the job once (SLUG per the rule above), then record each step after its gate passed. Needs jq (the fallback line above).
 mkdir -p "office-jobs/$SLUG"
-test -f "office-jobs/$SLUG/job.json" || jq -n --arg n "$NAME" --arg w "$WORKFLOW" '{name:$n,workflow:$w,steps:{}}' > "office-jobs/$SLUG/job.json"
+test -s "office-jobs/$SLUG/job.json" || { jq -n --arg n "$NAME" --arg w "$WORKFLOW" '{name:$n,workflow:$w,steps:{}}' > "office-jobs/$SLUG/job.json.tmp" && mv "office-jobs/$SLUG/job.json.tmp" "office-jobs/$SLUG/job.json"; }
 record_step() { # record_step NN-step "upstream ids comma-separated" verify-report.json input-file…
   local id=$1 up=$2 rep=$3; shift 3
   local ins; ins=$(for f in "$@"; do node -e 'const s=require("fs").statSync(process.argv[1]);console.log(JSON.stringify({path:process.argv[1],size:s.size,mtime:s.mtimeMs}))' "$f"; done | jq -s .)
@@ -177,4 +178,8 @@ Outlook, and SharePoint/OneDrive co-editing are not available.
   `AIPLUS_OFFICE_<APP>_BIN` uses your own binary, `AIPLUS_OFFICE_HOME` moves the cache, `AIPLUS_OFFICE_TEMPLATES_DIR`
   points `doc prepare` at the company templates, `GITHUB_TOKEN` avoids GitHub API rate limits.
 - First use downloads 20–100 MB per app. Linux needs glibc ≥ 2.35 (not Alpine/musl). macOS and Windows: nothing extra.
-- `jq` is used by the workflow skills' gates; `ffprobe` only by `verify --size` on images.
+- `jq` is used by the workflow skills' gates. Git for Windows has none: the line under the command line then runs
+  `aiplus-office jq`, which downloads a pinned jq once (about 1 MB, its SHA-256 checked). Call `jq` directly, in a pipe or
+  `$(…)`, never through `xargs`, `find -exec`, `env` or `bash -c` (they do not see the function). A line starting
+  `aiplus-office: jq:` on stderr (exit 69) means the jq download failed, not the gate: say so and stop, as in „When the
+  module cannot run”. `ffprobe` only by `verify --size` on images.

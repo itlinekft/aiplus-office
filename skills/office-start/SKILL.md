@@ -7,7 +7,8 @@ description: First run of the aiplus-office plugin - checks Node.js and the four
 
 Run this the first time the user works with the plugin, when they ask how to start or what it needs, and when an office
 command failed because Node.js or an app is missing. It checks the machine, explains the result in plain words, and
-never starts a download itself without a yes. Office jobs themselves belong to `office-router`.
+never starts a download itself without a yes (two exceptions, both said to the user: Claude Desktop's own download
+below, and the small `jq` helper a workflow fetches on a computer without one). Office jobs themselves belong to `office-router`.
 
 **Claude Desktop downloads the apps by itself.** It starts the module's four connectors when Claude starts and when a
 session opens (not yet when the plugin is added), and each connector fetches its app in the background the first time
@@ -47,11 +48,12 @@ node --version
 - Command not found, or older than `v20`:
 
 > **HU:** A modulnak kell egy ingyenes segédprogram, a **Node.js** (20-as vagy újabb változat). Töltsd le a hivatalos
-> oldalról: https://nodejs.org, az „LTS” jelű változatot. Telepítés után indítsd újra a Claude-ot, és kérdezd újra:
-> „hogyan kezdjem?”
+> oldalról: https://nodejs.org, az „LTS” jelű változatot. Telepítés után lépj ki teljesen a Claude-ból (a tálcán vagy a
+> menüsoron lévő ikonjánál is), indítsd újra, és kérdezd újra: „hogyan kezdjem?”
 >
 > **EN:** The module needs a free helper program, **Node.js** (version 20 or newer). Download it from the official site,
-> https://nodejs.org, the “LTS” version. After installing it, restart Claude and ask again: “how do I start?”
+> https://nodejs.org, the “LTS” version. After installing it, quit Claude fully (also from its icon in the tray or the
+> menu bar), start it again and ask again: “how do I start?”
 
 **Installed, but Claude does not see it.** When `node --version` fails, look at Node.js's usual places first:
 

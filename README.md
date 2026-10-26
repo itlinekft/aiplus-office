@@ -71,7 +71,9 @@ their official GitHub releases (`github.com/storytold/<app>`), each archive chec
 `%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is redirected to
 `%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office`, which `status` prints as `desktop cache:`).
 Nothing is installed system-wide; no administrator rights are needed.
-Linux needs glibc 2.35 or newer.
+Linux needs glibc 2.35 or newer. The workflow skills' gates use `jq`; where there is none (Git for Windows has none), they
+run `aiplus-office jq`, a pinned jq 1.8.2 downloaded once from `github.com/jqlang/jq` and checked against the SHA-256
+written in `src/jq.ts`.
 
 Users install it from the public marketplace `itlinekft/aiplus-plugins` (see `release/README.md`, shipped as the plugin's
 README). For users: the [user guide](docs/user-guide.md) and the [troubleshooting guide](TROUBLESHOOTING.md), both
@@ -100,6 +102,7 @@ no `bin/` directory (a plugin with one is not installed there). On Windows the a
 ```text
 aiplus-office apps | status | install <app…>|--all
 aiplus-office <app> ensure | path | exec <args…> | mcp [--root <dir>] [--register]
+aiplus-office jq <args…>
 aiplus-office verify <file> [--pages N] [--text-contains S] [--size WxH] …
 aiplus-office doc prepare <in.md> --out <dir> [--template NAME] [--templates-dir DIR] [--var k=v]…
 ```

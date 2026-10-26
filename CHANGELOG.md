@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.19 — 2026-10-26
+
+- **`jq` on Windows.** The workflow skills check their steps with `jq`, which Git for Windows lacks. Where there is no
+  `jq`, they now run `aiplus-office jq`: a pinned jq 1.8.2, downloaded once (about 1 MB) from `github.com/jqlang/jq`
+  and checked against its SHA-256. `status` says whether it is there.
+- **The install text says what a user really meets.** The user guide and the README give the Claude Desktop install,
+  remove and update clicks as tried on Windows 11, say to quit Claude fully after installing Node.js, and where files
+  go in each kind of session; the Claude Code command is the real one. Troubleshooting covers the „Reconnect” state
+  (a failed connector is remembered for 15 minutes) and apps still downloading right after the install; two entries
+  that no longer applied were corrected.
+
 ## 0.1.18 — 2026-10-26
 
 - **Office jobs go to AI+ Iroda first, in every session.** A short start-of-session note (a `cat` hook, no Node.js

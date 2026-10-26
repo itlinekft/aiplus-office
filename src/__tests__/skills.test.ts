@@ -72,6 +72,13 @@ describe("command spelling", () => {
   it("every skill shows the one command line that resolves aiplus-office through ${CLAUDE_PLUGIN_ROOT}", () => {
     for (const name of ALL_SKILL_NAMES) expect(loadSkill(name).body, name).toContain(COMMAND_LINE);
   });
+
+  it("every skill whose code runs jq falls back to `aiplus-office jq` right under the command line (change office-install-complete)", () => {
+    const JQ_LINE = 'command -v jq >/dev/null || jq() { aiplus-office jq "$@"; }';
+    const users = ALL_SKILL_NAMES.filter((n) => /(^|[\s|(])jq\s/m.test(fences(loadSkill(n).body).map((f) => f.code).join("\n")));
+    expect(users.length).toBeGreaterThan(0);
+    for (const name of users) expect(loadSkill(name).body, name).toContain(`${COMMAND_LINE}\n${JQ_LINE}`);
+  });
 });
 
 describe("router and app skills", () => {

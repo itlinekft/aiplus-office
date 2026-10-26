@@ -3,6 +3,15 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-26 (morning) — Windows 11, Git for Windows bash, aiplus-office 0.1.19 build: `jq` fallback (change office-install-complete)
+
+- `C:\Program Files\Git\usr\bin` has no `jq.exe`, and `where jq` finds none: the workflow gates' `jq` calls fail there.
+- In `C:\Program Files\Git\bin\bash.exe -l`, with the skills' two lines and `AIPLUS_OFFICE_HOME` on a throwaway
+  folder: `type jq` → „jq is a function”; the first call logged `downloading jq 1.8.2 jq-windows-amd64.exe from
+  github.com/jqlang/jq`, the digest matched; `jq -e '.name and (.steps | type == "object")' job.json` → `true`, exit 0;
+  inside `$( … | jq -s .)` it ran too; `jq --version` → `jq-1.8.2`; `status` → `jq: 1.8.2 in the cache (aiplus-office jq)`.
+- Linux x64, the same build: `aiplus-office jq -n '{a:1}|.a+1'` → `2`.
+
 ## 2026-10-26 (night, later) — Windows 11, Claude Desktop 3.6556, aiplus-office 0.1.17: routing without connectors (change office-session-routing)
 
 Node.js hidden (`C:\Program Files\nodejs` renamed), the plugin and the marketplace re-added, the cache emptied; then

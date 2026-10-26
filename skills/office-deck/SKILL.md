@@ -11,6 +11,7 @@ Every shell call starts with the command line from `office-router`:
 
 ```bash
 command -v aiplus-office >/dev/null || aiplus-office() { node "${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs" "$@"; }
+command -v jq >/dev/null || jq() { aiplus-office jq "$@"; }
 ```
 
 ## Step table

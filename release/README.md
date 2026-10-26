@@ -16,17 +16,23 @@ ingyenes, nyílt forrású ArtCraft programokkal (WordCraft, GridCraft, DeckCraf
 (árajánlat, árlista, prezentáció), és minden kész fájlt gépi ellenőrzés néz át. Az ArtCraft programok korai változatok:
 dolgozz másolaton, és az ügyfélnek szánt fájlt küldés előtt nézd át.
 
-- **Telepítés.** Claude Desktop: Customize → Plugins → Add marketplace → `itlinekft/aiplus-plugins`, majd az
-  `aiplus-office` telepítése. Claude Code: `/plugin install aiplus-office --marketplace itlinekft/aiplus-plugins`.
-- **Mi kell hozzá?** Node.js 20 vagy újabb (https://nodejs.org, „LTS”). A négy programot a modul maga tölti le a hivatalos
+- **Telepítés a Claude Desktopban** (Claude módban): Customize › Plugins › Add plugin › Add marketplace › Add from a
+  repository › `itlinekft/aiplus-plugins` › Sync, majd az **AI+ Iroda** kártyán Add › Continue. A „Grant access”
+  értesítés nem kell, zárd be. **Claude Code:** `claude plugin marketplace add itlinekft/aiplus-plugins`, majd
+  `claude plugin install aiplus-office@aiplus-plugins`. Lépésről lépésre: a felhasználói útmutatóban.
+- **Mi kell hozzá?** Node.js 20 vagy újabb (https://nodejs.org, „LTS”); telepítése után a Claude-ból lépj ki teljesen,
+  és indítsd újra. A Claude Code Windowson a Git for Windowst is kéri; a modul ellenőrzéseihez kellő `jq`-t, ha nincs
+  a gépen, a modul maga tölti le (kb. 1 MB, ellenőrzőösszeggel). A négy programot a modul maga tölti le a hivatalos
   GitHub-oldalukról, ellenőrzőlistával egyeztetve, a saját felhasználói mappádba; telepítő és rendszergazdai jog nem
   kell. A Claude Desktop ezt magától, a háttérben elvégzi, amikor elindul vagy munkamenetet nyitsz, a Claude Code az első feladatnál.
 - **Mi hol működik?** A sima Chatben is megy mind a négy: ott a fájlok a Dokumentumok mappán belül az **„AI+ Iroda”**
   mappába kerülnek, oda tedd azt is, amin a Claude dolgozzon. **A saját mappádban** Claude Code-ban vagy a Claude
   Desktopban „This computer” környezetű munkamenetben dolgozhatsz. A felhőben futó munkamenet nem tudja letölteni a
   programokat.
-- **Első lépés:** kérdezd meg a Claude-tól: „hogyan kezdjem?” Megnézi a gépet, elmondja, honnan jönnek a programok,
-  és csak a beleegyezéseddel tölt le.
+- **Első lépés:** kérdezd meg a Claude-tól: „Hogyan kezdjem az AI+ Iroda modult?” Megnézi a gépet, elmondja, honnan
+  jöttek a programok, és hogy mi hol működik.
+- **Ha a Claude Desktopban a kapcsolatok mellett „Reconnect” áll:** a Node.js telepítése után kattints rá mind a
+  négynél (különben a Claude 15 percig nem próbálja újra).
 - **Weboldal:** https://www.itline.hu/ai-plus/iroda/
 - **Útmutató és hibaelhárítás:** [felhasználói útmutató](https://github.com/itlinekft/aiplus-office/blob/main/docs/user-guide.md), [hibaelhárítás](https://github.com/itlinekft/aiplus-office/blob/main/TROUBLESHOOTING.md).
 
@@ -37,8 +43,9 @@ PPTX, PDF) with the free, open-source ArtCraft programs (**WordCraft, GridCraft,
 command-line tools, checks every finished file mechanically, and follows worked Hungarian office examples (árajánlat,
 árlista, prezentáció).
 
-**First step:** ask Claude “how do I start?” (or „hogyan kezdjem?”). The `office-start` skill checks Node.js and the
-programs, says where they come from, offers to download them (only with your yes), and says what works where.
+**First step:** ask Claude “How do I start with the AI+ Iroda module?” (or „Hogyan kezdjem az AI+ Iroda modult?”). The
+`office-start` skill checks Node.js and the programs, says where they came from (Claude Desktop downloads them by
+itself in the background; Claude Code at the first job), and says what works where.
 
 **Web page:** https://www.itline.hu/en/ai-plus/ (Hungarian page: https://www.itline.hu/ai-plus/iroda/)
 
@@ -70,13 +77,22 @@ first.
 
 ## Install
 
-**Claude Desktop:** Customize → Plugins → Add marketplace → `itlinekft/aiplus-plugins`, then install `aiplus-office`.
+**Claude Desktop** (tried on Windows 11, 26 October 2026):
+
+1. Install Node.js (below). If Claude Desktop was running, quit it fully (from the taskbar icon too) and start it again.
+2. In **Claude** mode (Code mode's Customize page has no “Manage marketplaces”): **Customize** › **Plugins** › **Add
+   plugin** › **Add marketplace** › **Add from a repository** › `itlinekft/aiplus-plugins` › **Sync**. A notice “Auto-sync
+   requires the Claude GitHub App” with “Grant access” is not needed: close it.
+3. On the **AI+ Iroda** card: **Add** › “This plugin includes local MCP servers” › **Continue** › “AI+ Iroda is installed
+   and ready to use.”
+4. The four programs download by themselves the next time Claude starts or a session opens (about 10 s for us).
+5. If the session's **Connectors** show **Reconnect** next to the four “Aiplus office …” entries (Claude was started
+   before Node.js was there), click **Reconnect** on each: Claude Desktop otherwise waits 15 minutes before it retries.
+
+To remove it: Customize › Plugins › Yours › “More actions for AI+ Iroda” › Remove; the marketplace under Add plugin ›
+Manage marketplaces. To update it in Claude Desktop, remove it and add it again.
 
 **Claude Code:**
-
-    /plugin install aiplus-office --marketplace itlinekft/aiplus-plugins
-
-or, on older versions:
 
     claude plugin marketplace add itlinekft/aiplus-plugins
     claude plugin install aiplus-office@aiplus-plugins
@@ -91,12 +107,14 @@ or, on older versions:
   Desktop does this by itself, in the background, when it starts or a session opens; Claude Code at the first job. On
   Windows, Claude Desktop's copy is in Claude's own folder:
   `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (`aiplus-office status` names it).
-- For the workflow skills' checks: a Bash shell and `jq` (Claude Code on Windows uses Git Bash; `jq` is not part of it
-  by default).
+- For the workflow skills' checks: a Bash shell and `jq` (Claude Code on Windows uses Git Bash, which has no `jq`; the
+  skills then use `aiplus-office jq`, which downloads a pinned jq 1.8.2 once, about 1 MB, its SHA-256 checked).
 
 The module uses only the programs' command-line tools; it does not install their desktop (window) apps. To open a file
-in a window, download the app from its official release page, e.g. `https://github.com/storytold/gridcraft/releases/latest`
-(Windows: the `.msi` installer or the `-portable.zip`; macOS: the `.dmg`).
+in a window, install the ArtCraft Launcher (`https://github.com/storytold/craft-launcher/releases/latest`, on Windows
+`artcraft-launcher-<version>-windows-x64.msi`, per user, no administrator rights) and install the four apps from it; or
+download one app from its own release page, e.g. `https://github.com/storytold/gridcraft/releases/latest`. The apps
+register no file types: open a file from the app (File › Open).
 
 ## What is inside
 

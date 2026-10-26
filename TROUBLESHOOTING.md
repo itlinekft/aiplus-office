@@ -2,11 +2,10 @@
 
 Egy bejegyzés egy hiba. A **Tünet** pontosan az, amit látsz: a program kiírását szó szerint idézzük, angolul, mert a
 program így írja ki. Az **Ellenőrzés** csak olvas, semmit nem változtat. A **Javítás** a legkisebb lépéssel kezdődik.
-A parancsokat a Claude futtatja helyetted a Claude Code-ban vagy egy „This computer” munkamenetben; elég, ha megkéred.
+A parancsokat a Claude futtatja helyetted; elég, ha megkéred.
 
 One entry per fault. The **Symptom** is exactly what you see, the program's output quoted verbatim. The **Check** only
-reads and changes nothing. The **Fix** starts with the smallest step. Claude runs the commands for you in Claude Code
-or a “This computer” session; just ask it.
+reads and changes nothing. The **Fix** starts with the smallest step. Claude runs the commands for you; just ask it.
 
 ## Magyarul
 
@@ -23,24 +22,63 @@ or a “This computer” session; just ask it.
 
 ### Nincs Node.js, vagy túl régi
 
-- **Tünet:** `node: command not found`, vagy a `status` első sora: `node: v18.19.0 (too old: needs 20 or newer)`.
-- **Hol:** Claude Code, „This computer” munkamenet.
+- **Tünet:** `node: command not found`, vagy a `status` első sora: `node: v18.19.0 (too old: needs 20 or newer)`. A Claude
+  Desktopban a modul kapcsolatai el sem indulnak (lásd „A kapcsolatok mellett »Reconnect« áll”).
+- **Hol:** mindenhol.
 - **Ok:** a modul a Node.js-re épül; a 20-asnál régebbi változattal nem indul.
 - **Ellenőrzés:** `node --version` (v20 vagy újabb kell).
-- **Javítás:** töltsd le a https://nodejs.org oldalról az „LTS” változatot, telepítsd, és indítsd újra a Claude-ot.
+- **Javítás:** töltsd le a https://nodejs.org oldalról az „LTS” változatot, és telepítsd. Utána lépj ki a Claude-ból
+  teljesen (a Claude Desktopból a tálca jobb oldali ikonjáról is), és indítsd újra: a már futó Claude nem látja az új
+  Node.js-t.
 - **Ki:** a gép előtt ülő ember.
 
-### Excel- vagy PowerPoint-fájlt kérsz a sima Chatben
+### A kapcsolatok mellett „Reconnect” áll
 
-- **Tünet:** a Claude azt mondja, hogy itt, a sima Chatben nem tud programot futtatni, és Excel- és PowerPoint-fájlhoz
-  olyan munkamenet kell, amelyben a saját gépeden fut.
+- **Tünet:** a Claude Desktopban a munkamenet jobb oldali paneljén, a **Connectors** alatt az „Aiplus office gridcraft”,
+  „… wordcraft”, „… deckcraft”, „… pdfcraft” mellett **Reconnect** gomb áll; a megnyíló ablakban: `Failed to connect:
+  Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`.
+- **Hol:** Claude Desktop.
+- **Ok:** a kapcsolat egyszer nem indult el (eddig mindig azért, mert hiányzott a Node.js, vagy a Claude még a Node.js
+  telepítése előtt indult), és a Claude Desktop ezt 15 percig megjegyzi, újraindítás után is (kipróbálva Windows 11-en,
+  2026. október 25.).
+- **Ellenőrzés:** `node --version` egy parancssorban.
+- **Javítás:** ha a Node.js megvan, ne várd ki a 15 percet: kattints a **Reconnect** gombra mind a négy kapcsolatnál.
+  Nálunk utána egy másodpercen belül elindultak.
+- **Ki:** a gép előtt ülő ember.
+
+### Telepítés után a programok „not installed”
+
+- **Tünet:** közvetlenül a telepítés után az `aiplus-office status` a programoknál `not installed`-et ír.
+- **Hol:** Claude Desktop.
+- **Ok:** a Claude Desktop a programokat nem a telepítéskor tölti le, hanem amikor legközelebb elindul vagy munkamenetet
+  nyitsz; addig nincsenek fent.
+- **Ellenőrzés:** pár perc múlva újra `aiplus-office status`; a Claude Desktop példánya a `desktop cache:` sorban álló
+  mappában van.
+- **Javítás:** nyiss egy munkamenetet, vagy indítsd újra a Claude Desktopot, és várj pár percet.
+- **Ki:** a gép előtt ülő ember.
+
+### A sima Chatben nem találja a fájlt
+
+- **Tünet:** a Claude azt mondja, hogy a kért fájlt nem éri el, vagy a kész fájlt nem a várt helyen találod.
 - **Hol:** Claude Desktop, sima Chat.
-- **Ok:** a GridCraft és a DeckCraft nem korlátozható a munkamappára, ezért nem kötöttük be őket kapcsolatként; a Claude
-  csak programként tudja futtatni őket, a sima Chat pedig erre nem képes.
-- **Ellenőrzés:** nincs mit futtatni; a Chatben nincs parancsfuttatás.
-- **Javítás:** nyiss Claude Code-ot, vagy a Claude Desktopban egy „This computer” környezetű munkamenetet, és ott kérd
-  újra.
+- **Ok:** a sima Chatben a modul kapcsolatai csak a Dokumentumok › „AI+ Iroda” mappához férnek hozzá (a 0.1.15 óta).
+- **Ellenőrzés:** nézd meg a Dokumentumok › „AI+ Iroda” mappát.
+- **Javítás:** tedd oda a fájlt, amin a Claude dolgozzon. Ha más mappában dolgoznál, a Claude Desktopban válts Code
+  módra, és nyiss „This computer” munkamenetet abban a mappában.
 - **Ki:** a gép előtt ülő ember.
+
+### `jq: command not found`
+
+- **Tünet:** egy ellenőrzés ezzel áll le: `jq: command not found`, vagy `aiplus-office: jq: …` (kilépési kód 69).
+- **Hol:** minden gép, amelyen nincs `jq` (a Git for Windowsban sosincs).
+- **Ok:** a modul munkafolyamatai a `jq` programmal ellenőriznek, és a Git for Windows ezt nem tartalmazza.
+- **Ellenőrzés:** `aiplus-office --version` (0.1.19 vagy újabb kell), `aiplus-office status` (a `jq:` sor).
+- **Javítás:** frissítsd a modult. A 0.1.19 óta, ha nincs `jq` a gépen, a modul letölt egy rögzített változatot (kb. 1 MB,
+  a `github.com/jqlang/jq` kiadásából, ellenőrzőösszeggel), és azt használja. Ha ez a letöltés nem sikerül
+  (`aiplus-office: jq: …`), az ok ugyanaz, mint a programoknál: lásd „A letöltés nem éri el a GitHubot” és „Az
+  ellenőrzőösszeg nem egyezik”.
+- **Ki:** a gép előtt ülő ember.
+- **Javítva:** 0.1.19.
 
 ### Felhőben futó munkamenetben nem töltődnek le a programok
 
@@ -153,25 +191,13 @@ or a “This computer” session; just ask it.
 
 - **Tünet:** a kapcsolat naplójában: `--root holds an unexpanded variable (${CLAUDE_PROJECT_DIR}): the client did not
   substitute it; refusing to start`.
-- **Hol:** Claude Desktop, sima Chat.
-- **Ok:** a munkamappa helye nem került be a kapcsolat beállításába; munkamappa nélkül a modul biztonsági okból nem indítja el a
-  kapcsolatot.
-- **Ellenőrzés:** a Claude Desktop beállításaiban a kapcsolatok listája (`aiplus-office-wordcraft`,
-  `aiplus-office-pdfcraft`).
-- **Javítás:** addig dolgozz Claude Code-ban vagy „This computer” munkamenetben, és írd meg nekünk a Claude Desktop
-  változatát.
-- **Ki:** a gép előtt ülő ember, utána az ITLine.
-
-### A táblázat vagy a prezentáció kapcsolatként nem indul
-
-- **Tünet:** `aiplus-office: GridCraft's MCP server has no path confinement and can read and write any path the user
-  can; refusing to start. Pass --allow-unconfined to accept that, or use the bash route (aiplus-office gridcraft exec …).`
-- **Hol:** ha valaki kézzel kötötte be a GridCraftot vagy a DeckCraftot kapcsolatként.
-- **Ok:** ez a két program nem korlátozható a munkamappára; kapcsolatként a gép bármely fájlját olvashatná és írhatná.
-- **Ellenőrzés:** a projekt `.mcp.json` fájlja.
-- **Javítás:** vedd ki a kézzel felvett bejegyzést; a Claude ezeket programként futtatja a Claude Code-ban vagy egy
-  „This computer” munkamenetben.
+- **Hol:** Claude Desktop, sima Chat, a modul 0.1.14-es vagy régebbi változatával.
+- **Ok:** a sima Chat nem ad munkamappát, és munkamappa nélkül a régi változat nem indította el a kapcsolatot.
+- **Ellenőrzés:** `aiplus-office --version`.
+- **Javítás:** frissítsd a modult. A 0.1.15 óta a sima Chatben a kapcsolatok a Dokumentumok › „AI+ Iroda” mappában
+  dolgoznak.
 - **Ki:** a gép előtt ülő ember.
+- **Javítva:** 0.1.15.
 
 ### A táblázat PDF-jéből hiányzik az ő és az ű
 
@@ -253,23 +279,63 @@ Ha a hibád nincs itt, kérdezd meg a Claude-tól: „hogyan kezdjem?”, és í
 
 ### Node.js is missing or too old
 
-- **Symptom:** `node: command not found`, or the first line of `status`: `node: v18.19.0 (too old: needs 20 or newer)`.
-- **Where:** Claude Code, a “This computer” session.
+- **Symptom:** `node: command not found`, or the first line of `status`: `node: v18.19.0 (too old: needs 20 or newer)`. In
+  Claude Desktop the module's connections do not start at all (see “The connections show »Reconnect«”).
+- **Where:** everywhere.
 - **Cause:** the module runs on Node.js; it does not start with a version older than 20.
 - **Check:** `node --version` (v20 or newer is needed).
-- **Fix:** download the “LTS” version from https://nodejs.org and install it. Then restart Claude.
+- **Fix:** download the “LTS” version from https://nodejs.org and install it. Then quit Claude fully (Claude Desktop from
+  the icon at the right of the taskbar too) and start it again: a Claude that is already running does not see the new
+  Node.js.
 - **Who:** the person at the computer.
 
-### Excel or PowerPoint asked for in a plain Chat
+### The connections show “Reconnect”
 
-- **Symptom:** Claude says that in a plain Chat it cannot run programs, and Excel and PowerPoint files need a session
-  where it runs on your own computer.
+- **Symptom:** in Claude Desktop, in the session's right panel under **Connectors**, “Aiplus office gridcraft”,
+  “… wordcraft”, “… deckcraft” and “… pdfcraft” show a **Reconnect** button; the window it opens says: `Failed to connect:
+  Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`.
+- **Where:** Claude Desktop.
+- **Cause:** the connection failed to start once (so far always because Node.js was missing, or Claude started before
+  Node.js was installed), and Claude Desktop remembers that for 15 minutes, even across restarts (tried on Windows 11,
+  25 October 2026).
+- **Check:** `node --version` in a command prompt.
+- **Fix:** with Node.js in place, do not wait the 15 minutes: click **Reconnect** on each of the four connections. For us
+  they then started within a second.
+- **Who:** the person at the computer.
+
+### “not installed” right after installing
+
+- **Symptom:** right after the install, `aiplus-office status` shows `not installed` for the programs.
+- **Where:** Claude Desktop.
+- **Cause:** Claude Desktop downloads the programs not at the install but the next time it starts or a session opens;
+  until then they are not there.
+- **Check:** `aiplus-office status` again a few minutes later; Claude Desktop's copy is in the folder on the
+  `desktop cache:` line.
+- **Fix:** open a session, or restart Claude Desktop, and wait a few minutes.
+- **Who:** the person at the computer.
+
+### A plain Chat cannot find the file
+
+- **Symptom:** Claude says it cannot reach the file you named, or the finished file is not where you expected it.
 - **Where:** Claude Desktop, plain Chat.
-- **Cause:** GridCraft and DeckCraft cannot be limited to the working folder, so they are not connected that way;
-  Claude can only run them as programs, which a plain Chat cannot do.
-- **Check:** nothing to run; a Chat runs no commands.
-- **Fix:** open Claude Code, or in Claude Desktop a session whose environment is “This computer”, and ask again there.
+- **Cause:** in a plain Chat the module's connections reach only Documents › „AI+ Iroda” (since 0.1.15).
+- **Check:** look in Documents › „AI+ Iroda”.
+- **Fix:** put the file Claude should work on there. To work in another folder, switch Claude Desktop to Code and open
+  a “This computer” session in that folder.
 - **Who:** the person at the computer.
+
+### `jq: command not found`
+
+- **Symptom:** a check stops with `jq: command not found`, or `aiplus-office: jq: …` (exit code 69).
+- **Where:** any computer without `jq` (Git for Windows never has it).
+- **Cause:** the module's workflows check with the `jq` program, and Git for Windows does not include it.
+- **Check:** `aiplus-office --version` (0.1.19 or newer is needed), `aiplus-office status` (the `jq:` line).
+- **Fix:** update the module. Since 0.1.19, when the computer has no `jq`, the module downloads a pinned version (about
+  1 MB, from the `github.com/jqlang/jq` release, checksum checked) and uses that. If that download fails
+  (`aiplus-office: jq: …`), the causes are the same as for the programs: see “The download cannot reach GitHub” and
+  “The checksum does not match”.
+- **Who:** the person at the computer.
+- **Fixed:** 0.1.19.
 
 ### The programs do not download in a session running in the cloud
 
@@ -382,23 +448,12 @@ Ha a hibád nincs itt, kérdezd meg a Claude-tól: „hogyan kezdjem?”, és í
 
 - **Symptom:** in the connection's log: `--root holds an unexpanded variable (${CLAUDE_PROJECT_DIR}): the client did not
   substitute it; refusing to start`.
-- **Where:** Claude Desktop, plain Chat.
-- **Cause:** Claude Desktop did not fill in the working folder; without one the module does not start the connection,
-  for safety.
-- **Check:** the connections list in Claude Desktop's settings (`aiplus-office-wordcraft`, `aiplus-office-pdfcraft`).
-- **Fix:** work in Claude Code or a “This computer” session meanwhile, and tell us your Claude Desktop version.
-- **Who:** the person at the computer, then ITLine.
-
-### The spreadsheet or presentation program does not start as a connection
-
-- **Symptom:** `aiplus-office: GridCraft's MCP server has no path confinement and can read and write any path the user
-  can; refusing to start. Pass --allow-unconfined to accept that, or use the bash route (aiplus-office gridcraft exec …).`
-- **Where:** when someone connected GridCraft or DeckCraft by hand.
-- **Cause:** these two programs cannot be limited to the working folder; as a connection they could read and write any
-  file on the computer.
-- **Check:** the project's `.mcp.json` file.
-- **Fix:** remove the entry added by hand; Claude runs these as programs in Claude Code or a “This computer” session.
+- **Where:** Claude Desktop, plain Chat, with module version 0.1.14 or older.
+- **Cause:** a plain Chat passes no working folder, and without one the old version did not start the connection.
+- **Check:** `aiplus-office --version`.
+- **Fix:** update the module. Since 0.1.15 the connections work in Documents › „AI+ Iroda” in a plain Chat.
 - **Who:** the person at the computer.
+- **Fixed:** 0.1.15.
 
 ### ő and ű are missing from the spreadsheet's PDF
 
