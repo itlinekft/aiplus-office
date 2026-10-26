@@ -105,8 +105,9 @@ Manage marketplaces. To update it in Claude Desktop, remove it and add it again.
   per-user folder (`%LOCALAPPDATA%\aiplus-office` on Windows, `~/Library/Caches/aiplus-office` on macOS,
   `~/.cache/aiplus-office` on Linux). No installer, no administrator rights; nothing is installed system-wide. Claude
   Desktop does this by itself, in the background, when it starts or a session opens; Claude Code at the first job. On
-  Windows, Claude Desktop's copy is in Claude's own folder:
-  `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (`aiplus-office status` names it).
+  Windows, Claude Desktop may keep its copy in its own folder,
+  `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (one test PC did, another did not; `aiplus-office
+  status` names the folder in use).
 - For the workflow skills' checks: a Bash shell and `jq` (Claude Code on Windows uses Git Bash, which has no `jq`; the
   skills then use `aiplus-office jq`, which downloads a pinned jq 1.8.2 once, about 1 MB, its SHA-256 checked).
 

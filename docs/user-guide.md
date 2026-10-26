@@ -91,9 +91,10 @@ Ha a Claude gombokkal kérdez vissza, a gombbal válaszolj.
 ### Hová kerülnek a programok?
 
 A négy program a saját felhasználói mappádba kerül: Windowson `%LOCALAPPDATA%\aiplus-office`, macOS-en
-`~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`. **A Claude Desktop Windowson a saját mappájába teszi
-őket:** `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`. A Fájlkezelőben ott találod; a Claude-tól
-megkérdezheted, ő kiírja (`aiplus-office status`, a `desktop cache:` sor).
+`~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`. **A Claude Desktop Windowson némelyik gépen a saját
+mappájában tartja őket:** `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (az egyik tesztgépünkön
+így volt, a másikon a fenti mappában). Hogy nálad melyik, azt a Claude megmondja (`aiplus-office status`: a `cache:`, és ha
+van, a `desktop cache:` sor).
 
 ### Ablakos programok (nem kötelező)
 
@@ -223,9 +224,10 @@ If Claude asks back with buttons, answer with a button.
 ### Where the programs go
 
 The four programs go into your own user folder: `%LOCALAPPDATA%\aiplus-office` on Windows,
-`~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux. **On Windows, Claude Desktop puts them in
-its own folder:** `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`. That is where File Explorer shows
-them; ask Claude and it names the folder (`aiplus-office status`, the `desktop cache:` line).
+`~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux. **On some Windows computers Claude Desktop
+keeps them in its own folder:** `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (one of our test PCs
+did, the other used the folder above). Ask Claude which one yours uses (`aiplus-office status`: the `cache:` line and, if
+there is one, the `desktop cache:` line).
 
 ### The programs' windows (optional)
 

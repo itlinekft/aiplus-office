@@ -3,6 +3,14 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-26 (morning) — Windows 11, Claude Desktop 3.6556 (MSIX): the app cache is not redirected on every PC
+
+- The second test PC, the same Claude Desktop 3.6556.2.0 MSIX package and aiplus-office 0.1.18, keeps the module's
+  apps in the plain `C:\Users\<user>\AppData\Local\aiplus-office` (deckcraft, gridcraft, pdfcraft, wordcraft, 2026-10-25);
+  `…\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\aiplus-office` does not exist there. On the first PC (night of
+  2026-10-25/26) it was the redirected folder. So the docs say „on some computers”; `status` prints `cache:` and, only
+  where the redirected copy exists, `desktop cache:`.
+
 ## 2026-10-26 (morning) — Windows 11, Git for Windows bash, aiplus-office 0.1.19 build: `jq` fallback (change office-install-complete)
 
 - `C:\Program Files\Git\usr\bin` has no `jq.exe`, and `where jq` finds none: the workflow gates' `jq` calls fail there.

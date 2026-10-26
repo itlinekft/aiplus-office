@@ -68,8 +68,9 @@ Requirements: **Node.js 20 or newer** on the machine. The four apps are download
 connectors, at its own start or when a session opens; Claude Code at the first job) from
 their official GitHub releases (`github.com/storytold/<app>`), each archive checked against the release's
 `SHA256SUMS.txt`, into a per-user cache (`~/.cache/aiplus-office` on Linux, `~/Library/Caches/aiplus-office` on macOS,
-`%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is redirected to
-`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office`, which `status` prints as `desktop cache:`).
+`%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is on some installations redirected to
+`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office`, which `status` then prints as `desktop cache:`;
+measured 2026-10-26: redirected on one Windows 11 test PC, not on another with the same Claude Desktop 3.6556).
 Nothing is installed system-wide; no administrator rights are needed.
 Linux needs glibc 2.35 or newer. The workflow skills' gates use `jq`; where there is none (Git for Windows has none), they
 run `aiplus-office jq`, a pinned jq 1.8.2 downloaded once from `github.com/jqlang/jq` and checked against the SHA-256

@@ -124,8 +124,8 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > **HU:** **Honnan jönnek a programok?** A négy program (WordCraft, GridCraft, DeckCraft, PdfCraft) ingyenes, nyílt
 > forrású. A modul a programok hivatalos GitHub-oldaláról tölti le őket (`github.com/storytold/<program>`,
 > „Releases”), és minden letöltött fájlt összevet a kiadás `SHA256SUMS.txt` ellenőrzőlistájával: ha a fájl eltér, nem
-> telepíti. A programok a saját felhasználói mappádba kerülnek (Windowson `%LOCALAPPDATA%\aiplus-office`, a Claude
-> Desktop esetében a Claude saját mappájában: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
+> telepíti. A programok a saját felhasználói mappádba kerülnek (Windowson `%LOCALAPPDATA%\aiplus-office`; a Claude
+> Desktop némelyik gépen a saját mappájában tartja őket: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
 > macOS-en `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`); telepítő nem fut, rendszergazdai jog nem
 > kell, és a gép más részéhez nem nyúl. Programonként 20–100 MB; ha új változat jelenik meg, azt is magától tölti le.
 >
@@ -134,8 +134,8 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > **EN:** **Where do the programs come from?** The four programs (WordCraft, GridCraft, DeckCraft, PdfCraft) are free
 > and open source. The module downloads them from their official GitHub pages (`github.com/storytold/<program>`,
 > “Releases”) and checks every downloaded file against the release's `SHA256SUMS.txt` checklist: if a file differs, it
-> is not installed. The programs go into your own user folder (`%LOCALAPPDATA%\aiplus-office` on Windows, for Claude
-> Desktop in Claude's own folder `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
+> is not installed. The programs go into your own user folder (`%LOCALAPPDATA%\aiplus-office` on Windows; on some
+> computers Claude Desktop keeps them in its own folder `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
 > `~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux); no installer runs, no administrator
 > rights are needed, and nothing else on the computer is touched. 20–100 MB per program; a newer version is fetched by
 > itself when one comes out.
