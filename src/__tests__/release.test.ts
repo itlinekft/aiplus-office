@@ -67,7 +67,7 @@ describe("build from a commit", () => {
     const b = build({ repo, out });
     expect(b.sha).toMatch(/^[0-9a-f]{40}$/);
     const files = (b.files as string[]).slice().sort();
-    expect(files).toEqual([".claude-plugin/plugin.json", ".mcp.json", "LICENSE", "NOTICE", "README.md", "TROUBLESHOOTING.md", "USER-GUIDE.md", "dist/aiplus-office.mjs", ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`)].sort());
+    expect(files).toEqual([".claude-plugin/plugin.json", ".mcp.json", "LICENSE", "NOTICE", "README.md", "TROUBLESHOOTING.md", "USER-GUIDE.md", "dist/aiplus-office.mjs", "hooks/hooks.json", "hooks/session-context.md", ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`)].sort());
     expect(fs.readFileSync(path.join(out, "README.md"), "utf8")).toBe(fs.readFileSync(path.join(REPO_ROOT, "release", "README.md"), "utf8"));
     expect(fs.readFileSync(path.join(out, "skills", "office-router", "SKILL.md"), "utf8")).not.toContain("UNCOMMITTED");
     expect(fs.readFileSync(path.join(out, "NOTICE"), "utf8")).toBe(fs.readFileSync(path.join(REPO_ROOT, "release", "NOTICE"), "utf8"));
@@ -101,7 +101,7 @@ describe("stage into a marketplace clone", () => {
     expect(m.plugins).toHaveLength(2);
     const readme = fs.readFileSync(path.join(mp, "README.md"), "utf8");
     expect(readme.split(`| \`${PLUGIN}\` |`).length - 1).toBe(1);
-    expect(readme).toMatch(/AI\+ Iroda · AI\+ Office \(ingyenes · free\) .*Excel and PowerPoint files need Claude on your own computer/); // bilingual row (office-first-run)
+    expect(readme).toMatch(/AI\+ Iroda · AI\+ Office \(ingyenes · free\) .*in a plain Chat it works in Documents › „AI\+ Iroda”, in a folder of your choice in Claude Code/); // bilingual row (office-first-run)
     expect(readme.indexOf("`aiplus`")).toBeLessThan(readme.indexOf(`\`${PLUGIN}\``));
     expect(fs.existsSync(path.join(mp, "plugins", PLUGIN, "dist", "aiplus-office.mjs"))).toBe(true);
     expect(sh(mp, "git", ["rev-parse", "HEAD"])).toBe(before);

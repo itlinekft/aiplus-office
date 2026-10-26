@@ -54,6 +54,30 @@ describe(".mcp.json", () => {
   });
 });
 
+describe("session routing hook (change office-session-routing)", () => {
+  const hooks = json("hooks/hooks.json").hooks as Record<string, { hooks: { type: string; command: string }[] }[]>;
+
+  it("has one SessionStart hook that only prints the context file, with no Node.js needed", () => {
+    expect(Object.keys(hooks)).toEqual(["SessionStart"]);
+    expect(hooks.SessionStart).toHaveLength(1);
+    expect(hooks.SessionStart[0].hooks).toEqual([{ type: "command", command: 'cat "${CLAUDE_PLUGIN_ROOT}/hooks/session-context.md"' }]);
+  });
+
+  it("the context sends office files to the router, rules out the generic routes and keeps the honest stop", () => {
+    const ctx = read("hooks/session-context.md");
+    expect(ctx).toMatch(/load the `aiplus-office:office-router` skill first/);
+    for (const w of ["Python", "openpyxl", "python-docx", "LibreOffice", "hand-built ZIP"]) expect(ctx).toContain(w);
+    expect(ctx).toContain('"When the module cannot run"');
+    expect(ctx).toContain("`aiplus-office:office-start`");
+    expect(ctx.length).toBeLessThan(1200);
+    expect(ctx).not.toMatch(/\u2014/);
+  });
+
+  it("the router section the context points to exists", () => {
+    expect(read("skills/office-router/SKILL.md")).toContain("## When the module cannot run: stop and say so");
+  });
+});
+
 describe("bundle", () => {
   it("the committed dist/aiplus-office.mjs equals a fresh build of the sources (run `npm run build`)", () => {
     const out = path.join(tmpDir("office-build-"), "aiplus-office.mjs");

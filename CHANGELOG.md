@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.18 — 2026-10-26
+
+- **Office jobs go to AI+ Iroda first, in every session.** A short start-of-session note (a `cat` hook, no Node.js
+  needed) tells Claude to load the AI+ Iroda router for any Word, Excel, PowerPoint or PDF file before Python,
+  openpyxl, Office automation or a hand-built file, and to stop and say so when the module cannot run. Measured before:
+  with the connectors down, one session in three skipped the module and built the workbook by hand.
+- The marketplace line no longer says Excel and PowerPoint need Claude on your own computer: a plain Chat makes all
+  four, in Documents › „AI+ Iroda”.
+
 ## 0.1.17 — 2026-10-26
 
 - **When Claude Desktop downloads, said as measured.** Its connectors start when Claude starts and when a session opens,

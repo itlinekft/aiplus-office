@@ -6,7 +6,7 @@
  *   node scripts/release.mjs [--ref <commit>] [--out <dir>] [--stage <marketplace-clone>] [--no-leakscan] [--no-validate]
  *
  * - Every file is read with `git show <sha>:<path>` (binary-safe): the working tree is never shipped.
- * - Allow-list: .claude-plugin/plugin.json, .mcp.json, dist/aiplus-office.mjs, skills/**, LICENSE, and the public
+ * - Allow-list: .claude-plugin/plugin.json, .mcp.json, dist/aiplus-office.mjs, skills/**, hooks/**, LICENSE, and the public
  *   release/README.md → README.md and release/NOTICE → NOTICE (the repo NOTICE names the upstream repository; the
  *   public one carries the MIT attribution in a shorter form). Nothing else (no src/, tests, openspec/, docs/).
  * - One version source: package.json; plugin.json, the dev marketplace.json entry, the CLI's VERSION and the first
@@ -26,7 +26,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PLUGIN = "aiplus-office";
-const README_ROW = `| \`${PLUGIN}\` | AI+ Iroda · AI+ Office (ingyenes · free) | irodai skillek és az \`aiplus-office\` parancs, a WordCraft, GridCraft, DeckCraft és PdfCraft programokat első használatkor maga tölti le; Excel- és PowerPoint-fájlhoz a Claude-nak a saját gépeden kell futnia (Claude Code vagy „This computer” munkamenet) · office skills and the \`aiplus-office\` command, downloads the four apps itself on first use; Excel and PowerPoint files need Claude on your own computer (Claude Code or a “This computer” session) |`;
+const README_ROW = `| \`${PLUGIN}\` | AI+ Iroda · AI+ Office (ingyenes · free) | irodai skillek és az \`aiplus-office\` parancs, a WordCraft, GridCraft, DeckCraft és PdfCraft programokat maga tölti le; a sima Chatben a Dokumentumok › „AI+ Iroda” mappában dolgozik, a saját mappádban Claude Code-ban vagy „This computer” munkamenetben · office skills and the \`aiplus-office\` command, downloads the four apps itself; in a plain Chat it works in Documents › „AI+ Iroda”, in a folder of your choice in Claude Code or a “This computer” session |`;
 
 const ALLOW = [
   { from: ".claude-plugin/plugin.json" },
@@ -38,6 +38,7 @@ const ALLOW = [
   { from: "TROUBLESHOOTING.md" },
   { from: "docs/user-guide.md", to: "USER-GUIDE.md" },
   { prefix: "skills/" },
+  { prefix: "hooks/" },
 ];
 
 class Refuse extends Error {}

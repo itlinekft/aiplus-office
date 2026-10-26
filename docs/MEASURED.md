@@ -3,6 +3,22 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-26 (night, later) — Windows 11, Claude Desktop 3.6556, aiplus-office 0.1.17: routing without connectors (change office-session-routing)
+
+Node.js hidden (`C:\Program Files\nodejs` renamed), the plugin and the marketplace re-added, the cache emptied; then
+Node.js restored while the connectors stayed cached as failed. The same request in new Code sessions, „Készíts árlistát
+táblázatban három termékkel, 27% ÁFÁ-val, a fájl neve legyen <name>.xlsx” (tool calls read from the session logs):
+
+| name | Node.js | first call | then | result |
+|---|---|---|---|---|
+| `arlista-nonode` | missing | `python -c "import openpyxl"` | PowerShell, a hand-built XLSX („a fájlnév alapján Node nélkül kell”) | a file, not with AI+ Iroda |
+| `arlista-m9` | missing | `Skill office-gridcraft` | `node: command not found`, `office-start` | honest stop, no file, the to-do named |
+| `arlista-m10` | back | `python -c "import openpyxl"` | Excel automation checked, PowerShell, a hand-built XLSX | a file, not with AI+ Iroda; no skill loaded |
+| `arlista-m11` | back | `python -c "import openpyxl"` | `node -v; which aiplus-office`, `Skill office-gridcraft`, the CLI | the file with AI+ Iroda |
+
+A SessionStart hook in a Desktop Code session runs in Git Bash (`/usr/bin/bash` 5.3.15) and its standard output reaches
+the context (a project hook that printed a test word: the session quoted it).
+
 ## 2026-10-26 (night) — Windows 11, Claude Desktop 3.6556, aiplus-office 0.1.15 fresh install (change office-desktop-truth)
 
 The plugin and the marketplace removed and added again; Claude quit; the app cache emptied; Claude started.
