@@ -1,13 +1,19 @@
 ---
 name: office-start
-description: First run of the aiplus-office plugin - checks Node.js and the four free ArtCraft office apps (aiplus-office status), says where the apps come from, offers to download them (install --all), says plainly what works where (a plain Chat in Claude Desktop: Word and PDF only; Claude on the user's own computer, Claude Code or a Claude Desktop session on This computer: also Excel and PowerPoint files; a session in the cloud cannot download the apps) and where the desktop window apps are officially downloaded. Use on first use, after installing the plugin, when a command fails because Node.js or an app is missing, or for "how do I start", "what does it need", "setup", "install the apps", "where do the programs come from", "why can't you make the spreadsheet", and Hungarian - első indítás, telepítés, beállítás, hogyan kezdjem, mi kell hozzá, honnan jönnek a programok, miért nem készül el a táblázat vagy a prezentáció.
+description: First run of the aiplus-office plugin - checks Node.js and the four free ArtCraft office apps (aiplus-office status), says where the apps come from, offers to download them (install --all), says plainly what works where (a plain Chat in Claude Desktop: all four file types, in the „AI+ Iroda” folder of Documents; Claude Code or a Claude Desktop session on This computer: any folder; a session in the cloud cannot download the apps) and where the desktop window apps are officially downloaded. Use on first use, after installing the plugin, when a command fails because Node.js or an app is missing, or for "how do I start", "what does it need", "setup", "install the apps", "where do the programs come from", "why can't you make the spreadsheet", and Hungarian - első indítás, telepítés, beállítás, hogyan kezdjem, mi kell hozzá, honnan jönnek a programok, miért nem készül el a táblázat vagy a prezentáció.
 ---
 
 # office-start: first run, what it needs, where it comes from, what works where
 
 Run this the first time the user works with the plugin, when they ask how to start or what it needs, and when an office
 command failed because Node.js or an app is missing. It checks the machine, explains the result in plain words, and
-asks before downloading anything. Office jobs themselves belong to `office-router`.
+never starts a download itself without a yes. Office jobs themselves belong to `office-router`.
+
+**Claude Desktop downloads the apps by itself.** It starts the module's four connectors as soon as it starts (right
+after the plugin is added, then at every start of Claude), and each connector fetches its app in the background the
+first time (measured on Windows 2026-10-26: all four within 10 s of the start, before any question). So on Claude
+Desktop the apps are usually there before this skill runs; say how they got there (3. below), never that they were
+already on the computer.
 
 **Answer in the user's language.** Every user-facing block below has a Hungarian (**HU**) and an English (**EN**)
 wording with the same facts: use the one that matches the user (Hungarian when unsure), in these words or close to them.
@@ -85,7 +91,8 @@ aiplus-office status
 |---|---|---|
 | `node: v… (ok: …)` / `(too old: …)` | a Node.js rendben van / túl régi (2. lépés) | Node.js is fine / too old (step 2) |
 | `host: win32/x64` (`darwin/arm64`, `linux/x64`) | Windows / macOS / Linux gép (only if it matters) | Windows / macOS / Linux computer |
-| `cache: <folder>` | ide kerülnek a programok (give this exact folder) | the programs are kept here |
+| `cache: <folder>` | ide kerülnek a programok (give this exact folder, unless a `desktop cache:` line follows) | the programs are kept here |
+| `desktop cache: <folder>` | a Claude Desktop ide tette a programokat: a Windows a Claude saját mappájába irányítja őket, ezért a fenti mappa a Fájlkezelőben üres (give THIS folder when the user looks for them) | Claude Desktop put the programs here: Windows redirects them into Claude's own folder, so the folder above looks empty in File Explorer (give THIS folder) |
 | `<app> 0.11.1 (20.0 MB)` | a program már le van töltve, ez a változata | downloaded, this version |
 | `<app> not installed · next: download` | még nincs letöltve; első használatkor magától letölti | not downloaded yet; it is fetched on first use |
 | `next: <version> (latest-cached)` | legközelebb ezt a változatot használja | this version is used next |
@@ -94,6 +101,18 @@ aiplus-office status
 Name the apps by what they do: WordCraft = Word format (DOCX), GridCraft = Excel format (XLSX), DeckCraft = PowerPoint
 format (PPTX), PdfCraft = PDF.
 
+**All four already there, and the user never asked for a download** (the usual case on Claude Desktop): say how they got
+there and where they came from, then go on to 5.; do not offer `install`.
+
+> **HU:** A négy program már le van töltve: a Claude Desktop a modul első indításakor, a háttérben letöltötte őket a
+> hivatalos GitHub-oldalukról (`github.com/storytold/<program>`), és mindegyiket ellenőrizte a kiadás ellenőrzőlistájával.
+> Itt vannak: `<the desktop cache folder, else the cache folder>`. Telepítő nem futott, a gép más részéhez nem nyúlt.
+>
+> **EN:** The four programs are already downloaded: Claude Desktop fetched them in the background when it first started
+> the module, from their official GitHub pages (`github.com/storytold/<program>`), and checked each one against the
+> release's checklist. They are here: `<the desktop cache folder, else the cache folder>`. No installer ran, and nothing
+> else on the computer was touched.
+
 ## 4. Where the apps come from, then offer the download (ask first)
 
 If any app is `not installed`, explain where they come from and **ask**; never run `install` without a yes.
@@ -101,8 +120,9 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > **HU:** **Honnan jönnek a programok?** A négy program (WordCraft, GridCraft, DeckCraft, PdfCraft) ingyenes, nyílt
 > forrású. A modul a programok hivatalos GitHub-oldaláról tölti le őket (`github.com/storytold/<program>`,
 > „Releases”), és minden letöltött fájlt összevet a kiadás `SHA256SUMS.txt` ellenőrzőlistájával: ha a fájl eltér, nem
-> telepíti. A programok a saját felhasználói mappádba kerülnek (Windowson `%LOCALAPPDATA%\aiplus-office`, macOS-en
-> `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`); telepítő nem fut, rendszergazdai jog nem
+> telepíti. A programok a saját felhasználói mappádba kerülnek (Windowson `%LOCALAPPDATA%\aiplus-office`, a Claude
+> Desktop esetében a Claude saját mappájában: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
+> macOS-en `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`); telepítő nem fut, rendszergazdai jog nem
 > kell, és a gép más részéhez nem nyúl. Programonként 20–100 MB; ha új változat jelenik meg, azt is magától tölti le.
 >
 > Letöltsem most mind a négyet? (Ha nem, az első feladatnál tölti le azt, amelyik kell.)
@@ -110,7 +130,8 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > **EN:** **Where do the programs come from?** The four programs (WordCraft, GridCraft, DeckCraft, PdfCraft) are free
 > and open source. The module downloads them from their official GitHub pages (`github.com/storytold/<program>`,
 > “Releases”) and checks every downloaded file against the release's `SHA256SUMS.txt` checklist: if a file differs, it
-> is not installed. The programs go into your own user folder (`%LOCALAPPDATA%\aiplus-office` on Windows,
+> is not installed. The programs go into your own user folder (`%LOCALAPPDATA%\aiplus-office` on Windows, for Claude
+> Desktop in Claude's own folder `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
 > `~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux); no installer runs, no administrator
 > rights are needed, and nothing else on the computer is touched. 20–100 MB per program; a newer version is fetched by
 > itself when one comes out.

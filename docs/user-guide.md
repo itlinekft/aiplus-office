@@ -15,7 +15,8 @@ gépi ellenőrzés néz át, mielőtt a Claude odaadja.
 - **Node.js 20 vagy újabb.** Ingyenes segédprogram: https://nodejs.org, az „LTS” jelű változat. Telepítés után indítsd
   újra a Claude-ot.
 - **Internet az első használatkor.** A négy programot a modul maga tölti le a hivatalos GitHub-oldalukról
-  (`github.com/storytold/<program>`), programonként 20–100 MB-ot. Minden letöltött fájlt összevet a kiadás
+  (`github.com/storytold/<program>`), programonként 20–100 MB-ot. A Claude Desktop ezt rögtön az induláskor, a
+  háttérben elvégzi, kérdés nélkül; a Claude Code az első feladatnál. Minden letöltött fájlt összevet a kiadás
   ellenőrzőlistájával (`SHA256SUMS.txt`); ha eltér, nem telepíti. Telepítő nem fut, rendszergazdai jog nem kell.
 
 ### Telepítés
@@ -71,7 +72,9 @@ Coworkben kipróbáltuk, és nem készült fájl.
 
 A kész fájlok a munkamappádba kerülnek: a Claude Code-ban abba a mappába, amelyet megnyitottál, a Claude Desktopban
 abba, amelyet a munkamenethez választottál. A négy program a saját felhasználói mappádba kerül: Windowson
-`%LOCALAPPDATA%\aiplus-office`, macOS-en `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`.
+`%LOCALAPPDATA%\aiplus-office`, macOS-en `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`. A Claude
+Desktop Windowson a saját mappájába teszi őket: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`
+(a Fájlkezelőben ott találod; az `aiplus-office status` ki is írja).
 
 ### Frissítés
 
@@ -115,7 +118,8 @@ checked mechanically before Claude hands it over.
 - **Node.js 20 or newer.** A free helper program: https://nodejs.org, the “LTS” version. Restart Claude after
   installing it.
 - **Internet on first use.** The module downloads the four programs itself from their official GitHub pages
-  (`github.com/storytold/<program>`), 20–100 MB each. It checks every downloaded file against the release's checklist
+  (`github.com/storytold/<program>`), 20–100 MB each. Claude Desktop does it right when it starts, in the background,
+  without asking; Claude Code at the first job. It checks every downloaded file against the release's checklist
   (`SHA256SUMS.txt`); a file that differs is not installed. No installer runs, no administrator rights are needed.
 
 ### Install
@@ -171,7 +175,9 @@ running in the cloud, and no file was made.
 
 Finished files go into your working folder: in Claude Code the folder you opened, in Claude Desktop the one you chose
 for the session. The four programs go into your own user folder: `%LOCALAPPDATA%\aiplus-office` on Windows,
-`~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux.
+`~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux. On Windows, Claude Desktop puts them in its
+own folder: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office` (that is where File Explorer shows
+them; `aiplus-office status` names it).
 
 ### Updating
 

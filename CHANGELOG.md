@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.16 — 2026-10-26
+
+- **`status` names the folder Claude Desktop really uses on Windows.** Claude Desktop is a packaged app, so the apps it
+  downloads land in `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`, not in the folder File
+  Explorer shows empty; `status` now prints it as `desktop cache:`.
+- **The copy says when the download happens.** Claude Desktop fetches the four apps by itself, in the background, as
+  soon as it starts the module; `office-start` no longer says it asks before every download, and when the apps are
+  already there it says how they got there and where they are. The `office-start` description no longer says a plain
+  Chat does Word and PDF only.
+
 ## 0.1.15 — 2026-10-26
 
 - **A plain Chat in Claude Desktop now works with all four apps.** It has no project folder, and the connectors refused

@@ -64,10 +64,13 @@ table is the design; what has actually been tried is kept in one block of `skill
 
 ## Install
 
-Requirements: **Node.js 20 or newer** on the machine. The four apps are downloaded on first use (20–100 MB each) from
+Requirements: **Node.js 20 or newer** on the machine. The four apps are downloaded once (20–100 MB each; Claude Desktop does it in the background as soon as it starts
+the module's connectors, Claude Code at the first job) from
 their official GitHub releases (`github.com/storytold/<app>`), each archive checked against the release's
 `SHA256SUMS.txt`, into a per-user cache (`~/.cache/aiplus-office` on Linux, `~/Library/Caches/aiplus-office` on macOS,
-`%LOCALAPPDATA%\aiplus-office` on Windows). Nothing is installed system-wide; no administrator rights are needed.
+`%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is redirected to
+`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office`, which `status` prints as `desktop cache:`).
+Nothing is installed system-wide; no administrator rights are needed.
 Linux needs glibc 2.35 or newer.
 
 Users install it from the public marketplace `itlinekft/aiplus-plugins` (see `release/README.md`, shipped as the plugin's

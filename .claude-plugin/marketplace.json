@@ -11,7 +11,7 @@
       "name": "aiplus-office",
       "displayName": "AI+ Iroda",
       "source": "./",
-      "version": "0.1.15",
+      "version": "0.1.16",
       "description": "AI+ Iroda: ingyenes AI+ modul. A Claude Word, Excel, PowerPoint és PDF formátumú fájlokat készít és szerkeszt az ingyenes, nyílt forrású ArtCraft programokkal (WordCraft, GridCraft, DeckCraft, PdfCraft), magyar irodai mintákkal (árajánlat, árlista, prezentáció); minden kész fájlt gépi ellenőrzés néz át. A sima Chatben is megy mind a négy: ott a fájlok a Dokumentumok mappán belül az „AI+ Iroda” mappába kerülnek. A saját mappádban Claude Code-ban vagy a Claude Desktopban „This computer” környezetű munkamenetben dolgozhatsz; a felhőben futó munkamenet nem tudja letölteni a programokat. Node.js 20 kell hozzá. Első lépés: „hogyan kezdjem?”. Az ArtCraft programok korai verziók. English: AI+ Office: free AI+ module. Claude creates and edits files in Word, Excel, PowerPoint and PDF formats with the free, open-source ArtCraft apps (WordCraft, GridCraft, DeckCraft, PdfCraft), with Hungarian office examples; every finished file is checked mechanically. A plain Chat handles all four: there the files go to the „AI+ Iroda” folder in Documents. To work in your own folder, use Claude Code or a Claude Desktop session whose environment is “This computer”; a session running in the cloud cannot download the apps. Needs Node.js 20. First step: “how do I start?”. The ArtCraft apps are early versions.",
       "category": "productivity"
     }

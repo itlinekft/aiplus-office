@@ -20,10 +20,10 @@ import { DOC_USAGE, prepareDoc } from "../doc-prepare.js";
 import { defaultLauncherPath } from "../mcp-register.js";
 import { defaultDeps, type ProvisionReport, provision } from "../provision.js";
 import { APP_IDS, CRAFT_APPS, getApp, isAppId } from "../registry.js";
-import { appStatus, statusRoot } from "../status.js";
+import { appStatus, desktopCacheRoots, statusRoot } from "../status.js";
 import { runVerify } from "../verify.js";
 
-export const VERSION = "0.1.15";
+export const VERSION = "0.1.16";
 
 /** Minimum Node.js major version (package.json `engines`); `status` says when the running one is older. */
 export const NODE_MIN_MAJOR = 20;
@@ -135,6 +135,7 @@ function statusCommand(rest: string[], deps: CliDeps): number {
   deps.stdout(`${nodeLine(deps.nodeVersion)}\n`);
   deps.stdout(`host: ${deps.platform}/${deps.arch}\n`);
   deps.stdout(`cache: ${statusRoot(deps)}\n`);
+  for (const d of desktopCacheRoots(deps)) deps.stdout(`desktop cache: ${d} (Claude Desktop's own copy; open this folder)\n`);
   for (const r of rows) {
     const inst = r.installed.length ? `${r.installed.join(", ")} (${formatBytes(r.cacheBytes)})` : "not installed";
     const use = r.wouldUse.version ? `${r.wouldUse.version} (${r.wouldUse.source})` : r.wouldUse.source;

@@ -10544,6 +10544,23 @@ function appStatus(app2, deps) {
 function statusRoot(deps) {
   return craftRoot(deps);
 }
+function desktopCacheRoots(deps) {
+  if (deps.env.AIPLUS_OFFICE_HOME || deps.platform !== "win32") return [];
+  const packages = path6.join(deps.env.LOCALAPPDATA || path6.join(deps.homedir(), "AppData", "Local"), "Packages");
+  let names;
+  try {
+    names = fs6.readdirSync(packages);
+  } catch {
+    return [];
+  }
+  return names.filter((n) => /^Claude_/i.test(n)).sort().map((n) => path6.join(packages, n, "LocalCache", "Local", "aiplus-office")).filter((p) => {
+    try {
+      return fs6.statSync(p).isDirectory();
+    } catch {
+      return false;
+    }
+  });
+}
 
 // src/verify.ts
 import * as fs8 from "node:fs";
@@ -11077,7 +11094,7 @@ ${VERIFY_USAGE}
 }
 
 // src/bin/aiplus-office.ts
-var VERSION = "0.1.15";
+var VERSION = "0.1.16";
 var NODE_MIN_MAJOR = 20;
 function nodeLine(version) {
   const major = Number(/^v?(\d+)/.exec(version)?.[1]);
@@ -11173,6 +11190,8 @@ function statusCommand(rest, deps) {
   deps.stdout(`host: ${deps.platform}/${deps.arch}
 `);
   deps.stdout(`cache: ${statusRoot(deps)}
+`);
+  for (const d of desktopCacheRoots(deps)) deps.stdout(`desktop cache: ${d} (Claude Desktop's own copy; open this folder)
 `);
   for (const r of rows) {
     const inst = r.installed.length ? `${r.installed.join(", ")} (${formatBytes(r.cacheBytes)})` : "not installed";

@@ -175,6 +175,33 @@ describe("status", () => {
     expect(c.out.join("")).toMatch(/^node: v18\.19\.0 \(too old: needs 20 or newer\)\n/);
   });
 
+  it("status (text) on Windows names Claude Desktop's own copy of the cache (change office-desktop-truth)", async () => {
+    const local = tmpDir();
+    const own = path.join(local, "Packages", "Claude_pzs8sxrjxfjjc", "LocalCache", "Local", "aiplus-office");
+    fs.mkdirSync(own, { recursive: true });
+    fs.mkdirSync(path.join(local, "Packages", "Microsoft.Other_8wekyb3d8bbwe"), { recursive: true });
+    const c = capture();
+    expect(await main(["status"], { ...c.deps, env: { LOCALAPPDATA: local }, platform: "win32", arch: "x64" })).toBe(0);
+    const lines = c.out.join("").split("\n");
+    expect(lines[2]).toBe(`cache: ${path.join(local, "aiplus-office")}`);
+    expect(lines[3]).toBe(`desktop cache: ${own} (Claude Desktop's own copy; open this folder)`);
+    expect(lines.filter((l) => l.startsWith("desktop cache:"))).toHaveLength(1);
+  });
+
+  it("status (text) prints no desktop cache line without one, off Windows, or with AIPLUS_OFFICE_HOME", async () => {
+    const local = tmpDir();
+    for (const [env, platform] of [
+      [{ LOCALAPPDATA: local }, "win32"],
+      [{ LOCALAPPDATA: local }, "linux"],
+      [{ LOCALAPPDATA: local, AIPLUS_OFFICE_HOME: tmpDir() }, "win32"],
+    ] as const) {
+      if (platform === "linux") fs.mkdirSync(path.join(local, "Packages", "Claude_x", "LocalCache", "Local", "aiplus-office"), { recursive: true });
+      const c = capture();
+      await main(["status"], { ...c.deps, env: { ...env }, platform, arch: "x64" });
+      expect(c.out.join("")).not.toContain("desktop cache:");
+    }
+  });
+
   it("status --json keeps its shape: four app rows, no node or host fields", async () => {
     const c = capture();
     await main(["status", "--json"], { ...c.deps, env: { AIPLUS_OFFICE_HOME: tmpDir() }, nodeVersion: "v18.0.0" });

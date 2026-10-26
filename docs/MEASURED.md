@@ -3,6 +3,25 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-26 (night) — Windows 11, Claude Desktop 3.6556, aiplus-office 0.1.15 fresh install (change office-desktop-truth)
+
+The plugin and the marketplace removed and added again; Claude quit; the app cache emptied; Claude started.
+
+- **The download happens at Claude's start, unasked.** The four app folders appeared at 01:30:58 and their versions by
+  01:31:05 (GridCraft 0.12.1, DeckCraft 0.11.1, WordCraft 0.11.0, PdfCraft 0.14.0), about 20 s after Claude started and
+  before any prompt. „Hogyan kezdjem az AI+ Iroda modult?” in a Code session then ran `office-start`, which checked
+  Node.js 22.11.0 and said all four were already downloaded.
+- **Claude Desktop's cache is redirected.** It is a packaged app: the apps were in
+  `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\aiplus-office`; `%LOCALAPPDATA%\aiplus-office`, the
+  folder `office-start` named, did not exist outside Claude. (Deleting the unredirected path had emptied nothing.)
+- **„hogyan kezdjem?” without the module's name**, in a folder that another plugin also serves, got a general menu from
+  Claude, not `office-start`; with the name it ran `office-start`.
+- **Code session:** „Készíts árlistát táblázatban három termékkel, 27% ÁFÁ-val” → `office-gridcraft`, `arlista-m7.xlsx`
+  in the session folder in under 30 s; 2 490 Ft net → 672 Ft VAT (672.30 rounded per line), totals 17 990 / 4 857 /
+  22 847 Ft; all 9 formulas recalculated by the app and matched.
+- **Plain Chat:** a short Word letter → WordCraft, `Documents › AI+ Iroda › level-m8.docx`; four missing details left as
+  marked placeholders and named.
+
 ## 2026-10-26 — Windows 11, Claude Desktop 3.6556: plain Chat, Code sessions, the ArtCraft Launcher (changes office-honest-fallback, office-chat-folder)
 
 A Windows 11 test PC (Hungarian, administrator user), driven with desktape; screens read by three models.

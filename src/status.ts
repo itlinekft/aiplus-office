@@ -72,3 +72,32 @@ export function appStatus(app: CraftApp, deps: StatusDeps): AppStatus {
 export function statusRoot(deps: StatusDeps): string {
   return craftRoot(deps);
 }
+
+/**
+ * Claude Desktop on Windows is a packaged app: whatever it, and every process it starts, writes under `%LOCALAPPDATA%`
+ * really lands in `%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local`, so Explorer shows nothing at the usual cache
+ * path. Returns the copies of the cache root found there, so `status` names a folder the user can open. Read-only.
+ *
+ * See change: office-desktop-truth (office-cli "Status names Claude Desktop's own copy").
+ */
+export function desktopCacheRoots(deps: StatusDeps): string[] {
+  if (deps.env.AIPLUS_OFFICE_HOME || deps.platform !== "win32") return [];
+  const packages = path.join(deps.env.LOCALAPPDATA || path.join(deps.homedir(), "AppData", "Local"), "Packages");
+  let names: string[];
+  try {
+    names = fs.readdirSync(packages);
+  } catch {
+    return [];
+  }
+  return names
+    .filter((n) => /^Claude_/i.test(n))
+    .sort()
+    .map((n) => path.join(packages, n, "LocalCache", "Local", "aiplus-office"))
+    .filter((p) => {
+      try {
+        return fs.statSync(p).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+}

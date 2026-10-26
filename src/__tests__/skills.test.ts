@@ -401,3 +401,27 @@ describe("honest fallback (change office-honest-fallback)", () => {
     expect(s).toMatch(/\*\*EN:\*\* Claude remembers a connector that failed to start for 15 minutes/);
   });
 });
+
+describe("Claude Desktop's own download, said truly (change office-desktop-truth)", () => {
+  const start = loadSkill("office-start");
+  const router = loadSkill("office-router");
+
+  it("office-start says Claude Desktop downloads the apps by itself and never claims to ask first", () => {
+    expect(start.body).toContain("**Claude Desktop downloads the apps by itself.**");
+    expect(start.body).toMatch(/never starts a download itself without a yes/);
+    expect(start.body).not.toMatch(/asks before downloading anything/);
+    expect(router.body).not.toMatch(/asks before downloading/);
+  });
+
+  it("office-start explains the already-downloaded case in both languages and names the desktop cache", () => {
+    expect(start.body).toMatch(/\*\*HU:\*\* A négy program már le van töltve: a Claude Desktop a modul első indításakor/);
+    expect(start.body).toMatch(/\*\*EN:\*\* The four programs are already downloaded: Claude Desktop fetched them/);
+    expect(start.body).toContain("| `desktop cache: <folder>` |");
+    expect(start.body).toContain("Packages\\Claude_…\\LocalCache\\Local\\aiplus-office");
+  });
+
+  it("the office-start description no longer says a plain Chat does Word and PDF only", () => {
+    expect(start.frontmatter.description).not.toMatch(/Word and PDF only/);
+    expect(start.frontmatter.description).toMatch(/plain Chat in Claude Desktop: all four file types/);
+  });
+});
