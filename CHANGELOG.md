@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.20 — 2026-10-26
+
+- **Claude installs Node.js for you, on a yes.** When Node.js is missing, „Hogyan kezdjem az AI+ Iroda modult?” no longer
+  just sends you to nodejs.org: Claude asks with two buttons and, on „Igen”, installs it with Windows' own installer
+  (winget, from nodejs.org) or Homebrew on a Mac, then says to restart Claude and click Reconnect. Without either, or in a
+  plain Chat, you get the link as before.
+- **Where the apps are kept, said as measured:** Claude Desktop keeps them in its own folder only on some Windows PCs;
+  `status` names the one in use.
+
 ## 0.1.19 — 2026-10-26
 
 - **`jq` on Windows.** The workflow skills check their steps with `jq`, which Git for Windows lacks. Where there is no

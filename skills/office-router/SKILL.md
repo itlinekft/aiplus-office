@@ -65,8 +65,8 @@ GitHub refuses, the user's files reached only through a device share):
    > felhőben fut”>. Megmutatom, mi kell hozzá.
    >
    > **EN:** AI+ Iroda cannot start on this computer right now: <reason>. I'll show you what it needs.
-3. **Continue with `office-start`**: it checks Node.js and the apps and says what to do (a cloud session: Claude Desktop ›
-   Code › environment „This computer”).
+3. **Continue with `office-start`**: it checks Node.js and the apps, offers to install a missing Node.js (only after
+   the user's yes), and says what to do (a cloud session: Claude Desktop › Code › environment „This computer”).
 
 Only if the user then plainly asks for the file to be made another way may you do it, and the answer says it was **not**
 made with AI+ Iroda.

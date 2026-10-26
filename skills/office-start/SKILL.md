@@ -45,15 +45,8 @@ node --version
 ```
 
 - `v20` or newer: fine; say „a Node.js rendben van” / “Node.js is fine”.
-- Command not found, or older than `v20`:
-
-> **HU:** A modulnak kell egy ingyenes segédprogram, a **Node.js** (20-as vagy újabb változat). Töltsd le a hivatalos
-> oldalról: https://nodejs.org, az „LTS” jelű változatot. Telepítés után lépj ki teljesen a Claude-ból (a tálcán vagy a
-> menüsoron lévő ikonjánál is), indítsd újra, és kérdezd újra: „hogyan kezdjem?”
->
-> **EN:** The module needs a free helper program, **Node.js** (version 20 or newer). Download it from the official site,
-> https://nodejs.org, the “LTS” version. After installing it, quit Claude fully (also from its icon in the tray or the
-> menu bar), start it again and ask again: “how do I start?”
+- Command not found, or older than `v20`: first look whether it is installed but not seen (below); if it is not
+  installed, offer to install it (**Node.js is missing: offer to install it**, below).
 
 **Installed, but Claude does not see it.** When `node --version` fails, look at Node.js's usual places first:
 
@@ -68,6 +61,56 @@ If one is there, Node.js is installed and Claude started before it, so it still 
 >
 > **EN:** Node.js is installed, but Claude started before it, so it does not see it. Quit Claude fully (also from its
 > icon in the tray or the menu bar), start it again and ask again: “how do I start?”
+
+**Node.js is missing: offer to install it.** Claude installs it only after a yes, only from its official source, and
+says what Windows will ask. Never download a Node.js installer from anywhere else, never run it without the yes.
+
+```bash
+uname -s; command -v winget || command -v winget.exe; command -v brew
+```
+
+- **Windows** (`uname -s` starts with `MINGW`, `MSYS` or `CYGWIN`) **and `winget` found:** ask with answer buttons
+  („Igen, telepítsd” / „Inkább magam telepítem”), never as a typed question:
+
+  > **HU:** A modulhoz kell egy ingyenes segédprogram, a **Node.js**, és ezen a gépen nincs fent. Feltelepítsem? A
+  > Windows saját telepítőjével (winget) a hivatalos nodejs.org-ról tölti le, a Node.js készítőitől. A Windows egyszer
+  > engedélyt kér, azt fogadd el.
+  >
+  > **EN:** The module needs a free helper program, **Node.js**, and this computer does not have it. Shall I install it?
+  > Windows' own installer (winget) downloads it from the official nodejs.org, from the makers of Node.js. Windows asks
+  > for permission once: accept it.
+
+  On „Igen”:
+
+  ```bash
+  winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-source-agreements --accept-package-agreements
+  "/c/Program Files/nodejs/node.exe" --version
+  ```
+
+  winget checks the installer's own SHA-256 before it runs it. A non-zero exit, or no `node.exe` afterwards: say what
+  winget printed (its last lines, verbatim) and give the manual way below. Never retry from another source.
+- **macOS and `brew` found:** the same question with „Homebrew” in place of winget; on yes `brew install node`, then
+  `node --version`.
+- **Otherwise** (no winget, no brew, Linux, or a plain Chat that runs no commands): the manual way, nothing installed:
+
+  > **HU:** A modulnak kell egy ingyenes segédprogram, a **Node.js** (20-as vagy újabb változat). Töltsd le a hivatalos
+  > oldalról: https://nodejs.org, az „LTS” jelű változatot, és telepítsd az alapbeállításokkal.
+  >
+  > **EN:** The module needs a free helper program, **Node.js** (version 20 or newer). Download it from the official site,
+  > https://nodejs.org, the “LTS” version, and install it with the default options.
+
+**After Node.js is installed** (by winget, brew or by hand), Claude must be restarted, and the connectors that failed
+before must be reconnected:
+
+> **HU:** A Node.js fent van. Most lépj ki teljesen a Claude-ból (a tálcán vagy a menüsoron lévő ikonjánál is), és
+> indítsd újra. Ha a munkamenet jobb oldalán, a „Connectors” részben az AI+ Iroda kapcsolói mellett „Reconnect” áll,
+> kattints rá mindegyiknél. Utána kérdezd újra: „Hogyan kezdjem az AI+ Iroda modult?” A négy irodai programot a modul
+> ezután magától letölti.
+>
+> **EN:** Node.js is installed. Now quit Claude fully (also from its icon in the tray or the menu bar) and start it
+> again. If the AI+ Iroda connectors in the session's “Connectors” panel on the right show “Reconnect”, click it on
+> each. Then ask again: “How do I start with the AI+ Iroda module?” The module then downloads the four office programs
+> by itself.
 
 **After the restart the connectors still say „Reconnect”.** Claude remembers a connector that failed for 15 minutes,
 even across a restart. Do not wait:

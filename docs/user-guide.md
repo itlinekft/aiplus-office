@@ -24,7 +24,9 @@ gépi ellenőrzés néz át, mielőtt a Claude odaadja.
 
 Kipróbálva Windows 11-en, 2026. október 26-án.
 
-1. **Node.js.** Telepítsd a https://nodejs.org oldalról az „LTS” változatot. Ha a Claude Desktop közben futott, lépj ki
+1. **Node.js.** Ha nincs fent, a Claude az 5. lépésnél (egy „This computer” Code munkamenetben) felajánlja, hogy feltelepíti (Windowson a winget nevű saját
+   telepítővel, a nodejs.org-ról), és csak az igened után teszi meg. Magad is telepítheted: a https://nodejs.org oldalról
+   az „LTS” változatot. Ha a Claude Desktop közben futott, lépj ki
    belőle teljesen (a tálca jobb oldali ikonjáról is), és indítsd újra: csak így látja a Node.js-t. Hogy fent van-e,
    egy parancssorban a `node --version` mutatja (v20 vagy újabb kell).
 2. **A modulgyűjtemény.** A Claude Desktopban válts **Claude** módra (a Code mód beállításaiban nincs „Manage
@@ -157,7 +159,9 @@ checked mechanically before Claude hands it over.
 
 Tried on Windows 11, 26 October 2026.
 
-1. **Node.js.** Install the “LTS” version from https://nodejs.org. If Claude Desktop was running, quit it fully (from
+1. **Node.js.** If it is missing, Claude offers to install it in step 5, in a “This computer” Code session (on Windows with its own installer, winget,
+   from nodejs.org), and does so only after your yes. Or install it yourself: the “LTS” version from https://nodejs.org.
+   If Claude Desktop was running, quit it fully (from
    the icon at the right of the taskbar too) and start it again: only then does it see Node.js. `node --version` in a
    command prompt shows whether it is there (v20 or newer is needed).
 2. **The marketplace.** In Claude Desktop switch to **Claude** mode (Code mode's Customize page has no “Manage

@@ -432,3 +432,31 @@ describe("Claude Desktop's own download, said truly (change office-desktop-truth
     expect(start.frontmatter.description).toMatch(/plain Chat in Claude Desktop: all four file types/);
   });
 });
+
+describe("Node.js installed through Claude, on a yes (change office-node-setup)", () => {
+  const start = () => loadSkill("office-start").body;
+
+  it("office-start offers winget on Windows, with answer buttons, and installs only on a yes", () => {
+    const b = start();
+    expect(b).toContain("**Node.js is missing: offer to install it.**");
+    expect(b).toContain("winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-source-agreements --accept-package-agreements");
+    expect(b).toContain("„Igen, telepítsd” / „Inkább magam telepítem”");
+    expect(b).toMatch(/only after a yes/);
+    expect(b).toMatch(/Never download a Node\.js installer from anywhere else/);
+  });
+
+  it("names the fallbacks: Homebrew on macOS, the nodejs.org link otherwise, and what to do after", () => {
+    const b = start();
+    expect(b).toContain("brew install node");
+    expect(b).toContain("https://nodejs.org");
+    expect(b).toContain("**After Node.js is installed**");
+    expect(b).toMatch(/lépj ki teljesen a Claude-ból[\s\S]*Reconnect/);
+    expect(b).toMatch(/quit Claude fully[\s\S]*Reconnect/);
+  });
+
+  it("the session note and the router point a missing Node.js to the offer", () => {
+    const hook = fs.readFileSync(path.join(SKILLS_DIR, "..", "hooks", "session-context.md"), "utf8");
+    expect(hook).toContain("When Node.js is missing, `aiplus-office:office-start` offers to install it");
+    expect(loadSkill("office-router").body).toContain("offers to install a missing Node.js");
+  });
+});
