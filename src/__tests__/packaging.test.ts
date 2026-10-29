@@ -36,8 +36,12 @@ describe("manifests", () => {
   });
 });
 
-describe(".mcp.json", () => {
-  const servers = json(".mcp.json").mcpServers as Record<string, { command: string; args: string[] }>;
+describe("release/mcp.json (shipped as .mcp.json)", () => {
+  const servers = json("release/mcp.json").mcpServers as Record<string, { command: string; args: string[] }>;
+
+  it("no .mcp.json at the repo root: Claude Code would read it as this repo's own server list (change office-mcp-release-source)", () => {
+    expect(fs.existsSync(path.join(REPO_ROOT, ".mcp.json")), "keep the plugin's server list in release/mcp.json").toBe(false);
+  });
 
   it("registers the four apps, all confined (GridCraft by the gateway), PdfCraft compact, rooted at the project (change office-mcp-grid-deck)", () => {
     expect(Object.keys(servers).sort()).toEqual(["aiplus-office-deckcraft", "aiplus-office-gridcraft", "aiplus-office-pdfcraft", "aiplus-office-wordcraft"]);

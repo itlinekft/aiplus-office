@@ -16,7 +16,7 @@ afterAll(cleanupTmp);
 
 const SOURCES = [
   "package.json", "CHANGELOG.md", "src/bin/aiplus-office.ts", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
-  ".mcp.json", "dist/aiplus-office.mjs", "LICENSE", "NOTICE", "release/README.md", "release/NOTICE", "README.md", "src/registry.ts", "docs/x.md", "TROUBLESHOOTING.md", "docs/user-guide.md", "hooks/hooks.json", "hooks/session-context.md",
+  "release/mcp.json", "dist/aiplus-office.mjs", "LICENSE", "NOTICE", "release/README.md", "release/NOTICE", "README.md", "src/registry.ts", "docs/x.md", "TROUBLESHOOTING.md", "docs/user-guide.md", "hooks/hooks.json", "hooks/session-context.md",
   ...fs.readdirSync(path.join(REPO_ROOT, "skills")).map((s) => `skills/${s}/SKILL.md`),
 ];
 

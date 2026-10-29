@@ -6,7 +6,7 @@
  *   node scripts/release.mjs [--ref <commit>] [--out <dir>] [--stage <marketplace-clone>] [--no-leakscan] [--no-validate]
  *
  * - Every file is read with `git show <sha>:<path>` (binary-safe): the working tree is never shipped.
- * - Allow-list: .claude-plugin/plugin.json, .mcp.json, dist/aiplus-office.mjs, skills/**, hooks/**, LICENSE, and the public
+ * - Allow-list: .claude-plugin/plugin.json, release/mcp.json → .mcp.json, dist/aiplus-office.mjs, skills/**, hooks/**, LICENSE, and the public
  *   release/README.md → README.md and release/NOTICE → NOTICE (the repo NOTICE names the upstream repository; the
  *   public one carries the MIT attribution in a shorter form). Nothing else (no src/, tests, openspec/, docs/).
  * - One version source: package.json; plugin.json, the dev marketplace.json entry, the CLI's VERSION and the first
@@ -30,7 +30,8 @@ const README_ROW = `| \`${PLUGIN}\` | AI+ Iroda · AI+ Office (ingyenes · free)
 
 const ALLOW = [
   { from: ".claude-plugin/plugin.json" },
-  { from: ".mcp.json" },
+  // Not at the repo root: Claude Code would read a root .mcp.json as this repo's own server list (office-mcp-release-source).
+  { from: "release/mcp.json", to: ".mcp.json" },
   { from: "dist/aiplus-office.mjs" },
   { from: "LICENSE" },
   { from: "release/NOTICE", to: "NOTICE" },

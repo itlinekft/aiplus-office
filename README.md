@@ -38,7 +38,7 @@ PowerPoint. So:
 | Claude Code | yes | yes | yes | yes |
 | a session running in the cloud (Cowork measured) | not measured | not measured | no | no |
 
-All four apps are registered MCP servers, each confined to the project folder (`.mcp.json`; GridCraft and DeckCraft
+All four apps are registered MCP servers, each confined to the project folder (`.mcp.json` in the plugin, kept at `release/mcp.json` here; GridCraft and DeckCraft
 since change `office-mcp-grid-deck`, 2026-10-25). Up to 0.1.10 only WordCraft and PdfCraft were (the Desktop install
 dialog listed exactly `aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11), and a
 plain Chat passes no project folder: up to 0.1.14 every server refused the unsubstituted `${CLAUDE_PROJECT_DIR}` and
@@ -60,7 +60,7 @@ table is the design; what has actually been tried is kept in one block of `skill
 | `skills/office-deck` | outline → slides → PDF handout (example: a Hungarian quarterly deck) |
 | `skills/office-data-visual` | numbers → workbook with formulas and a read-back → chart → slide (example: árlista with 27% ÁFA) |
 | `dist/aiplus-office.mjs` | the `aiplus-office` command (one self-contained Node.js file) |
-| `.mcp.json` | MCP servers for clients without a shell: the four apps, each confined to the project folder |
+| `release/mcp.json` | MCP servers for clients without a shell: the four apps, each confined to the project folder; shipped as the plugin's `.mcp.json` (not at the repo root, where Claude Code would read it as this repo's own server list) |
 
 ## Install
 
@@ -84,6 +84,10 @@ Hungarian first, then English. Claude Code, from a local checkout of this reposi
 claude plugin marketplace add /path/to/aiplus-office      # the repo carries a local dev marketplace
 claude plugin install aiplus-office@aiplus-office-dev
 ```
+
+That install has the skills and the `aiplus-office` command, but not the four MCP servers: their list is
+`release/mcp.json`, which only the release puts at the plugin's root. To test with the servers, build the plugin and load
+the build: `node scripts/release.mjs --out /tmp/aiplus-office-build`, then `claude --plugin-dir /tmp/aiplus-office-build`.
 
 Optional pre-download and a check:
 
