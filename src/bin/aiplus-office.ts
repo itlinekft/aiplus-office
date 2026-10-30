@@ -27,7 +27,7 @@ import { APP_IDS, CRAFT_APPS, getApp, isAppId, repoFor } from "../registry.js";
 import { appStatus, desktopCacheRoots, statusRoot } from "../status.js";
 import { runVerify } from "../verify.js";
 
-export const VERSION = "0.1.21";
+export const VERSION = "0.1.22";
 
 /** Minimum Node.js major version (package.json `engines`); `status` says when the running one is older. */
 export const NODE_MIN_MAJOR = 20;

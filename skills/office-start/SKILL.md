@@ -341,9 +341,9 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 > - **macOS:** `<program>-<verzió>-macos-universal.dmg`.
 >
 > **Magyar helyesírás az ablakos WordCraftban (Windows, macOS):** a második WordCraft-linkről töltsd le (Windowson a
-> portable zip-et vagy az msi-t, macOS-en a dmg-t). Ez a változat még nincs digitálisan aláírva, ezért az első
-> indításkor a gép rákérdez: Windowson „More info” › „Run anyway”, macOS-en System Settings › Privacy & Security ›
-> „Open Anyway”. Az első indításkor a File › Options › Proofing › Dictionaries folder mezőbe add meg azt a mappát,
+> portable zip-et vagy az msi-t, macOS-en a dmg-t). A macOS-es változat digitálisan aláírt, és az Apple ellenőrizte,
+> így a Mac nem kérdez rá. A Windows-os még nincs aláírva, ezért az első indításkor a SmartScreen rákérdez: „More info”
+> › „Run anyway”. Az első indításkor a File › Options › Proofing › Dictionaries folder mezőbe add meg azt a mappát,
 > amelyet a `status` `dictionary:` sora mutat. Ez a változat a saját oldaláról frissül, így a felajánlott frissítés is
 > magyar helyesírás-ellenőrzéssel jön.
 >
@@ -360,9 +360,9 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 > - **macOS:** `<program>-<version>-macos-universal.dmg`.
 >
 > **Hungarian spelling in the WordCraft window app (Windows, macOS):** download it from the second WordCraft link (on
-> Windows the portable zip or the msi, on macOS the dmg). This build is not digitally signed yet, so the computer asks
-> on the first start: on Windows “More info” › “Run anyway”, on macOS System Settings › Privacy & Security › “Open
-> Anyway”. On the first start, set File › Options › Proofing › Dictionaries folder to the folder the `dictionary:` line
+> Windows the portable zip or the msi, on macOS the dmg). The macOS build is digitally signed and notarized by Apple,
+> so the Mac does not ask. The Windows build is not signed yet, so SmartScreen asks on the first start: “More info” ›
+> “Run anyway”. On the first start, set File › Options › Proofing › Dictionaries folder to the folder the `dictionary:` line
 > of `status` shows. This build updates from its own page, so an update it offers checks Hungarian spelling too.
 >
 > The programs' web page is `https://getartcraft.com/apps/<program>`; the newest version is on the GitHub page. These are

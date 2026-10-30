@@ -3,6 +3,27 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-31 (night) — WordCraft 0.12.0-hu.2: signed and notarized on macOS, the same marks on Windows
+
+Release `v0.12.0-hu.2` of `itlinekft/wordcraft`, built by the fork's workflow with a Developer ID certificate and
+notarized (the app, the dmg and the CLI zip each `Accepted` by the notary service, tickets stapled). Checked before it
+was published; `SHA256SUMS.txt` matched every file, and the version-free copies (`wordcraft-hu-windows-x64.msi`,
+`wordcraft-hu-windows-x64-portable.zip`, `wordcraft-hu-macos-universal.dmg`) are byte-identical to the versioned ones.
+
+- **macOS 26.4 (Apple silicon), shell only:** the dmg with a quarantine flag → `spctl --assess --type open` accepted,
+  `source=Notarized Developer ID`; `WordCraft.app` inside → `spctl --type execute` accepted, hardened runtime, stapler
+  validate OK, bundle version `0.12.0`. The CLI from its zip, quarantined, runs (`wordcraft-cli 0.12.0-hu.2`);
+  `spctl --assess --type install` (the module's check) → accepted.
+- **Through the module** (0.1.21's `dist/aiplus-office.mjs`, `AIPLUS_OFFICE_HOME` a test folder, after publishing):
+  `install wordcraft` → `wordcraft-cli-0.12.0-hu.2-macos-universal.zip` from `itlinekft/wordcraft`,
+  **`"gatekeeper":"accepted"`** (0.12.0-hu.1: rejected); the test offer gives the same 7 issues, the spot sentence its
+  two planted typos.
+- **Windows 11 (test PC):** the portable zip's `wordcraft-cli 0.12.0-hu.2`, `run --script` on the test offer → the
+  **same 7 issues as 0.12.0-hu.1**, identical JSON. The Windows build is unsigned (SmartScreen asks once).
+- Not done: the macOS window app was not started (the test Mac's console was signed in).
+- The installed apps record `0.12.0` (MSI ProductVersion, `CFBundleShortVersionString`), so the desktop app's own
+  updater does not offer `0.12.0-hu.2` over `0.12.0-hu.1`; the module fetches by release tag and does.
+
 ## 2026-10-30 (evening) — macOS 26.4 (Apple silicon): WordCraft 0.12.0-hu.1 through the module, and the dmg
 
 On the test Mac, from the shell with the module's own `dist/aiplus-office.mjs` of the 0.1.21 release build and

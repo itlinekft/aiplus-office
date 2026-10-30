@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.22 — 2026-10-31
+
+- **WordCraft with Hungarian spell checking is signed and notarized on macOS.** From `itlinekft/wordcraft` 0.12.0-hu.2
+  on, the Mac opens the window app without the "Open Anyway" detour, and the module's Gatekeeper check of the fetched
+  WordCraft says accepted. The Windows build is still unsigned, so SmartScreen asks once; the guide now says only that.
+- **A version-free download.** The GitHub release carries `aiplus-office.zip` beside `aiplus-office-<version>.zip`, so
+  `releases/latest/download/aiplus-office.zip` is always the newest manual-install package.
+
 ## 0.1.21 — 2026-10-30
 
 - **Hungarian spell checking in WordCraft, on Windows and macOS.** No official WordCraft release checks Hungarian yet.
