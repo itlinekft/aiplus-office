@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "set-hook-skill",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "set-hook-activity",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "set-hook-question-relay",
+            "timeout": 3600
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "set-hook-stop",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "set-hook-waveboard",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "set-hook-wait-detect",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
