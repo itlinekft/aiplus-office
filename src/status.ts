@@ -15,7 +15,7 @@ import {
   type ProvisionSource,
   readLatestCache,
 } from "./provision.js";
-import { type CraftApp, envPrefix } from "./registry.js";
+import { type CraftApp, envPrefix, repoFor } from "./registry.js";
 
 export interface AppStatus {
   app: CraftApp["id"];
@@ -29,7 +29,7 @@ export interface AppStatus {
   override?: string;
 }
 
-type StatusDeps = Pick<ProvisionDeps, "env" | "platform" | "homedir" | "now">;
+type StatusDeps = Pick<ProvisionDeps, "env" | "platform" | "arch" | "homedir" | "now">;
 
 function dirBytes(dir: string): number {
   let total = 0;
@@ -61,7 +61,7 @@ export function appStatus(app: CraftApp, deps: StatusDeps): AppStatus {
   if (override) wouldUse = { version: null, source: "override" };
   else if (pin) wouldUse = { version: normaliseVersion(pin, app.name), source: "pin" };
   else {
-    const cached = readLatestCache(root, deps.now());
+    const cached = readLatestCache(root, deps.now(), repoFor(app, deps.platform, deps.arch));
     if (cached) wouldUse = { version: normaliseVersion(cached, app.name), source: "latest-cached" };
     else wouldUse = { version: null, source: "download" };
   }

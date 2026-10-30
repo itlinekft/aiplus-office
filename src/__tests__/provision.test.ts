@@ -13,7 +13,7 @@ import {
   provision,
   systemTar,
 } from "../provision.js";
-import { CRAFT_APPS, type CraftApp, envPrefix, } from "../registry.js";
+import { CRAFT_APPS, type CraftApp, envPrefix, repoFor } from "../registry.js";
 import {
   cleanupTmp,
   craftArchive,
@@ -128,9 +128,11 @@ function suite(app: CraftApp): void {
       const now = 1_800_000_000_000;
       const H = 3_600_000;
       const cases: [string, number][] = [
-        [JSON.stringify({ tag: "v0.7.0", checkedAt: now - (24 * H - 60_000) }), 0],
-        [JSON.stringify({ tag: "v0.7.0", checkedAt: now - 24 * H }), 1],
-        [JSON.stringify({ tag: "v0.7.0", checkedAt: now + H }), 1],
+        [JSON.stringify({ tag: "v0.7.0", checkedAt: now - (24 * H - 60_000), repo: app.repo }), 0],
+        [JSON.stringify({ tag: "v0.7.0", checkedAt: now - 24 * H, repo: app.repo }), 1],
+        [JSON.stringify({ tag: "v0.7.0", checkedAt: now + H, repo: app.repo }), 1],
+        // Written before the repository could differ per host (change office-wordcraft-hu): refetched.
+        [JSON.stringify({ tag: "v0.7.0", checkedAt: now - 60_000 }), 1],
         ["{not json", 1],
       ];
       for (const [record, calls] of cases) {
@@ -339,7 +341,7 @@ function suite(app: CraftApp): void {
         [{}, "C:\\Windows\\System32\\tar.exe"],
       ];
       for (const [env, expected] of cases) {
-        const s = await setup({ assets: { [zipName]: archive } });
+        const s = await setup({ repo: repoFor(app, "win32", "x64"), assets: { [zipName]: archive } });
         const tars: string[] = [];
         const real = (await import("../exec.js")).execFileAsync;
         const exec: ProvisionDeps["exec"] = async (file, args, opts) => {

@@ -3,6 +3,24 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-30 — Windows 11, PowerShell, Node.js 22.11, aiplus-office 0.1.21 build: Hungarian spell checking (change office-wordcraft-hu)
+
+`AIPLUS_OFFICE_HOME` on a throwaway folder, `WORDCRAFT_DICTIONARIES` unset; a sample árajánlat (`.docx`, language
+hu-HU) with two planted typos.
+- `status` → `dictionary: hu_HU not installed (aiplus-office dict hu)`, `wordcraft not installed · next: download`.
+- `dict hu` → logged `downloading the Hungarian dictionary (hu_HU, about 4 MB) from github.com/LibreOffice/dictionaries`,
+  the three digests matched, printed the folder, exit 0.
+- `install wordcraft` → `{"version":"0.11.0-hu.1","source":"latest","asset":"wordcraft-0.11.0-hu.1-windows-x64-portable.zip",…}`
+  from `github.com/tatargabor/wordcraft` (43 MB, 12.6 s), exit 0; `status` → `wordcraft 0.11.0-hu.1 (37.7 MB)` and
+  `dictionary: hu_HU in <cache>\dictionaries`.
+- `wordcraft exec run --script check.json --print` (`review.issues`) → spelling: `szálítás`, `határídőre`, `ITLine`;
+  grammar: `a ÁFA` → `az`, and three lowercase table cells (`elfogadva`, `alkalom`, `db`). `27%-os` and `§-ában`
+  unmarked.
+- The PC also has LibreOffice, whose `share\extensions\dict-hu` WordCraft reads by itself, so a control: `szálítás`
+  added to the module's `hu_HU.dic` (UTF-8) → no longer marked, `határídőre` still is: WordCraft read the module's
+  folder through the `WORDCRAFT_DICTIONARIES` the module set. File restored (digest matched).
+- On a PC with LibreOffice installed, WordCraft checks Hungarian without `dict hu`.
+
 ## 2026-10-26 (morning) — Windows 11, Claude Desktop 3.6556 (MSIX): the app cache is not redirected on every PC
 
 - The second test PC, the same Claude Desktop 3.6556.2.0 MSIX package and aiplus-office 0.1.18, keeps the module's

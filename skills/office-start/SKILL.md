@@ -144,6 +144,8 @@ aiplus-office status
 | `<app> not installed · next: download` | még nincs letöltve; első használatkor magától letölti | not downloaded yet; it is fetched on first use |
 | `next: <version> (latest-cached)` | legközelebb ezt a változatot használja | this version is used next |
 | `override: <path>` / `(pin)` | kézzel beállított program / rögzített változat (leave it alone) | set by hand (leave it alone) |
+| `dictionary: hu_HU in <folder>` | a magyar helyesírási szótár megvan, ebben a mappában (4a.) | the Hungarian dictionary is there, in this folder (4a.) |
+| `dictionary: hu_HU not installed` | a magyar szótár még nincs letöltve (4a.) | the Hungarian dictionary is not downloaded yet (4a.) |
 
 Name the apps by what they do: WordCraft = Word format (DOCX), GridCraft = Excel format (XLSX), DeckCraft = PowerPoint
 format (PPTX), PdfCraft = PDF.
@@ -152,12 +154,12 @@ format (PPTX), PdfCraft = PDF.
 there and where they came from, then go on to 5.; do not offer `install`.
 
 > **HU:** A négy program már le van töltve: a Claude Desktop a modul első indításakor, a háttérben letöltötte őket a
-> hivatalos GitHub-oldalukról (`github.com/storytold/<program>`), és mindegyiket ellenőrizte a kiadás ellenőrzőlistájával.
-> Itt vannak: `<the desktop cache folder, else the cache folder>`. Telepítő nem futott, a gép más részéhez nem nyúlt.
+> hivatalos GitHub-oldalukról (`github.com/storytold/<program>`; Windowson a WordCraftot a magyar helyesírás-ellenőrzős
+> változatból, lásd lent), és mindegyiket ellenőrizte a kiadás ellenőrzőlistájával. Itt vannak: `<the desktop cache folder, else the cache folder>`. Telepítő nem futott, a gép más részéhez nem nyúlt.
 >
 > **EN:** The four programs are already downloaded: Claude Desktop fetched them in the background when it first started
-> the module, from their official GitHub pages (`github.com/storytold/<program>`), and checked each one against the
-> release's checklist. They are here: `<the desktop cache folder, else the cache folder>`. No installer ran, and nothing
+> the module, from their official GitHub pages (`github.com/storytold/<program>`; on Windows, WordCraft from the build with
+> Hungarian spell checking, see below), and checked each one against the release's checklist. They are here: `<the desktop cache folder, else the cache folder>`. No installer ran, and nothing
 > else on the computer was touched.
 
 ## 4. Where the apps come from, then offer the download (ask first)
@@ -171,6 +173,9 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > Desktop némelyik gépen a saját mappájában tartja őket: `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
 > macOS-en `~/Library/Caches/aiplus-office`, Linuxon `~/.cache/aiplus-office`); telepítő nem fut, rendszergazdai jog nem
 > kell, és a gép más részéhez nem nyúl. Programonként 20–100 MB; ha új változat jelenik meg, azt is magától tölti le.
+> **Windowson a WordCraft** egyelőre nem a hivatalos kiadásból jön, hanem egy olyan változatból, amely már ellenőrzi a
+> magyar helyesírást (`github.com/tatargabor/wordcraft`, ugyanígy ellenőrzőlistával); a hivatalos WordCraftban ez még
+> nincs benne. Amint benne lesz, a modul visszatér a hivatalos kiadáshoz.
 >
 > Letöltsem most mind a négyet? (Ha nem, az első feladatnál tölti le azt, amelyik kell.)
 >
@@ -181,7 +186,9 @@ If any app is `not installed`, explain where they come from and **ask**; never r
 > computers Claude Desktop keeps them in its own folder `%LOCALAPPDATA%\Packages\Claude_…\LocalCache\Local\aiplus-office`;
 > `~/Library/Caches/aiplus-office` on macOS, `~/.cache/aiplus-office` on Linux); no installer runs, no administrator
 > rights are needed, and nothing else on the computer is touched. 20–100 MB per program; a newer version is fetched by
-> itself when one comes out.
+> itself when one comes out. **On Windows, WordCraft** does not come from the official release for now, but from a build
+> that already checks Hungarian spelling (`github.com/tatargabor/wordcraft`, with the same checklist); the official
+> WordCraft does not have it yet. Once it does, the module goes back to the official release.
 >
 > Shall I download all four now? (If not, each one is downloaded at the first job that needs it.)
 
@@ -212,6 +219,29 @@ shows it as `override:`. Ask first, and say it like this:
 > **EN:** If the download does not work but the program's window app is already on your computer, the module can use
 > that one. For GridCraft on Windows this is usually `C:\Program Files\GridCraft\gridcraft-cli.exe`, the part of the
 > program that runs in the background. Shall I use it?
+
+## 4a. The Hungarian spelling dictionary (Windows, ask first)
+
+WordCraft checks Hungarian spelling only with a dictionary, which it does not include. If `status` says
+`dictionary: hu_HU not installed` and the host is `win32/x64`, offer it once, and **ask**; never run `dict` without a yes.
+
+> **HU:** **Magyar helyesírás-ellenőrzés a WordCraftban:** ehhez egy szótár kell (kb. 4 MB), a LibreOffice irodai
+> programcsomag hivatalos magyar szótára (Magyar Ispell, szabad licenc). A modul a LibreOffice GitHub-oldaláról tölti
+> le, és minden fájlt egy előre rögzített ellenőrzőkóddal vet össze. Letöltsem?
+>
+> **EN:** **Hungarian spell checking in WordCraft** needs a dictionary (about 4 MB): the official Hungarian dictionary of
+> the LibreOffice office suite (Magyar Ispell, a free licence). The module downloads it from LibreOffice's GitHub page
+> and checks every file against a fixed checksum. Shall I download it?
+
+On a yes:
+
+```bash
+command -v aiplus-office >/dev/null || aiplus-office() { node "${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs" "$@"; }
+aiplus-office dict hu
+```
+
+It prints the folder. WordCraft finds it by itself when the module runs it; the desktop app needs it set once (8.).
+Exit `69` = the download failed: same causes as `install`.
 
 ## 5. What works where
 
@@ -277,14 +307,16 @@ Say this once, after the two blocks above (measured 2026-10-24; the skills route
 >   WordCraft-tal készíti, és ellenőrzi.
 > - A szövegként beírt magyar számot („1 330,50”) a GridCraft nem adja össze, ezért a modul valódi számot ír be, és
 >   ellenőrzi az összegeket.
-> - A WordCraft nem ellenőrzi a magyar helyesírást: a szöveget a Claude nézi át, és ezt meg is mondja.
+> - A WordCraft csak Windowson és a magyar szótárral ellenőrzi a magyar helyesírást (4a.); máshol a szöveget a Claude
+>   nézi át, és ezt meg is mondja.
 >
 > **EN:** **Good to know:**
 > - GridCraft's own PDF and printout drop the letters ő and ű, so the module makes the PDF of such a sheet with
 >   WordCraft, and checks it.
 > - GridCraft does not add up a Hungarian number typed as text („1 330,50”), so the module writes real numbers and
 >   checks the totals.
-> - WordCraft does not check Hungarian spelling: Claude proofreads the text itself and says so.
+> - WordCraft checks Hungarian spelling only on Windows and with the Hungarian dictionary (4a.); elsewhere Claude
+>   proofreads the text itself and says so.
 
 ## 8. The desktop (window) apps (optional)
 
@@ -294,7 +326,7 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 
 | Program | Official download / Hivatalos letöltés |
 |---|---|
-| WordCraft | https://github.com/storytold/wordcraft/releases/latest |
+| WordCraft | https://github.com/storytold/wordcraft/releases/latest (Windows, magyar helyesírással · with Hungarian spell checking: https://github.com/tatargabor/wordcraft/releases/latest) |
 | GridCraft | https://github.com/storytold/gridcraft/releases/latest |
 | DeckCraft | https://github.com/storytold/deckcraft/releases/latest |
 | PdfCraft | https://github.com/storytold/pdfcraft/releases/latest |
@@ -308,6 +340,11 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 >   portable zip-et válaszd.
 > - **macOS:** `<program>-<verzió>-macos-universal.dmg`.
 >
+> **Magyar helyesírás az ablakos WordCraftban (Windows):** a második WordCraft-linkről a portable zip-et töltsd le. Az
+> első indításkor a File › Options › Proofing › Dictionaries folder mezőbe add meg azt a mappát, amelyet a `status`
+> `dictionary:` sora mutat. Ha a program frissítést ajánl („Update and restart”), a „Later”-t válaszd: a hivatalos
+> változatban még nincs magyar helyesírás-ellenőrzés.
+>
 > A programok weboldala `https://getartcraft.com/apps/<program>`; a legújabb változat a GitHub-oldalon van. Ezek is
 > korai változatok: a fontos fájlról mindig legyen másolatod.
 >
@@ -319,6 +356,11 @@ download page (checked 2026-10-24, see the repository's `docs/MEASURED.md`):
 >   `arm64` one. The PdfCraft installer installs for all users and asks for administrator rights; without them, pick
 >   the portable zip.
 > - **macOS:** `<program>-<version>-macos-universal.dmg`.
+>
+> **Hungarian spelling in the WordCraft window app (Windows):** download the portable zip from the second WordCraft link.
+> On the first start, set File › Options › Proofing › Dictionaries folder to the folder the `dictionary:` line of
+> `status` shows. If the program offers an update (“Update and restart”), choose “Later”: the official version does not
+> check Hungarian spelling yet.
 >
 > The programs' web page is `https://getartcraft.com/apps/<program>`; the newest version is on the GitHub page. These are
 > early versions too: always keep a copy of an important file.

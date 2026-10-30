@@ -18,7 +18,7 @@ import * as path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { execFileAsync } from "./exec.js";
-import { binName, type CraftApp, type CraftAppId, desktopName, envPrefix, getApp, hostKey } from "./registry.js";
+import { binName, type CraftApp, type CraftAppId, desktopName, envPrefix, getApp, hostKey, repoFor } from "./registry.js";
 
 export const API_BASE = "https://api.github.com";
 const LATEST_TTL_MS = 24 * 60 * 60 * 1000;
@@ -507,10 +507,14 @@ interface Resolved {
   release?: Release;
 }
 
-export function readLatestCache(root: string, now: number): string | undefined {
+/**
+ * The cached latest tag of `repo`, while fresh. A record from another repository, or one without a repository (written
+ * before the repository could differ per host), is ignored. See change: office-wordcraft-hu.
+ */
+export function readLatestCache(root: string, now: number, repo: string): string | undefined {
   try {
-    const rec = JSON.parse(fs.readFileSync(path.join(root, "latest.json"), "utf8")) as { tag?: unknown; checkedAt?: unknown };
-    if (typeof rec.tag !== "string" || typeof rec.checkedAt !== "number") return undefined;
+    const rec = JSON.parse(fs.readFileSync(path.join(root, "latest.json"), "utf8")) as { tag?: unknown; checkedAt?: unknown; repo?: unknown };
+    if (typeof rec.tag !== "string" || typeof rec.checkedAt !== "number" || rec.repo !== repo) return undefined;
     if (rec.checkedAt > now || now - rec.checkedAt >= LATEST_TTL_MS) return undefined;
     return rec.tag;
   } catch {
@@ -530,15 +534,16 @@ async function resolveVersion(app: CraftApp, deps: ProvisionDeps, root: string):
   const pin = deps.env[`${prefix}_VERSION`]?.trim();
   if (pin) return { version: normaliseVersion(pin, app.name), source: "pin" };
 
-  const cached = readLatestCache(root, deps.now());
+  const repo = repoFor(app, deps.platform, deps.arch);
+  const cached = readLatestCache(root, deps.now(), repo);
   if (cached) return { version: normaliseVersion(cached, app.name), source: "latest-cached" };
 
   try {
-    const release = await apiJson(deps, `${deps.apiBase}/repos/${app.repo}/releases/latest`);
+    const release = await apiJson(deps, `${deps.apiBase}/repos/${repo}/releases/latest`);
     const version = normaliseVersion(release.tag_name, app.name);
     try {
       fs.mkdirSync(root, { recursive: true });
-      fs.writeFileSync(path.join(root, "latest.json"), JSON.stringify({ tag: release.tag_name, checkedAt: deps.now() }));
+      fs.writeFileSync(path.join(root, "latest.json"), JSON.stringify({ tag: release.tag_name, checkedAt: deps.now(), repo }));
     } catch {
       /* cache is best-effort */
     }
@@ -616,7 +621,7 @@ export function commitTree(tree: string, finalDir: string, verifyExisting: (dir:
 
 export interface InstallVerifiedOptions<T> {
   deps: ProvisionDeps;
-  /** `storytold/<id>`; pins the download URLs to the repo's release path. */
+  /** The host's repository (`repoFor`); pins the download URLs to its release path. */
   repo: string;
   asset: string;
   release: Release;
@@ -770,7 +775,7 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
   }
 
   const tag = `v${version}`;
-  const release = resolved.release ?? (await apiJson(deps, `${deps.apiBase}/repos/${app.repo}/releases/tags/${tag}`));
+  const release = resolved.release ?? (await apiJson(deps, `${deps.apiBase}/repos/${repoFor(app, deps.platform, deps.arch)}/releases/tags/${tag}`));
   const asset = candidates.find((c) => release.assets.some((a) => a.name === c));
   if (!asset) throw new ProvisionError(`release ${tag} has no asset named ${candidates.join(" or ")}`);
 
@@ -778,7 +783,7 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
   try {
     installed = await installVerified<string>({
       deps,
-      repo: app.repo,
+      repo: repoFor(app, deps.platform, deps.arch),
       asset,
       release,
       cacheDir: root,

@@ -69,6 +69,11 @@ export interface CraftApp {
   /** One-line purpose for `aiplus-office apps`. */
   purpose: string;
   repo: `storytold/${string}`;
+  /**
+   * Hosts fetched from another repository than `repo`, with the same release layout (see `repoFor`).
+   * See change: office-wordcraft-hu.
+   */
+  hostRepos?: Partial<Record<HostKey, `${string}/${string}`>>;
   /** CLI binary basename, without `.exe`. */
   cli: string;
   assets: AssetPatterns;
@@ -105,14 +110,23 @@ function app(
 
 const COMMANDS_JSON: CliDialect["list"] = ["commands", "--json"];
 
+/**
+ * WordCraft with Hungarian spell checking (storytold/wordcraft #4575, #2070, #2385 plus two fixes proposed there),
+ * published for Windows x64 only until an official release has it; then this goes. See change: office-wordcraft-hu.
+ */
+const WORDCRAFT_HU_REPOS: CraftApp["hostRepos"] = { "win32/x64": "tatargabor/wordcraft" };
+
 export const CRAFT_APPS: readonly CraftApp[] = [
-  app(
-    "wordcraft",
-    "WordCraft",
-    "word processing: DOCX/ODT/RTF documents, conversion, PDF export",
-    { list: COMMANDS_JSON, run: "run [--file F] --cmd 'id={json}'… [--save OUT] | convert | render | text" },
-    { confinement: "automation-roots", toolClass: "small", tools: 16, bridgeFlag: "--connect" },
-  ),
+  {
+    ...app(
+      "wordcraft",
+      "WordCraft",
+      "word processing: DOCX/ODT/RTF documents, conversion, PDF export",
+      { list: COMMANDS_JSON, run: "run [--file F] --cmd 'id={json}'… [--save OUT] | convert | render | text" },
+      { confinement: "automation-roots", toolClass: "small", tools: 16, bridgeFlag: "--connect" },
+    ),
+    hostRepos: WORDCRAFT_HU_REPOS,
+  },
   app(
     "gridcraft",
     "GridCraft",
@@ -171,6 +185,12 @@ export function binName(app: CraftApp, platform: string): string {
 /** Desktop executable shipped beside the CLI in portable archives (deleted after extraction). */
 export function desktopName(app: CraftApp, platform: string): string {
   return platform === "win32" ? `${app.id}.exe` : app.id;
+}
+
+/** The GitHub repository the app is fetched from on this host: a `hostRepos` entry, else `repo`. */
+export function repoFor(app: CraftApp, platform: string, arch: string): string {
+  const key = hostKey(platform, arch);
+  return (key && app.hostRepos?.[key]) || app.repo;
 }
 
 export function hostKey(platform: string, arch: string): HostKey | undefined {
