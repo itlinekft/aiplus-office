@@ -3,6 +3,26 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-30 (evening) — Windows 11, Claude Desktop (MSIX): WordCraft 0.12.0-hu.1 from itlinekft/wordcraft
+
+The 0.1.21 build of `b509e14` (WordCraft on `win32/x64` and macOS from `itlinekft/wordcraft`) was put in place of the
+installed plugin's files (test only), over the noon state: `wordcraft/0.11.0-hu.1` with the marker
+`tatargabor/wordcraft` in Claude Desktop's cache. Release `v0.12.0-hu.1` built by the fork's own workflow (Windows x64,
+macOS universal, unsigned), published after the checks below.
+
+- **The connector switched by itself:** after Claude Desktop restarted, `wordcraft/0.12.0-hu.1` appeared with the marker
+  `itlinekft/wordcraft`, `latest.json` = `{"tag":"v0.12.0-hu.1",…,"repo":"itlinekft/wordcraft"}`, and the running
+  `wordcraft-cli.exe` is the 0.12.0-hu.1 one.
+- **The same marks as 0.11.0-hu.1:** `wordcraft-cli run --script` on the test offer (`review.language hu-HU`,
+  `review.issues`) gives the identical 7 issues, messages and suggestions included (`szálítás`, `határídőre`, `a` →
+  `az` before `ÁFA`, `ITLine`, and the three table-cell capital-letter alarms `elfogadva`, `alkalom`, `db`). A sentence
+  with `megrendelések`, `visszaigazolásait`, `elkezdhetjük`, `díjbekérőt`, `27%-os`, `8. §-ában`, `5 °C-on` marks only
+  its two planted typos.
+- **Desktop app:** the portable zip (sha256 `b74255fd…57542db`, as in the release's `SHA256SUMS.txt`) unpacked under
+  `%LOCALAPPDATA%\Programs`, started on the offer in the user's desktop session: the same 7 marks; **no update offer**,
+  before or after the release was published (0.11.0-hu.1 offered storytold's 0.12.0 here).
+- Not measured: the msi, and macOS (dmg and the connector on a Mac).
+
 ## 2026-10-30 (noon) — Windows 11, Claude Desktop (MSIX), aiplus-office 0.1.21 build loaded into it: the upgrade path
 
 The test PC had 0.1.20 from the marketplace and storytold's WordCraft 0.11.0 in Claude Desktop's own cache
