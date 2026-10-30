@@ -20,4 +20,5 @@
 
 - [x] 3.1 Version 0.1.21, CHANGELOG, `docs/MEASURED.md` [REQ: Repository per host]
 - [x] 3.2 Measured on the Windows test PC: `dict hu`, `install wordcraft`, `wordcraft exec run … review.issues` marks the planted typos [REQ: WordCraft finds the dictionary]
-- [ ] 3.3 `itlinekft/wordcraft` v0.12.0-hu.1 measured on the Windows test PC and on a Mac: `install wordcraft`, `dict hu`, `review.issues` marks the planted typos; the desktop app opens unsigned [REQ: WordCraft finds the dictionary]
+- [x] 3.3 `itlinekft/wordcraft` v0.12.0-hu.1 measured on the Windows test PC and on a Mac: `install wordcraft`, `dict hu`, `review.issues` marks the planted typos (`docs/MEASURED.md`, 2026-10-30 evening) [REQ: WordCraft finds the dictionary]
+- [ ] 3.4 The macOS window app started from the dmg on a Mac (first-start "Open Anyway" path, Dictionaries folder) [REQ: WordCraft finds the dictionary]

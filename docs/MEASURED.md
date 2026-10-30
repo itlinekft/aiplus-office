@@ -3,6 +3,20 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-30 (evening) — macOS 26.4 (Apple silicon): WordCraft 0.12.0-hu.1 through the module, and the dmg
+
+On the test Mac, from the shell with the module's own `dist/aiplus-office.mjs` of the 0.1.21 release build and
+`AIPLUS_OFFICE_HOME` set to a test folder (Claude Desktop was in use there and was not touched).
+
+- `dict hu` → the dictionary in the test folder, exit 0. `install wordcraft` → `wordcraft-cli-0.12.0-hu.1-macos-universal.zip`
+  (90 MB, 30 s) from `itlinekft/wordcraft`, `"gatekeeper":"rejected"` with the module's warning (unsigned; the checksum
+  matched, and the CLI runs). The marker and `latest.json` name `itlinekft/wordcraft`; `status` names the dictionary.
+- `wordcraft exec run --script … --print` on the test offer: the **same 7 issues as on Windows**, messages and
+  suggestions identical; the prefix-and-sign sentence marks only its two planted typos.
+- The dmg: `WordCraft.app`, version `0.12.0` (the bundle version drops `-hu.1`), id `ai.storyteller.wordcraft` (it
+  replaces an official WordCraft in Applications), `x86_64 arm64`, `Signature=adhoc`, `spctl --assess` → rejected, as
+  expected for an unsigned build. The window app was not started.
+
 ## 2026-10-30 (evening) — Windows 11, Claude Desktop (MSIX): WordCraft 0.12.0-hu.1 from itlinekft/wordcraft
 
 The 0.1.21 build of `b509e14` (WordCraft on `win32/x64` and macOS from `itlinekft/wordcraft`) was put in place of the
