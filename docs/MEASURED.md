@@ -3,6 +3,26 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-10-30 (noon) — Windows 11, Claude Desktop (MSIX), aiplus-office 0.1.21 build loaded into it: the upgrade path
+
+The test PC had 0.1.20 from the marketplace and storytold's WordCraft 0.11.0 in Claude Desktop's own cache
+(`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office`). The 0.1.21 build was put in place of the
+installed plugin's files (test only; the marketplace release is the owner's step), and Claude Desktop restarted.
+
+- **Found, then fixed:** the WordCraft connector resolved the fork's `v0.11.0-hu.1` (`latest.json` carries
+  `"repo":"tatargabor/wordcraft"`) but started storytold's `0.11.0` from the cache, so no Hungarian checking. Each install
+  now records its repository (`.aiplus-office-repo`). Measured after the fix, with the fork build deleted again: the
+  connector downloaded `0.11.0-hu.1` by itself and runs `…\wordcraft\0.11.0-hu.1\…\wordcraft-cli.exe mcp`; the
+  marker says `tatargabor/wordcraft`.
+- **Found, then fixed:** `dict hu` run as Claude runs it puts the files into the package folder; `status` outside Claude
+  printed `%LOCALAPPDATA%\aiplus-office\dictionaries`, which does not hold them. Now both print the package folder.
+- **The desktop app as a user gets it:** the portable zip from `github.com/tatargabor/wordcraft/releases/latest`, its
+  SHA-256 matched `SHA256SUMS.txt`, unpacked under `%LOCALAPPDATA%\Programs`. `file.options {"dictionariesFolder": <the
+  status folder>}` (what Options › Proofing › Apply runs) switched `hu_HU.dic` from LibreOffice's `dict-hu` to the
+  module's copy. An árajánlat with two planted typos: both marked (`szálítás` → szállítás…, `határídőre`), `a ÁFA` → `az`;
+  three false grammar alarms on lowercase table cells (`elfogadva`, `alkalom`, `db`). The update prompt (0.12.0) came
+  up; „Later” keeps the build.
+
 ## 2026-10-30 — Windows 11, PowerShell, Node.js 22.11, aiplus-office 0.1.21 build: Hungarian spell checking (change office-wordcraft-hu)
 
 `AIPLUS_OFFICE_HOME` on a throwaway folder, `WORDCRAFT_DICTIONARIES` unset; a sample árajánlat (`.docx`, language
