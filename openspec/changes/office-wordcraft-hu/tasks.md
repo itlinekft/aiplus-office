@@ -7,6 +7,8 @@
 - [x] 1.3 `src/dictionary.ts` + `aiplus-office dict hu`: pinned LibreOffice commit, SHA-256 per file, atomic install; unit tests with a fixture server [REQ: Hungarian dictionary on request]
 - [x] 1.4 `aiplus-office wordcraft …` sets `WORDCRAFT_DICTIONARIES` when installed and unset; `status` dictionary line; unit tests [REQ: WordCraft finds the dictionary] [REQ: Status names the dictionary]
 - [x] 1.5 `npm run build`; tests and typecheck green [REQ: Repository per host]
+- [x] 1.6 `status` and `dict hu` name Claude Desktop's own package copy of the dictionary when it has one (`huDesktopDir`); unit test [REQ: Status names the dictionary]
+- [x] 1.7 Each install records its repository (`.aiplus-office-repo`); a connector's prefer-installed path skips installs from another repository (`installedRepo`); regression test [REQ: A connector serves an installed build only from the current repository]
 
 ## 2. Copy
 

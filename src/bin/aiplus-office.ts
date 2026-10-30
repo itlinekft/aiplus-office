@@ -18,7 +18,7 @@
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { execPassthrough, runAppCommand } from "../app-command.js";
-import { dictionaryDir, ensureHu, huInstalled, wordcraftEnv } from "../dictionary.js";
+import { dictionaryDir, ensureHu, huDesktopDir, huInstalled, wordcraftEnv } from "../dictionary.js";
 import { DOC_USAGE, prepareDoc } from "../doc-prepare.js";
 import { ensureJq, installedJq, JQ_VERSION } from "../jq.js";
 import { defaultLauncherPath } from "../mcp-register.js";
@@ -157,7 +157,8 @@ function statusCommand(rest: string[], deps: CliDeps): number {
   deps.stdout(`host: ${deps.platform}/${deps.arch}\n`);
   deps.stdout(`cache: ${statusRoot(deps)}\n`);
   for (const d of desktopCacheRoots(deps)) deps.stdout(`desktop cache: ${d} (Claude Desktop's own copy; open this folder)\n`);
-  deps.stdout(`dictionary: ${huInstalled(deps) ? `hu_HU in ${dictionaryDir(deps)}` : "hu_HU not installed (aiplus-office dict hu)"}\n`);
+  const dict = huDesktopDir(desktopCacheRoots(deps)) ?? (huInstalled(deps) ? dictionaryDir(deps) : undefined);
+  deps.stdout(`dictionary: ${dict ? `hu_HU in ${dict}` : "hu_HU not installed (aiplus-office dict hu)"}\n`);
   deps.stdout(`jq: ${installedJq(deps) ? `${JQ_VERSION} in the cache (aiplus-office jq)` : `not in the cache (the skills use a jq on PATH, else aiplus-office jq downloads ${JQ_VERSION}, about 1 MB)`}\n`);
   for (const r of rows) {
     const inst = r.installed.length ? `${r.installed.join(", ")} (${formatBytes(r.cacheBytes)})` : "not installed";
@@ -197,7 +198,9 @@ async function dictCommand(rest: string[], deps: CliDeps): Promise<number> {
     return 1;
   }
   try {
-    deps.stdout(`${await deps.ensureHu()}\n`);
+    const dir = await deps.ensureHu();
+    // The folder the desktop WordCraft is given: under Claude Desktop, its own package copy (see huDesktopDir).
+    deps.stdout(`${huDesktopDir(desktopCacheRoots(deps)) ?? dir}\n`);
     return 0;
   } catch (e) {
     deps.stderr(`aiplus-office: dict hu: ${(e as Error).message}\n`);

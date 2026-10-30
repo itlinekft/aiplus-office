@@ -53,3 +53,24 @@ to `<cache root>/dictionaries` for the processes it starts. A value already set 
 
 `status` (text) SHALL print `dictionary: hu_HU in <folder>` when it is installed, else
 `dictionary: hu_HU not installed (aiplus-office dict hu)`; `status --json` keeps its shape.
+The `<folder>` shown, by `status` and by `dict hu`, SHALL be one a program outside Claude Desktop can open: when
+Claude Desktop's own package copy of the cache (`desktop cache:`) holds the dictionary, that copy.
+
+#### Scenario: Dictionary installed from Claude Desktop
+- **WHEN** `dict hu` ran inside Claude Desktop on Windows, so the files landed in
+  `%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\aiplus-office\dictionaries`
+- **THEN** `status` and `dict hu` print that folder, not `%LOCALAPPDATA%\aiplus-office\dictionaries`, which the
+  desktop WordCraft does not see
+
+### Requirement: A connector serves an installed build only from the current repository
+
+An MCP connector (which serves an installed version at once instead of downloading a newer release) SHALL serve an
+installed version at once only when it came from the repository the host installs from now. Every install records
+its repository beside the binary; an install without that record came from the app's own repository. When the
+download fails, any installed version is still the fallback.
+
+#### Scenario: Existing storytold WordCraft after the switch to the fork
+- **WHEN** a Windows x64 user who has storytold's WordCraft 0.11.0 in the cache updates the module, and the
+  WordCraft connector starts
+- **THEN** it downloads the fork's release and serves that, not storytold's build, which has no Hungarian spell
+  checking

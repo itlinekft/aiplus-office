@@ -42,7 +42,20 @@ export function dictionaryDir(deps: DictDeps): string {
 
 /** True when `hu_HU.aff` and `hu_HU.dic` are in the folder (non-empty). Never downloads; for `status` and the env. */
 export function huInstalled(deps: DictDeps): boolean {
-  const dir = dictionaryDir(deps);
+  return hasHu(dictionaryDir(deps));
+}
+
+/**
+ * Claude Desktop's own copy of the dictionary folder, or undefined. What Claude Desktop (a packaged app) and the
+ * processes it starts write under `%LOCALAPPDATA%` lands in its own package folder (`desktopRoots`: `desktopCacheRoots`
+ * of status), while the desktop WordCraft runs outside that redirect and sees only the real path. So this copy, when it
+ * exists, is the folder to give the desktop app.
+ */
+export function huDesktopDir(desktopRoots: readonly string[]): string | undefined {
+  return desktopRoots.map((r) => path.join(r, "dictionaries")).find(hasHu);
+}
+
+function hasHu(dir: string): boolean {
   return ["hu_HU.aff", "hu_HU.dic"].every((n) => {
     try {
       const st = fs.statSync(path.join(dir, n));

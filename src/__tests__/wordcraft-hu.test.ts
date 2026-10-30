@@ -3,10 +3,10 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { main } from "../bin/aiplus-office.js";
-import { dictionaryDir, ensureHu, HU_COMMIT, HU_FILES, huInstalled, huUrl, wordcraftEnv } from "../dictionary.js";
-import { defaultDeps, ProvisionError, type ProvisionDeps, provision, readLatestCache } from "../provision.js";
+import { dictionaryDir, ensureHu, HU_COMMIT, HU_FILES, huDesktopDir, huInstalled, huUrl, wordcraftEnv } from "../dictionary.js";
+import { defaultDeps, installedRepo, ProvisionError, type ProvisionDeps, provision, readLatestCache } from "../provision.js";
 import { CRAFT_APPS, getApp, repoFor } from "../registry.js";
-import { cleanupTmp, tmpDir } from "./helpers/fixtures.js";
+import { cleanupTmp, makeTarGz, STUB_BINARY, startFixture, tmpDir } from "./helpers/fixtures.js";
 
 afterEach(cleanupTmp);
 
@@ -73,6 +73,35 @@ describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)",
     write({ repo: "storytold/wordcraft" });
     expect(readLatestCache(root, now, "tatargabor/wordcraft")).toBeUndefined();
     expect(readLatestCache(root, now, "storytold/wordcraft")).toBe("v0.12.0");
+  });
+
+  it("a connector does not keep serving storytold's WordCraft once the host installs from the fork", async () => {
+    // The fork's repository for this (Linux) test host stands in for Windows x64.
+    const wc = { ...getApp("wordcraft"), hostRepos: { "linux/x64": "tatargabor/wordcraft" as const } };
+    const top = "wordcraft-0.7.0-linux-x86_64";
+    const fx = await startFixture({
+      repo: "tatargabor/wordcraft",
+      assets: { [`${top}.tar.gz`]: makeTarGz({ [`${top}/bin/wordcraft-cli`]: STUB_BINARY, [`${top}/bin/wordcraft`]: STUB_BINARY }) },
+    });
+    try {
+      const home = tmpDir();
+      const old = path.join(home, "wordcraft", "0.6.0", "x", "bin");
+      fs.mkdirSync(old, { recursive: true });
+      fs.writeFileSync(path.join(old, "wordcraft-cli"), STUB_BINARY, { mode: 0o755 });
+      expect(installedRepo(wc, path.join(home, "wordcraft", "0.6.0"))).toBe("storytold/wordcraft");
+      const d: Partial<ProvisionDeps> = {
+        env: { AIPLUS_OFFICE_HOME: home }, platform: "linux", arch: "x64", glibcVersion: () => "2.36", apiBase: fx.url,
+        log: () => {}, download: { stallMs: 300, retryDelaysMs: [10] }, preferInstalled: true,
+      };
+      const r = await provision(wc, d);
+      expect(r.version).toBe("0.7.0");
+      expect(installedRepo(wc, path.join(home, "wordcraft", "0.7.0"))).toBe("tatargabor/wordcraft");
+      // An install from the fork is served at once by the next connector, as before.
+      fs.writeFileSync(path.join(home, "wordcraft", "latest.json"), JSON.stringify({ tag: "v0.8.0", checkedAt: Date.now(), repo: "tatargabor/wordcraft" }));
+      expect((await provision(wc, d)).version).toBe("0.7.0");
+    } finally {
+      await fx.close();
+    }
   });
 
   it("pins the dictionary to one LibreOffice commit with a SHA-256 and size per file, licence included", () => {
@@ -147,6 +176,22 @@ describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)",
     expect(err.join("")).toMatch(/dict hu: checksum mismatch/);
     expect(await main(["dict"], io)).toBe(1);
     expect(await main(["dict", "de"], io)).toBe(1);
+  });
+
+  it("under Claude Desktop, `status` and `dict hu` name its own package copy, the one the desktop WordCraft can open", async () => {
+    const local = tmpDir();
+    const pkgRoot = path.join(local, "Packages", "Claude_pzs8sxrjxfjjc", "LocalCache", "Local", "aiplus-office");
+    fs.mkdirSync(pkgRoot, { recursive: true });
+    expect(huDesktopDir([pkgRoot])).toBeUndefined();
+    const pkgDict = installFake(pkgRoot);
+    expect(huDesktopDir([pkgRoot])).toBe(pkgDict);
+    const out: string[] = [];
+    const io = { stdout: (t: string) => void out.push(t), stderr: () => {}, env: { LOCALAPPDATA: local }, homedir: () => local, platform: "win32" as const, arch: "x64" };
+    await main(["status"], io);
+    expect(out.join("")).toContain(`dictionary: hu_HU in ${pkgDict}\n`);
+    out.length = 0;
+    expect(await main(["dict", "hu"], { ...io, ensureHu: async () => path.join(local, "aiplus-office", "dictionaries") })).toBe(0);
+    expect(out.join("")).toBe(`${pkgDict}\n`);
   });
 
   it("`status` names the dictionary: installed and where, or how to get it", async () => {

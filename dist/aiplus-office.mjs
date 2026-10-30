@@ -8149,6 +8149,14 @@ function readAssetMarker(versionDir) {
     return void 0;
   }
 }
+var REPO_MARKER = ".aiplus-office-repo";
+function installedRepo(app2, versionDir) {
+  try {
+    return fs2.readFileSync(path2.join(versionDir, REPO_MARKER), "utf8").trim() || app2.repo;
+  } catch {
+    return app2.repo;
+  }
+}
 async function provision(appOrId, partial = {}) {
   const app2 = typeof appOrId === "string" ? getApp(appOrId) : appOrId;
   const deps = { ...defaultDeps(), ...partial };
@@ -8181,9 +8189,12 @@ async function provisionManaged(app2, deps, started) {
     deps.log(`[aiplus-office] cache entry ${versionDir} is damaged; re-provisioning`);
     fs2.rmSync(versionDir, { recursive: true, force: true });
   }
-  const useInstalled = (why) => {
+  const repo = repoFor(app2, deps.platform, deps.arch);
+  const useInstalled = (why, sameRepo = false) => {
     if (resolved.source === "pin") return void 0;
-    const older = installedVersions(app2, root, deps.platform).filter((v) => v !== version);
+    const older = installedVersions(app2, root, deps.platform).filter(
+      (v) => v !== version && (!sameRepo || installedRepo(app2, path2.join(root, v)) === repo)
+    );
     if (older.length === 0) return void 0;
     const dir = path2.join(root, older[0]);
     const bin = cachedBinary(app2, dir, deps.platform);
@@ -8200,18 +8211,18 @@ async function provisionManaged(app2, deps, started) {
     };
   };
   if (deps.preferInstalled) {
-    const now = useInstalled(`${version} is available and is installed by the next command outside a connector`);
+    const now = useInstalled(`${version} is available and is installed by the next command outside a connector`, true);
     if (now) return now;
   }
   const tag = `v${version}`;
-  const release = resolved.release ?? await apiJson(deps, `${deps.apiBase}/repos/${repoFor(app2, deps.platform, deps.arch)}/releases/tags/${tag}`);
+  const release = resolved.release ?? await apiJson(deps, `${deps.apiBase}/repos/${repo}/releases/tags/${tag}`);
   const asset = candidates.find((c) => release.assets.some((a) => a.name === c));
   if (!asset) throw new ProvisionError(`release ${tag} has no asset named ${candidates.join(" or ")}`);
   let installed;
   try {
     installed = await installVerified({
       deps,
-      repo: repoFor(app2, deps.platform, deps.arch),
+      repo,
       asset,
       release,
       cacheDir: root,
@@ -8225,6 +8236,8 @@ async function provisionManaged(app2, deps, started) {
         fs2.chmodSync(located, 493);
         fs2.rmSync(path2.join(path2.dirname(located), desktopName(app2, deps.platform)), { force: true });
         fs2.writeFileSync(path2.join(tree, ASSET_MARKER), `${asset}
+`);
+        fs2.writeFileSync(path2.join(tree, REPO_MARKER), `${repo}
 `);
         return rel;
       },
@@ -8943,7 +8956,12 @@ function dictionaryDir(deps) {
   return path5.join(craftRoot(deps), "dictionaries");
 }
 function huInstalled(deps) {
-  const dir = dictionaryDir(deps);
+  return hasHu(dictionaryDir(deps));
+}
+function huDesktopDir(desktopRoots) {
+  return desktopRoots.map((r) => path5.join(r, "dictionaries")).find(hasHu);
+}
+function hasHu(dir) {
   return ["hu_HU.aff", "hu_HU.dic"].every((n) => {
     try {
       const st = fs5.statSync(path5.join(dir, n));
@@ -11346,7 +11364,8 @@ function statusCommand(rest, deps) {
 `);
   for (const d of desktopCacheRoots(deps)) deps.stdout(`desktop cache: ${d} (Claude Desktop's own copy; open this folder)
 `);
-  deps.stdout(`dictionary: ${huInstalled(deps) ? `hu_HU in ${dictionaryDir(deps)}` : "hu_HU not installed (aiplus-office dict hu)"}
+  const dict = huDesktopDir(desktopCacheRoots(deps)) ?? (huInstalled(deps) ? dictionaryDir(deps) : void 0);
+  deps.stdout(`dictionary: ${dict ? `hu_HU in ${dict}` : "hu_HU not installed (aiplus-office dict hu)"}
 `);
   deps.stdout(`jq: ${installedJq(deps) ? `${JQ_VERSION} in the cache (aiplus-office jq)` : `not in the cache (the skills use a jq on PATH, else aiplus-office jq downloads ${JQ_VERSION}, about 1 MB)`}
 `);
@@ -11392,7 +11411,8 @@ async function dictCommand(rest, deps) {
     return 1;
   }
   try {
-    deps.stdout(`${await deps.ensureHu()}
+    const dir = await deps.ensureHu();
+    deps.stdout(`${huDesktopDir(desktopCacheRoots(deps)) ?? dir}
 `);
     return 0;
   } catch (e) {

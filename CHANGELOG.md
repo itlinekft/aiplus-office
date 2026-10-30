@@ -7,7 +7,11 @@
   same release layout, checked against its `SHA256SUMS.txt`); other computers and the other three apps are unchanged.
 - **`aiplus-office dict hu`** downloads the Hungarian dictionary (about 4 MB) from LibreOffice's official repository,
   checked file by file, only when you say yes. WordCraft finds it by itself when the module runs it; `status` says
-  whether it is there and in which folder, for the desktop app's File › Options › Proofing › Dictionaries folder.
+  whether it is there and in which folder, for the desktop app's File › Options › Proofing › Dictionaries folder. Under
+  Claude Desktop that folder is Claude's own copy, the one the desktop app can open.
+- **An update switches WordCraft over at once.** If you already had the official WordCraft in the cache, the module's
+  WordCraft connection used to keep serving it until another command updated the cache; it now fetches the build with
+  Hungarian spell checking first.
 
 ## 0.1.20 — 2026-10-26
 

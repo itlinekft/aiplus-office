@@ -709,6 +709,21 @@ function readAssetMarker(versionDir: string): string | undefined {
   }
 }
 
+/** Marker naming the repository an install came from (`owner/name`); written since 0.1.21. */
+const REPO_MARKER = ".aiplus-office-repo";
+
+/**
+ * The repository an installed version came from. An install without the marker predates per-host repositories, so it
+ * came from the app's own repository.
+ */
+export function installedRepo(app: CraftApp, versionDir: string): string {
+  try {
+    return fs.readFileSync(path.join(versionDir, REPO_MARKER), "utf8").trim() || app.repo;
+  } catch {
+    return app.repo;
+  }
+}
+
 /** Provision `app` (a registry row or an app id). Unknown ids fail before any I/O. */
 export async function provision(appOrId: CraftApp | string, partial: Partial<ProvisionDeps> = {}): Promise<ProvisionReport> {
   const app = typeof appOrId === "string" ? getApp(appOrId) : appOrId;
@@ -751,9 +766,14 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
   }
 
   // An installed older version, served instead of this download when it is preferred or when the download fails.
-  const useInstalled = (why: string): ProvisionReport | undefined => {
+  // Preferred only from the repository this host installs from: a connector must not keep serving storytold's
+  // WordCraft, which has no Hungarian spell checking, after the host switched to the fork (change office-wordcraft-hu).
+  const repo = repoFor(app, deps.platform, deps.arch);
+  const useInstalled = (why: string, sameRepo = false): ProvisionReport | undefined => {
     if (resolved.source === "pin") return undefined;
-    const older = installedVersions(app, root, deps.platform).filter((v) => v !== version);
+    const older = installedVersions(app, root, deps.platform).filter(
+      (v) => v !== version && (!sameRepo || installedRepo(app, path.join(root, v)) === repo),
+    );
     if (older.length === 0) return undefined;
     const dir = path.join(root, older[0]);
     const bin = cachedBinary(app, dir, deps.platform);
@@ -770,12 +790,12 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
     };
   };
   if (deps.preferInstalled) {
-    const now = useInstalled(`${version} is available and is installed by the next command outside a connector`);
+    const now = useInstalled(`${version} is available and is installed by the next command outside a connector`, true);
     if (now) return now;
   }
 
   const tag = `v${version}`;
-  const release = resolved.release ?? (await apiJson(deps, `${deps.apiBase}/repos/${repoFor(app, deps.platform, deps.arch)}/releases/tags/${tag}`));
+  const release = resolved.release ?? (await apiJson(deps, `${deps.apiBase}/repos/${repo}/releases/tags/${tag}`));
   const asset = candidates.find((c) => release.assets.some((a) => a.name === c));
   if (!asset) throw new ProvisionError(`release ${tag} has no asset named ${candidates.join(" or ")}`);
 
@@ -783,7 +803,7 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
   try {
     installed = await installVerified<string>({
       deps,
-      repo: repoFor(app, deps.platform, deps.arch),
+      repo,
       asset,
       release,
       cacheDir: root,
@@ -797,6 +817,7 @@ async function provisionManaged(app: CraftApp, deps: ProvisionDeps, started: num
         fs.chmodSync(located, 0o755);
         fs.rmSync(path.join(path.dirname(located), desktopName(app, deps.platform)), { force: true });
         fs.writeFileSync(path.join(tree, ASSET_MARKER), `${asset}\n`);
+        fs.writeFileSync(path.join(tree, REPO_MARKER), `${repo}\n`);
         return rel;
       },
       verifyExisting: (dir) => cachedBinary(app, dir, deps.platform) !== undefined,
