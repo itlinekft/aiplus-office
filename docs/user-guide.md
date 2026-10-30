@@ -86,7 +86,9 @@ Ha a Claude gombokkal kérdez vissza, a gombbal válaszolj.
 - **Az összegeket.** A modul ellenőrzi a képleteket és az összegeket, de az ügyfélnek szánt számot te is nézd meg.
 - **Az ő és ű betűt.** A GridCraft saját PDF-je elhagyja ezt a két betűt, ezért az ilyen táblázat PDF-jét a modul a
   WordCraft-tal készíti, és ellenőrzi. Ha mégis hiányzik, szólj a Claude-nak.
-- **A helyesírást.** A WordCraft nem ellenőrzi a magyar helyesírást, ezért a szöveget a Claude nézi át.
+- **A helyesírást.** Windowson és macOS-en a WordCraft a magyar helyesírást is ellenőrzi, ha a magyar szótár le van
+  töltve (a Claude felajánlja). Az olyan hibát, amely maga is értelmes szó („kel” a „kell” helyett), a szótár nem látja:
+  ezt a Claude veszi észre, ha átnézeti vele a szöveget.
 - **A formázást.** A programok korai változatok: ami egy Microsoft Office-fájlban van, nem mind marad meg mentés után.
   Mindig másolaton dolgozz, az eredetit tedd el.
 
@@ -221,7 +223,9 @@ If Claude asks back with buttons, answer with a button.
 - **The totals.** The module checks the formulas and the totals, but look at any number meant for a customer yourself.
 - **The letters ő and ű.** GridCraft's own PDF drops these two letters, so the module makes the PDF of such a sheet with
   WordCraft and checks it. If one is still missing, tell Claude.
-- **The spelling.** WordCraft does not check Hungarian spelling, so Claude proofreads the text.
+- **The spelling.** On Windows and macOS, WordCraft checks Hungarian spelling too once the Hungarian dictionary is
+  downloaded (Claude offers it). A mistake that is itself a word („kel” for „kell”) passes the dictionary: Claude
+  catches it when you ask it to proofread the text.
 - **The formatting.** The programs are early versions: not everything in a Microsoft Office file survives a save.
   Always work on a copy and keep the original.
 

@@ -313,7 +313,7 @@ function suite(app: CraftApp): void {
       // tar -x reads this stand-in archive; the darwin ditto call is mapped onto tar.
       const archive = makeTarGz({ [`${CLI}`]: STUB_BINARY });
       for (const accepted of [true, false]) {
-        const s = await setup({ assets: { [zipName]: archive } });
+        const s = await setup({ repo: repoFor(app, "darwin", "arm64"), assets: { [zipName]: archive } });
         const calls: string[] = [];
         const exec: ProvisionDeps["exec"] = async (file, args, opts) => {
           calls.push(file);

@@ -44,10 +44,10 @@ function installFake(home: string): string {
 }
 
 describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)", () => {
-  it("WordCraft on Windows x64 comes from the fork; every other host and app stays on storytold", () => {
+  it("WordCraft on Windows x64 and macOS comes from the fork; every other host and app stays on storytold", () => {
     const wc = getApp("wordcraft");
-    expect(repoFor(wc, "win32", "x64")).toBe("tatargabor/wordcraft");
-    for (const [p, a] of [["win32", "arm64"], ["darwin", "arm64"], ["linux", "x64"]]) expect(repoFor(wc, p, a)).toBe("storytold/wordcraft");
+    for (const [p, a] of [["win32", "x64"], ["darwin", "arm64"], ["darwin", "x64"]]) expect(repoFor(wc, p, a)).toBe("itlinekft/wordcraft");
+    for (const [p, a] of [["win32", "arm64"], ["win32", "ia32"], ["linux", "x64"]]) expect(repoFor(wc, p, a)).toBe("storytold/wordcraft");
     for (const app of CRAFT_APPS.filter((x) => x.id !== "wordcraft")) expect(repoFor(app, "win32", "x64")).toBe(`storytold/${app.id}`);
   });
 
@@ -61,7 +61,7 @@ describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)",
       }) as typeof fetch,
     });
     await expect(provision("wordcraft", d)).rejects.toThrow(ProvisionError);
-    expect(urls[0]).toBe("https://api.github.com/repos/tatargabor/wordcraft/releases/latest");
+    expect(urls[0]).toBe("https://api.github.com/repos/itlinekft/wordcraft/releases/latest");
   });
 
   it("a cached latest tag counts only for the repository it was read from", () => {
@@ -69,18 +69,18 @@ describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)",
     const now = 1_000_000;
     const write = (rec: object) => fs.writeFileSync(path.join(root, "latest.json"), JSON.stringify({ tag: "v0.12.0", checkedAt: now - 1, ...rec }));
     write({});
-    expect(readLatestCache(root, now, "tatargabor/wordcraft")).toBeUndefined();
+    expect(readLatestCache(root, now, "itlinekft/wordcraft")).toBeUndefined();
     write({ repo: "storytold/wordcraft" });
-    expect(readLatestCache(root, now, "tatargabor/wordcraft")).toBeUndefined();
+    expect(readLatestCache(root, now, "itlinekft/wordcraft")).toBeUndefined();
     expect(readLatestCache(root, now, "storytold/wordcraft")).toBe("v0.12.0");
   });
 
   it("a connector does not keep serving storytold's WordCraft once the host installs from the fork", async () => {
     // The fork's repository for this (Linux) test host stands in for Windows x64.
-    const wc = { ...getApp("wordcraft"), hostRepos: { "linux/x64": "tatargabor/wordcraft" as const } };
+    const wc = { ...getApp("wordcraft"), hostRepos: { "linux/x64": "itlinekft/wordcraft" as const } };
     const top = "wordcraft-0.7.0-linux-x86_64";
     const fx = await startFixture({
-      repo: "tatargabor/wordcraft",
+      repo: "itlinekft/wordcraft",
       assets: { [`${top}.tar.gz`]: makeTarGz({ [`${top}/bin/wordcraft-cli`]: STUB_BINARY, [`${top}/bin/wordcraft`]: STUB_BINARY }) },
     });
     try {
@@ -95,9 +95,9 @@ describe("WordCraft with Hungarian spell checking (change office-wordcraft-hu)",
       };
       const r = await provision(wc, d);
       expect(r.version).toBe("0.7.0");
-      expect(installedRepo(wc, path.join(home, "wordcraft", "0.7.0"))).toBe("tatargabor/wordcraft");
+      expect(installedRepo(wc, path.join(home, "wordcraft", "0.7.0"))).toBe("itlinekft/wordcraft");
       // An install from the fork is served at once by the next connector, as before.
-      fs.writeFileSync(path.join(home, "wordcraft", "latest.json"), JSON.stringify({ tag: "v0.8.0", checkedAt: Date.now(), repo: "tatargabor/wordcraft" }));
+      fs.writeFileSync(path.join(home, "wordcraft", "latest.json"), JSON.stringify({ tag: "v0.8.0", checkedAt: Date.now(), repo: "itlinekft/wordcraft" }));
       expect((await provision(wc, d)).version).toBe("0.7.0");
     } finally {
       await fx.close();

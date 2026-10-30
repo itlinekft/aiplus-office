@@ -7626,7 +7626,8 @@ function app(id, name, purpose, dialect, mcp, glibcMin = [2, 35]) {
   return { id, name, purpose, repo: `storytold/${id}`, cli: `${id}-cli`, assets: standardAssets(id), dialect, mcp, glibcMin };
 }
 var COMMANDS_JSON = ["commands", "--json"];
-var WORDCRAFT_HU_REPOS = { "win32/x64": "tatargabor/wordcraft" };
+var WORDCRAFT_HU = "itlinekft/wordcraft";
+var WORDCRAFT_HU_REPOS = { "win32/x64": WORDCRAFT_HU, "darwin/x64": WORDCRAFT_HU, "darwin/arm64": WORDCRAFT_HU };
 var CRAFT_APPS = [
   {
     ...app(

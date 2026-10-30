@@ -2,9 +2,11 @@
 
 ## 0.1.21 — 2026-10-30
 
-- **Hungarian spell checking in WordCraft, on Windows.** No official WordCraft release checks Hungarian yet. Until one
-  does, the module fetches WordCraft on Windows x64 from a build that does (`github.com/tatargabor/wordcraft`, the
-  same release layout, checked against its `SHA256SUMS.txt`); other computers and the other three apps are unchanged.
+- **Hungarian spell checking in WordCraft, on Windows and macOS.** No official WordCraft release checks Hungarian yet.
+  Until one does, the module fetches WordCraft on Windows x64 and on macOS from a build that does
+  (`github.com/itlinekft/wordcraft`, WordCraft 0.12.0 with the Hungarian proofing, the same release layout, checked
+  against its `SHA256SUMS.txt`); other computers and the other three apps are unchanged. That build's desktop app
+  updates from the same page, so an update keeps the Hungarian checking.
 - **`aiplus-office dict hu`** downloads the Hungarian dictionary (about 4 MB) from LibreOffice's official repository,
   checked file by file, only when you say yes. WordCraft finds it by itself when the module runs it; `status` says
   whether it is there and in which folder, for the desktop app's File › Options › Proofing › Dictionaries folder. Under

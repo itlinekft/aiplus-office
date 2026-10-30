@@ -112,9 +112,11 @@ const COMMANDS_JSON: CliDialect["list"] = ["commands", "--json"];
 
 /**
  * WordCraft with Hungarian spell checking (storytold/wordcraft #4575, #2070, #2385 plus two fixes proposed there),
- * published for Windows x64 only until an official release has it; then this goes. See change: office-wordcraft-hu.
+ * published for Windows x64 and macOS (universal) until an official release has it; then this goes. See change:
+ * office-wordcraft-hu.
  */
-const WORDCRAFT_HU_REPOS: CraftApp["hostRepos"] = { "win32/x64": "tatargabor/wordcraft" };
+const WORDCRAFT_HU = "itlinekft/wordcraft";
+const WORDCRAFT_HU_REPOS: CraftApp["hostRepos"] = { "win32/x64": WORDCRAFT_HU, "darwin/x64": WORDCRAFT_HU, "darwin/arm64": WORDCRAFT_HU };
 
 export const CRAFT_APPS: readonly CraftApp[] = [
   {

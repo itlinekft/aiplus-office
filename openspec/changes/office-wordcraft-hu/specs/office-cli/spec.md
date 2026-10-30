@@ -3,18 +3,19 @@
 ### Requirement: Repository per host
 
 The registry SHALL name the GitHub repository an app is fetched from per host, defaulting to `storytold/<app>`.
-WordCraft on `win32/x64` SHALL come from `tatargabor/wordcraft`; every other host and app SHALL stay on storytold.
+WordCraft on `win32/x64`, `darwin/x64` and `darwin/arm64` SHALL come from `itlinekft/wordcraft`; every other host and
+app SHALL stay on storytold.
 The latest-release lookup and the release-download URL pin SHALL use the host's repository.
 
-#### Scenario: WordCraft on Windows x64
+#### Scenario: WordCraft on Windows x64 and macOS
 
-- **WHEN** WordCraft is provisioned on `win32/x64`
-- **THEN** the latest release is looked up at `repos/tatargabor/wordcraft/releases/latest` and the asset URL must
-  start with `https://github.com/tatargabor/wordcraft/releases/download/`
+- **WHEN** WordCraft is provisioned on `win32/x64`, `darwin/x64` or `darwin/arm64`
+- **THEN** the latest release is looked up at `repos/itlinekft/wordcraft/releases/latest` and the asset URL must
+  start with `https://github.com/itlinekft/wordcraft/releases/download/`
 
 #### Scenario: Other hosts unchanged
 
-- **WHEN** WordCraft is provisioned on `darwin/arm64` or `linux/x64`, or GridCraft on `win32/x64`
+- **WHEN** WordCraft is provisioned on `win32/arm64` or `linux/x64`, or GridCraft on `win32/x64`
 - **THEN** the repository is `storytold/<app>`
 
 ### Requirement: Latest-release cache keyed by repository
