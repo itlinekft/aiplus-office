@@ -3,3 +3,5 @@ coverage/
 *.tgz
 .vitest-home/
 .release/
+# the set-kb search index (local, carries corpus text)
+.set/
