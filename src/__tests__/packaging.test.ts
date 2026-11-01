@@ -43,18 +43,12 @@ describe("release/mcp.json (shipped as .mcp.json)", () => {
     expect(fs.existsSync(path.join(REPO_ROOT, ".mcp.json")), "keep the plugin's server list in release/mcp.json").toBe(false);
   });
 
-  it("registers the four apps, all confined (GridCraft by the gateway), PdfCraft compact, rooted at the project (change office-mcp-grid-deck)", () => {
-    expect(Object.keys(servers).sort()).toEqual(["aiplus-office-deckcraft", "aiplus-office-gridcraft", "aiplus-office-pdfcraft", "aiplus-office-wordcraft"]);
-    for (const [name, s] of Object.entries(servers)) {
-      expect(s.command).toBe("node");
-      expect(s.args[0]).toBe("${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs");
-      expect(s.args.slice(2, 5), name).toEqual(["mcp", "--root", "${CLAUDE_PROJECT_DIR}"]);
-      expect(s.args.join(" ")).not.toMatch(/--allow-unconfined/);
-      expect(name).toBe(`aiplus-office-${s.args[1]}`);
-      const app = CRAFT_APPS.find((a) => a.id === s.args[1]);
-      expect(app?.mcp.confinement, name).not.toBe(false);
-    }
-    expect(servers["aiplus-office-pdfcraft"].args).toContain("--compact");
+  it("registers one server for the four apps, rooted at the project, no app unconfined (change office-mcp-one-server)", () => {
+    expect(Object.keys(servers)).toEqual(["aiplus-office"]);
+    const s = servers["aiplus-office"];
+    expect(s.command).toBe("node");
+    expect(s.args).toEqual(["${CLAUDE_PLUGIN_ROOT}/dist/aiplus-office.mjs", "mcp", "--root", "${CLAUDE_PROJECT_DIR}"]);
+    expect(CRAFT_APPS.filter((a) => a.mcp.confinement === false)).toEqual([]);
   });
 });
 

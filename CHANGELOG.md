@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.23 — 2026-11-01
+
+- **One connector instead of four, and no app running until it is used.** The module registered four MCP servers, so
+  every Claude session started four Node.js processes (about 87 MB each when fresh) plus the four apps' servers, even a
+  Claude Code session that never called them: 18 open sessions held 72 of each. There is now one server,
+  `aiplus-office`, for all four apps: one Node.js process per session, and an app's server starts only at the first
+  call to it (an app not yet downloaded still starts downloading when the session opens). Its tools carry the app's
+  prefix: `word_*`, `grid_*`, `deck_*`, `pdf_*`. Confinement to the project folder (or the „AI+ Iroda” folder in a plain
+  Chat) and GridCraft's gateway are unchanged. If you denied the four old servers (`aiplus-office-<app>`), that entry
+  no longer matches; remove it.
+
 ## 0.1.22 — 2026-10-31
 
 - **WordCraft with Hungarian spell checking is signed and notarized on macOS.** From `itlinekft/wordcraft` 0.12.0-hu.2

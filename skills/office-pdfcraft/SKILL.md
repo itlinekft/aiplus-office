@@ -84,8 +84,8 @@ Families: `doc_*` (open/save/combine/split/info/set_info/protect), `page_*`, `te
 
 ## MCP route (opt-in)
 
-The plugin registers `aiplus-office-pdfcraft`, confined to the project folder (`--root`) and with `--compact`
-(17 tools: a core set plus `tool_search` and `tool_call`; 175 would flood the context). Bash for everything here.
+The plugin's `aiplus-office` server lists PdfCraft as `pdf_*`, confined to the project folder (`--root`) and with
+`--compact` (17 tools: a core set plus `pdf_tool_search` and `pdf_tool_call`; 175 would flood the context). Bash for everything here.
 
 ## Recipes
 

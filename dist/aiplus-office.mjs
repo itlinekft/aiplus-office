@@ -110,17 +110,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path11) {
-      const ctrl = callVisitor(key, node, visitor, path11);
+    function visit_(key, node, visitor, path12) {
+      const ctrl = callVisitor(key, node, visitor, path12);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path11, ctrl);
-        return visit_(key, ctrl, visitor, path11);
+        replaceNode(key, path12, ctrl);
+        return visit_(key, ctrl, visitor, path12);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path11 = Object.freeze(path11.concat(node));
+          path12 = Object.freeze(path12.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path11);
+            const ci = visit_(i, node.items[i], visitor, path12);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -131,13 +131,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path11 = Object.freeze(path11.concat(node));
-          const ck = visit_("key", node.key, visitor, path11);
+          path12 = Object.freeze(path12.concat(node));
+          const ck = visit_("key", node.key, visitor, path12);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path11);
+          const cv = visit_("value", node.value, visitor, path12);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -158,17 +158,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path11) {
-      const ctrl = await callVisitor(key, node, visitor, path11);
+    async function visitAsync_(key, node, visitor, path12) {
+      const ctrl = await callVisitor(key, node, visitor, path12);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path11, ctrl);
-        return visitAsync_(key, ctrl, visitor, path11);
+        replaceNode(key, path12, ctrl);
+        return visitAsync_(key, ctrl, visitor, path12);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path11 = Object.freeze(path11.concat(node));
+          path12 = Object.freeze(path12.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path11);
+            const ci = await visitAsync_(i, node.items[i], visitor, path12);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -179,13 +179,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path11 = Object.freeze(path11.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path11);
+          path12 = Object.freeze(path12.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path12);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path11);
+          const cv = await visitAsync_("value", node.value, visitor, path12);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -212,23 +212,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path11) {
+    function callVisitor(key, node, visitor, path12) {
       if (typeof visitor === "function")
-        return visitor(key, node, path11);
+        return visitor(key, node, path12);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path11);
+        return visitor.Map?.(key, node, path12);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path11);
+        return visitor.Seq?.(key, node, path12);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path11);
+        return visitor.Pair?.(key, node, path12);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path11);
+        return visitor.Scalar?.(key, node, path12);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path11);
+        return visitor.Alias?.(key, node, path12);
       return void 0;
     }
-    function replaceNode(key, path11, node) {
-      const parent = path11[path11.length - 1];
+    function replaceNode(key, path12, node) {
+      const parent = path12[path12.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -840,10 +840,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path11, value) {
+    function collectionFromPath(schema, path12, value) {
       let v = value;
-      for (let i = path11.length - 1; i >= 0; --i) {
-        const k = path11[i];
+      for (let i = path12.length - 1; i >= 0; --i) {
+        const k = path12[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -862,7 +862,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path11) => path11 == null || typeof path11 === "object" && !!path11[Symbol.iterator]().next().done;
+    var isEmptyPath = (path12) => path12 == null || typeof path12 === "object" && !!path12[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -892,11 +892,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path11, value) {
-        if (isEmptyPath(path11))
+      addIn(path12, value) {
+        if (isEmptyPath(path12))
           this.add(value);
         else {
-          const [key, ...rest] = path11;
+          const [key, ...rest] = path12;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -910,8 +910,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path11) {
-        const [key, ...rest] = path11;
+      deleteIn(path12) {
+        const [key, ...rest] = path12;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -925,8 +925,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path11, keepScalar) {
-        const [key, ...rest] = path11;
+      getIn(path12, keepScalar) {
+        const [key, ...rest] = path12;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -944,8 +944,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path11) {
-        const [key, ...rest] = path11;
+      hasIn(path12) {
+        const [key, ...rest] = path12;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -955,8 +955,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path11, value) {
-        const [key, ...rest] = path11;
+      setIn(path12, value) {
+        const [key, ...rest] = path12;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -3471,9 +3471,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path11, value) {
+      addIn(path12, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path11, value);
+          this.contents.addIn(path12, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3548,14 +3548,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path11) {
-        if (Collection.isEmptyPath(path11)) {
+      deleteIn(path12) {
+        if (Collection.isEmptyPath(path12)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path11) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path12) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3570,10 +3570,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path11, keepScalar) {
-        if (Collection.isEmptyPath(path11))
+      getIn(path12, keepScalar) {
+        if (Collection.isEmptyPath(path12))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path11, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path12, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3584,10 +3584,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path11) {
-        if (Collection.isEmptyPath(path11))
+      hasIn(path12) {
+        if (Collection.isEmptyPath(path12))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path11) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path12) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3604,13 +3604,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path11, value) {
-        if (Collection.isEmptyPath(path11)) {
+      setIn(path12, value) {
+        if (Collection.isEmptyPath(path12)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path11), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path12), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path11, value);
+          this.contents.setIn(path12, value);
         }
       }
       /**
@@ -5571,9 +5571,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path11) => {
+    visit.itemAtPath = (cst, path12) => {
       let item = cst;
-      for (const [field, index] of path11) {
+      for (const [field, index] of path12) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5582,23 +5582,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path11) => {
-      const parent = visit.itemAtPath(cst, path11.slice(0, -1));
-      const field = path11[path11.length - 1][0];
+    visit.parentCollection = (cst, path12) => {
+      const parent = visit.itemAtPath(cst, path12.slice(0, -1));
+      const field = path12[path12.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path11, item, visitor) {
-      let ctrl = visitor(item, path11);
+    function _visit(path12, item, visitor) {
+      let ctrl = visitor(item, path12);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path11.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path12.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5609,10 +5609,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path11);
+            ctrl = ctrl(item, path12);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path11) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path12) : ctrl;
     }
     exports.visit = visit;
   }
@@ -6914,14 +6914,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs12 = this.flowScalar(this.type);
+              const fs13 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start, key: fs12, sep: [] });
+                map.items.push({ start, key: fs13, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs12);
+                this.stack.push(fs13);
               } else {
-                Object.assign(it, { key: fs12, sep: [] });
+                Object.assign(it, { key: fs13, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -7049,13 +7049,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs12 = this.flowScalar(this.type);
+              const fs13 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs12, sep: [] });
+                fc.items.push({ start: [], key: fs13, sep: [] });
               else if (it.sep)
-                this.stack.push(fs12);
+                this.stack.push(fs13);
               else
-                Object.assign(it, { key: fs12, sep: [] });
+                Object.assign(it, { key: fs13, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -7364,7 +7364,7 @@ var require_dist = __commonJS({
 });
 
 // src/bin/aiplus-office.ts
-import * as fs11 from "node:fs";
+import * as fs12 from "node:fs";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
 // src/exec.ts
@@ -7373,10 +7373,10 @@ function spawn(command, args = [], options = {}) {
   return nodeSpawn(command, args, { windowsHide: true, ...options });
 }
 function execFileAsync(file, args = [], options = {}) {
-  return new Promise((resolve6, reject) => {
+  return new Promise((resolve7, reject) => {
     execFile(file, args, { encoding: "utf8", windowsHide: true, ...options }, (err2, stdout, stderr) => {
       if (err2) reject(Object.assign(err2, { stdout, stderr }));
-      else resolve6({ stdout, stderr });
+      else resolve7({ stdout, stderr });
     });
   });
 }
@@ -8872,7 +8872,7 @@ function registerMcp(app2, partial = {}) {
 
 // src/app-command.ts
 function execPassthrough(prog, bin, args) {
-  return new Promise((resolve6) => {
+  return new Promise((resolve7) => {
     const child = spawn(bin, args, { stdio: "inherit" });
     const forward = (sig) => () => child.kill(sig);
     const handlers = ["SIGINT", "SIGTERM"].map((sig) => [sig, forward(sig)]);
@@ -8884,9 +8884,9 @@ function execPassthrough(prog, bin, args) {
       release();
       process.stderr.write(`${prog}: failed to run ${bin}: ${e.message}
 `);
-      resolve6(1);
+      resolve7(1);
     });
-    child.on("exit", (code, signal) => (release(), resolve6(signal ? signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1 : code ?? 1)));
+    child.on("exit", (code, signal) => (release(), resolve7(signal ? signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1 : code ?? 1)));
   });
 }
 async function runAppCommand(app2, command, rest, ctx) {
@@ -10662,22 +10662,3339 @@ async function ensureJq(deps, assets = JQ_ASSETS) {
   });
 }
 
-// src/status.ts
+// src/mcp-hub.ts
 import * as fs8 from "node:fs";
 import * as path8 from "node:path";
+import * as readline2 from "node:readline";
+import { PassThrough } from "node:stream";
+
+// src/mcp-manifest.ts
+var MCP_MANIFEST = {
+  "wordcraft": {
+    "version": "0.14.0",
+    "instructions": 'WordCraft is a word processor (a Microsoft Word clone). Every action is a command: find ids and parameters with list_commands and run them with execute (or several with batch). Positions are {story:"body", path:[block,(row,cell,block)...], off:byteOffset}. Typical flow: new_document \u2192 type_text "Hello" \u2192 execute text.newParagraph \u2192 execute para.style {style:"Heading 1"} \u2192 select_text {text:"Hello"} \u2192 execute format.bold \u2192 inspect_document to verify \u2192 render_page to look at the result \u2192 save {path:"out.docx"}. Several documents can be open: new_document and open_document open another one and make it active; list_documents gives their ids, and `doc` on execute, batch and the other document tools works on one without switching. Backend: headless session (no window). Community: https://discord.gg/artcraft \xB7 https://getartcraft.com/apps/wordcraft \xB7 https://github.com/storytold/wordcraft',
+    "tools": [
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List commands"
+        },
+        "description": "Every WordCraft command: id, label, ribbon location, shortcut and params. Filter with `query`.",
+        "inputSchema": {
+          "properties": {
+            "query": {
+              "description": "Case-insensitive filter on id/label/location",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "list_commands",
+        "title": "List commands"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run a command"
+        },
+        "description": 'Run one command by id with params, e.g. {command:"format.bold"} or {command:"insert.table", params:{rows:3, cols:4}}. Commands work on the active document, or on the open document `doc` names. file.new and file.open open another document beside the open ones and make it active; view.switchWindows {id} makes another one active and file.closeDocument {id, force?} closes one.',
+        "inputSchema": {
+          "properties": {
+            "command": {
+              "description": "Command id",
+              "type": "string"
+            },
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "params": {
+              "description": "Command parameters",
+              "type": "object"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "type": "object"
+        },
+        "name": "execute",
+        "title": "Run a command"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run several commands"
+        },
+        "description": "Run commands in order; stops at the first error unless keepGoing. `doc` sends every command to that open document.",
+        "inputSchema": {
+          "properties": {
+            "commands": {
+              "items": {
+                "properties": {
+                  "command": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "command"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "keepGoing": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "commands"
+          ],
+          "type": "object"
+        },
+        "name": "batch",
+        "title": "Run several commands"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "New document"
+        },
+        "description": "Start a document: blank, sample, letter, resume or report. It opens beside the documents already open and becomes the active one; the reply's `id` addresses it (`doc`).",
+        "inputSchema": {
+          "properties": {
+            "template": {
+              "description": "blank|sample|letter|resume|report",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "new_document",
+        "title": "New document"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Open"
+        },
+        "description": "Open a .docx, .doc, .odt, .rtf, .md, .tex, .html, .txt or .json file, or any other text file (.m3u, .log, .ini\u2026) as plain text. Give `password` for a protected file; without it the call fails asking for one. The file opens beside the documents already open (it replaces a blank one nobody has used) and becomes the active one; a file that is already open becomes active again (`alreadyOpen`). The reply's `id` addresses it (`doc`).",
+        "inputSchema": {
+          "properties": {
+            "password": {
+              "description": "Password, if the file is protected",
+              "type": "string"
+            },
+            "path": {
+              "description": "File path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "open_document",
+        "title": "Open"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Save"
+        },
+        "description": "Save (format from the extension: docx, pdf, odt, rtf, html, md, tex, txt, png).",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "path": {
+              "description": "File path; omit to save in place",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "save_document",
+        "title": "Save"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Type text"
+        },
+        "description": "Type at the caret (replacing the selection). Use \\n... for line breaks inside text; use execute text.newParagraph for new paragraphs, or `paragraphs: true` to split lines into paragraphs (one undo step, at most 10000 lines).",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "paragraphs": {
+              "type": "boolean"
+            },
+            "text": {
+              "description": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "name": "type_text",
+        "title": "Type text"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Select text"
+        },
+        "description": "Select the n-th occurrence of some text.",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "occurrence": {
+              "description": "1-based",
+              "type": "number"
+            },
+            "text": {
+              "description": "Text to find",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "name": "select_text",
+        "title": "Select text"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Document text"
+        },
+        "description": "Body text with tracked deletions omitted.",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "get_text",
+        "title": "Document text"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect document"
+        },
+        "description": "Structure: blocks with text, styles, formatting runs, lists, tables, sections, parts, selection, pages.",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "inspect_document",
+        "title": "Inspect document"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Render page"
+        },
+        "description": "Render a page to PNG to look at the result.",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "page": {
+              "description": "1-based page",
+              "type": "number"
+            },
+            "scale": {
+              "description": "Pixels per point (default 1)",
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "render_page",
+        "title": "Render page"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Open documents"
+        },
+        "description": "The open documents in the order they were opened: id, title, path, dirty (unsaved changes) and active (the one commands work on by default). new_document and open_document open another document beside these. Give a document's id as `doc` to execute, batch, type_text, select_text, get_text, inspect_document, render_page or save_document to work on it while it stays in the background; execute view.switchWindows {id} makes it the active one, file.closeDocument {id, force?} closes it.",
+        "inputSchema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "name": "list_documents",
+        "title": "Open documents"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Feature parity"
+        },
+        "description": "WordCraft's command coverage of the word-processor feature catalog.",
+        "inputSchema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "name": "parity",
+        "title": "Feature parity"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Screenshot app"
+        },
+        "description": "Screenshot of the whole WordCraft window (desktop app only).",
+        "inputSchema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "name": "screenshot",
+        "title": "Screenshot app"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Click"
+        },
+        "description": "Click at window coordinates (desktop app only).",
+        "inputSchema": {
+          "properties": {
+            "cmd": {
+              "type": "boolean"
+            },
+            "count": {
+              "description": "1-3 clicks",
+              "type": "number"
+            },
+            "shift": {
+              "type": "boolean"
+            },
+            "x": {
+              "description": "x",
+              "type": "number"
+            },
+            "y": {
+              "description": "y",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "type": "object"
+        },
+        "name": "click",
+        "title": "Click"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Press key"
+        },
+        "description": 'Press a key with modifiers (desktop app only), e.g. {key:"B", cmd:true}.',
+        "inputSchema": {
+          "properties": {
+            "alt": {
+              "type": "boolean"
+            },
+            "cmd": {
+              "type": "boolean"
+            },
+            "key": {
+              "description": "Key name",
+              "type": "string"
+            },
+            "shift": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "name": "key",
+        "title": "Press key"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect UI"
+        },
+        "description": "UI state: tab, panes, dialog, page rectangles on screen, caret (desktop app only).",
+        "inputSchema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "name": "ui_inspect",
+        "title": "Inspect UI"
+      }
+    ]
+  },
+  "gridcraft": {
+    "version": "0.15.0",
+    "instructions": 'GridCraft is a spreadsheet app (an Excel clone). Cells use A1 notation ("B2", "A1:D10", "Sheet2!A1:B3"). Every action is a command: find ids and parameters with list_commands and run any of them with execute_command. Convenience tools cover the common flow: write_range / set_cell to enter values and formulas (strings starting with = are formulas), read_range / get_cell to read computed values back, format_range, create_table, insert_chart, sort_range, filter, evaluate_formula (try a formula without changing the sheet), undo / redo, open_workbook / save_workbook. inspect_workbook summarizes sheets, used ranges, tables, charts and names. list_functions lists the worksheet functions. Backend: headless (in-process engine, no window).',
+    "tools": [
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Execute command"
+        },
+        "description": 'Run ANY GridCraft command by id with JSON params \u2014 every ribbon/menu action is a command. Find ids and parameter docs with list_commands. Examples: {"command":"cell.set","params":{"cell":"B2","input":"=SUM(A1:A9)"}}; {"command":"home.bold","params":{"range":"A1:C1"}}; {"command":"sheet.insert"}; {"command":"data.removeDuplicates","params":{"range":"A1:C20"}}. Most commands act on the current selection when `range` is omitted. Programmatic calls never open dialogs: missing required params give an error.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "description": 'Command id, e.g. "cell.set", "home.fillColor", "insert.chart"',
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "params": {
+              "description": "Command parameters (see the `params` field of list_commands); omit or {} for defaults",
+              "type": "object"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "type": "object"
+        },
+        "name": "execute_command",
+        "title": "Execute command"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List windows"
+        },
+        "description": 'List the open windows: window id, workbook (`doc`) id, title ("Book1", or "Book1:2" for a workbook\'s second window), unsaved changes, active and hidden. Pass a `window` or `doc` id to other tools to act there.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "name": "list_windows",
+        "title": "List windows"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List commands"
+        },
+        "description": 'List GridCraft commands: id, label, ribbon path, shortcut, a parameter description (`params`) and whether it can run right now. Use it to discover what execute_command can do (e.g. search "sort", "border", "chart", "sheet").',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "search": {
+              "description": "Case-insensitive substring matched against id, label and ribbon path",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "list_commands",
+        "title": "List commands"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect workbook"
+        },
+        "description": "Summary of the active workbook: title, path, dirty flag, sheets (name, used range, cell count, tables, charts, merges, filters, freeze panes), defined names, current selection and active cell, calculation mode and undo/redo history.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "inspect_workbook",
+        "title": "Inspect workbook"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Read range"
+        },
+        "description": 'Read cell values from a range as rows (2-D array). Numbers/booleans/strings are returned as JSON values, empty cells as null, errors as {"error":"#DIV/0!"}. Without `range`, reads the sheet\'s used range. formulas:true returns formula text ("=SUM(B2:B4)") for formula cells; formatted:true returns the displayed text ("$1,234.00", "12%").',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "formatted": {
+              "description": "Return display text with number formats applied",
+              "type": "boolean"
+            },
+            "formulas": {
+              "description": "Return formulas instead of computed values for formula cells",
+              "type": "boolean"
+            },
+            "range": {
+              "description": 'A1-style range, e.g. "A1:D10", "B:B", "Sheet2!A1:C3"',
+              "type": "string"
+            },
+            "sheet": {
+              "description": "Sheet name (default: the active sheet)",
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "read_range",
+        "title": "Read range"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Write range"
+        },
+        "description": 'Write a 2-D array of values starting at the top-left cell of `range` (rows of cells). Numbers, booleans, null (clears) and strings are accepted; strings starting with = are formulas ("=SUM(B2:B4)"), other strings are parsed like typed input ("12%", "1/2/2024", "$5") unless `parse` is false, which stores them as the text they are. The result\'s `converted` lists the strings that were read as something else. One undo step. Example: {"range":"A1","values":[["Item","Cost"],["Rent",1200]]}.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "parse": {
+              "description": 'Read strings not starting with = like typed input, so "05.04.2026" becomes a date (default true); false stores them as the text they are, and "" clears the cell',
+              "type": "boolean"
+            },
+            "range": {
+              "description": 'Top-left cell or range, e.g. "A1" or "Sheet2!B3"',
+              "type": "string"
+            },
+            "values": {
+              "description": "Rows of cell values",
+              "items": {
+                "items": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "range",
+            "values"
+          ],
+          "type": "object"
+        },
+        "name": "write_range",
+        "title": "Write range"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Set cell"
+        },
+        "description": 'Enter one cell exactly as if typed: a number, text, or a formula starting with = ("=AVERAGE(B2:B9)"). Dependent cells recalculate. Returns the command result; use get_cell to read the computed value.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "cell": {
+              "description": 'Cell, e.g. "B7" or "Sheet2!C3"',
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "input": {
+              "description": "Typed input: number, text or =formula",
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "cell",
+            "input"
+          ],
+          "type": "object"
+        },
+        "name": "set_cell",
+        "title": "Set cell"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Get cell"
+        },
+        "description": "Details of one cell: computed value and type, formula, display text, raw input, spill range, style, merge, comment and hyperlink.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "cell": {
+              "description": 'Cell, e.g. "B7" or "Sheet2!C3"',
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "cell"
+          ],
+          "type": "object"
+        },
+        "name": "get_cell",
+        "title": "Get cell"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Evaluate formula"
+        },
+        "description": 'Evaluate a formula against the active sheet WITHOUT changing any cell, e.g. "=SUM(B2:B10)/COUNT(B2:B10)" or "=VLOOKUP(\\"x\\",A:B,2,FALSE)". `cell` sets the formula\'s position for relative references and ROW()/COLUMN(). Use English function names and `,` between arguments; a formula that couldn\'t be entered in a cell is an error saying why.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "cell": {
+              "description": "Evaluate as if in this cell (default: active cell)",
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "formula": {
+              "description": "Formula text, with or without the leading =",
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "formula"
+          ],
+          "type": "object"
+        },
+        "name": "evaluate_formula",
+        "title": "Evaluate formula"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Select"
+        },
+        "description": 'Set the selection (what commands without a `range` param act on). Multiple areas with commas: "A1:B2,D4". A "Sheet2!A1" prefix switches sheets.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "active": {
+              "description": "Active cell inside the selection (default: top-left of the last area)",
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "range": {
+              "description": 'A1-style range, e.g. "A1:D10", "B:B", "Sheet2!A1:C3"',
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "range"
+          ],
+          "type": "object"
+        },
+        "name": "select",
+        "title": "Select"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Format range"
+        },
+        "description": 'Apply several formats to a range in one call: bold, italic, underline, font name/size, font color, fill color, number format, horizontal alignment, wrap, borders. Colors are "#RRGGBB" (fontColor also "auto", fillColor also "none"). numberFormat is a name (General, Number, Currency, Accounting, Comma, Percentage, Short Date, Long Date, Time, Fraction, Scientific, Text) or a format code ("#,##0.00", "0%", "yyyy-mm-dd"). Each property runs one command; the result lists them.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "bold": {
+              "description": "Bold on/off",
+              "type": "boolean"
+            },
+            "borders": {
+              "description": "A border preset name, or {preset, style?, color?}",
+              "oneOf": [
+                {
+                  "description": "Border preset",
+                  "enum": [
+                    "bottom",
+                    "top",
+                    "left",
+                    "right",
+                    "none",
+                    "all",
+                    "outside",
+                    "thickOutside",
+                    "thickBottom",
+                    "doubleBottom",
+                    "topBottom",
+                    "topThickBottom",
+                    "topDoubleBottom",
+                    "insideHorizontal",
+                    "insideVertical",
+                    "inside",
+                    "diagonalDown",
+                    "diagonalUp"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "color": {
+                      "description": 'Border color "#RRGGBB"',
+                      "type": "string"
+                    },
+                    "preset": {
+                      "description": "Border preset",
+                      "enum": [
+                        "bottom",
+                        "top",
+                        "left",
+                        "right",
+                        "none",
+                        "all",
+                        "outside",
+                        "thickOutside",
+                        "thickBottom",
+                        "doubleBottom",
+                        "topBottom",
+                        "topThickBottom",
+                        "topDoubleBottom",
+                        "insideHorizontal",
+                        "insideVertical",
+                        "inside",
+                        "diagonalDown",
+                        "diagonalUp"
+                      ],
+                      "type": "string"
+                    },
+                    "style": {
+                      "description": "thin|medium|thick|dashed|dotted|double|hair\u2026",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "preset"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "fillColor": {
+              "description": 'Background color "#RRGGBB" or "none"',
+              "type": "string"
+            },
+            "fontColor": {
+              "description": 'Text color "#RRGGBB" or "auto"',
+              "type": "string"
+            },
+            "fontName": {
+              "description": 'Font family, e.g. "Calibri"',
+              "type": "string"
+            },
+            "fontSize": {
+              "description": "Font size in points",
+              "maximum": 409,
+              "minimum": 1,
+              "type": "number"
+            },
+            "horizontalAlign": {
+              "description": "Horizontal alignment",
+              "enum": [
+                "left",
+                "center",
+                "right",
+                "justify"
+              ],
+              "type": "string"
+            },
+            "italic": {
+              "description": "Italic on/off",
+              "type": "boolean"
+            },
+            "numberFormat": {
+              "description": "Number format name or code",
+              "type": "string"
+            },
+            "range": {
+              "description": 'A1-style range, e.g. "A1:D10", "B:B", "Sheet2!A1:C3"',
+              "type": "string"
+            },
+            "underline": {
+              "description": "Single underline on/off",
+              "type": "boolean"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "wrapText": {
+              "description": "Wrap text on/off",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "range"
+          ],
+          "type": "object"
+        },
+        "name": "format_range",
+        "title": "Format range"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Insert chart"
+        },
+        "description": "Insert a chart from a data range (first row/column used as series names and categories, like Excel). Returns the chart id.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "at": {
+              "description": "Top-left anchor cell (default: right of the data)",
+              "type": "string"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "range": {
+              "description": 'Source data range including headers, e.g. "A1:C6"',
+              "type": "string"
+            },
+            "subtype": {
+              "description": "Variant (optional)",
+              "enum": [
+                "clustered",
+                "stacked",
+                "stacked100",
+                "markers"
+              ],
+              "type": "string"
+            },
+            "title": {
+              "description": "Chart title",
+              "type": "string"
+            },
+            "type": {
+              "description": "Chart type",
+              "enum": [
+                "column",
+                "bar",
+                "line",
+                "pie",
+                "doughnut",
+                "area",
+                "scatter",
+                "bubble",
+                "radar",
+                "combo",
+                "histogram",
+                "waterfall",
+                "funnel",
+                "treemap",
+                "sunburst",
+                "boxWhisker",
+                "stock"
+              ],
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "range",
+            "type"
+          ],
+          "type": "object"
+        },
+        "name": "insert_chart",
+        "title": "Insert chart"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Create table"
+        },
+        "description": "Format a range as an Excel table (structured references, banded rows, filter buttons). The first row is the header by default.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "header": {
+              "description": "First row holds headers (default true)",
+              "type": "boolean"
+            },
+            "name": {
+              "description": "Table name (default Table1, Table2\u2026)",
+              "type": "string"
+            },
+            "range": {
+              "description": 'Range including the header row, e.g. "A1:D20"',
+              "type": "string"
+            },
+            "style": {
+              "description": 'Table style, e.g. "TableStyleMedium2" (default), "TableStyleLight9"',
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "range"
+          ],
+          "type": "object"
+        },
+        "name": "create_table",
+        "title": "Create table"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Sort range"
+        },
+        "description": 'Sort a range by one or more columns. keys: [{"column":"B","order":"desc"}, \u2026] or just ["B"]. Without `range` the current region around the selection is sorted; header detection follows Excel unless `header` is given.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "header": {
+              "description": "The first row is a header (kept in place)",
+              "type": "boolean"
+            },
+            "keys": {
+              "description": "Sort levels, most significant first",
+              "items": {
+                "oneOf": [
+                  {
+                    "description": 'Column letter, e.g. "B" (ascending)',
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "column": {
+                        "description": 'Column letter, e.g. "B"',
+                        "type": "string"
+                      },
+                      "order": {
+                        "description": "Sort order",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "column"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "range": {
+              "description": 'A1-style range, e.g. "A1:D10", "B:B", "Sheet2!A1:C3"',
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "keys"
+          ],
+          "type": "object"
+        },
+        "name": "sort_range",
+        "title": "Sort range"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Filter"
+        },
+        "description": 'Filter rows by a column (turns on AutoFilter on the current region, or `range`, when needed). Give `values` (keep rows whose cell text is one of them), `custom` ({op:">", value:"10", op2?, value2?, and?}), `top` ({count, bottom?, percent?}), or clear:true to remove this column\'s filter.',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "blanks": {
+              "description": "Also keep blank cells",
+              "type": "boolean"
+            },
+            "clear": {
+              "description": "Clear this column's filter",
+              "type": "boolean"
+            },
+            "column": {
+              "description": 'Column letter, e.g. "C"',
+              "type": "string"
+            },
+            "custom": {
+              "description": 'Custom criteria: {op: "="|"<>"|">"|">="|"<"|"<="|"beginsWith"|"contains"\u2026, value, op2?, value2?, and?: bool}',
+              "type": "object"
+            },
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "range": {
+              "description": "Data range to filter (default: the current region of the selection)",
+              "type": "string"
+            },
+            "top": {
+              "description": "Top/bottom N: {count, bottom?: bool, percent?: bool}",
+              "type": "object"
+            },
+            "values": {
+              "description": "Values to keep",
+              "items": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              "type": "array"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "column"
+          ],
+          "type": "object"
+        },
+        "name": "filter",
+        "title": "Filter"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Open workbook"
+        },
+        "description": "Open a workbook file (.xlsx, .xlsm, .xls, .xlsb, .ods, .csv, .tsv, .txt, .json) and make it active. Excel 97-2003 .xls imports values, formulas and number formats; XLSB and ODS import worksheet data and cached formula values only; check the returned warnings.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "description": "File path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "open_workbook",
+        "title": "Open workbook"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Save workbook"
+        },
+        "description": "Save the active workbook. The format follows the extension (.xlsx default; .csv/.tsv save the active sheet; .json; .html). Without `path` saves to the workbook's current file.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "path": {
+              "description": "Destination path",
+              "type": "string"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "save_workbook",
+        "title": "Save workbook"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "New workbook"
+        },
+        "description": 'Create a new workbook and make it active: blank, or a built-in sample ("budget", "sales", "grades").',
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "sample": {
+              "description": "Sample workbook",
+              "enum": [
+                "budget",
+                "sales",
+                "grades"
+              ],
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "new_workbook",
+        "title": "New workbook"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Undo"
+        },
+        "description": "Undo the last change(s) to the active workbook.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "steps": {
+              "description": "Number of steps (default 1)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "undo",
+        "title": "Undo"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Redo"
+        },
+        "description": "Redo the last undone change(s).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Workbook id from list_windows: its most recent window (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "steps": {
+              "description": "Number of steps (default 1)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "window": {
+              "description": "Window id from list_windows (default: the active window)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "redo",
+        "title": "Redo"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Screenshot"
+        },
+        "description": "Save a PNG screenshot of the GridCraft window to `path`. Desktop app only (`gridcraft-cli mcp --connect 7979`).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "description": "Output PNG path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "screenshot",
+        "title": "Screenshot"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List functions"
+        },
+        "description": "List worksheet functions: name, category, signature and description. Filter with `search` (name or description) or `category`.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "description": 'Category, e.g. "Math & Trig", "Lookup & Reference"',
+              "type": "string"
+            },
+            "search": {
+              "description": "Substring of the name or description",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "list_functions",
+        "title": "List functions"
+      }
+    ]
+  },
+  "deckcraft": {
+    "version": "0.14.1",
+    "instructions": 'DeckCraft is a presentation app (a PowerPoint clone). Coordinates are points on the current slide (y down; the default 16:9 slide is 960\xD7540). Every action is a command: find ids and parameters with list_commands and run them with run_command (or several with batch). Typical flow: new_presentation \u2192 add_slide {layout:"titleAndContent", title, body} \u2192 add_shape / add_text_box / insert_picture / insert_chart \u2192 inspect_slide to read back ids, boxes and text \u2192 render_slide to look at the result. Shape ids are looked up on the current slide. An inserted shape is selected; run_command edit.select {ids:[\u2026]} selects others. format.* acts on the selected text or shapes; shape.fill, shape.line and the other shape commands whose parameters list `ids` act on those shapes, else on the selected ones. Save with save_presentation (.deckcraft or .pptx). Backend: headless (in-process engine; no window). Community: https://discord.gg/artcraft (Discord), https://getartcraft.com/apps/deckcraft (app page), https://github.com/storytold/deckcraft (source). The `app.links` command returns these links.',
+    "tools": [
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List commands"
+        },
+        "description": "Every command (id, label, ribbon/menu place, shortcut, parameter summary, whether it is enabled now). Filter by a substring of id or label.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "filter": {
+              "description": "Substring of the id or label, e.g. `format.` or `slide`",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "list_commands",
+        "title": "List commands"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run a command"
+        },
+        "description": "Run any command by id with JSON parameters. This is how everything is done: slide.new, shape.insert, text.set, format.bold, shape.fill, design.theme, transition.set, animation.add, table.merge, edit.undo\u2026",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "description": "Command id from list_commands",
+              "type": "string"
+            },
+            "params": {
+              "description": "Parameters (see the command's params summary)",
+              "type": "object"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "type": "object"
+        },
+        "name": "run_command",
+        "title": "Run a command"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run several commands"
+        },
+        "description": "Run commands in order; stops at the first error unless keepGoing. Returns each result.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "commands": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "command": {
+                    "description": "id",
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "command"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "keepGoing": {
+              "description": "Continue after errors",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "commands"
+          ],
+          "type": "object"
+        },
+        "name": "batch",
+        "title": "Run several commands"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "New presentation"
+        },
+        "description": "Start a new presentation (one title slide). Optional theme: DeckCraft, Harbor, Ember, Meadow, Nocturne, Paper, Coral Reef, Slate.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "blank": {
+              "description": "No first slide",
+              "type": "boolean"
+            },
+            "theme": {
+              "description": "Theme name",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "new_presentation",
+        "title": "New presentation"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Open presentation"
+        },
+        "description": "Open a .deckcraft or .pptx file by path.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "description": "File path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "open_presentation",
+        "title": "Open presentation"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Save presentation"
+        },
+        "description": "Save the active presentation (.deckcraft or .pptx by extension).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "description": "File path (optional when it was opened from a file)",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "save_presentation",
+        "title": "Save presentation"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Export"
+        },
+        "description": "Export slides: png/jpeg (one slide, or all with all:true), pptx, deckcraft, outline text, pdf (slides, notes pages or handouts), or an animated gif of the deck (one frame per slide).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "all": {
+              "description": "All slides (images)",
+              "type": "boolean"
+            },
+            "dpi": {
+              "description": "PDF: raster resolution of slide artwork, 36-600 (default 200)",
+              "type": "number"
+            },
+            "format": {
+              "description": "Output format (default: from the path's extension)",
+              "enum": [
+                "png",
+                "jpeg",
+                "pptx",
+                "deckcraft",
+                "outline",
+                "rtf",
+                "pdf",
+                "gif"
+              ],
+              "type": "string"
+            },
+            "frame": {
+              "description": "PDF notes/handouts: thin frame around each slide (default true)",
+              "type": "boolean"
+            },
+            "includeHidden": {
+              "description": "PDF and GIF: include hidden slides (default false)",
+              "type": "boolean"
+            },
+            "layout": {
+              "description": "PDF page layout (default slides)",
+              "enum": [
+                "slides",
+                "notes",
+                "handouts"
+              ],
+              "type": "string"
+            },
+            "loop": {
+              "description": "GIF: loop forever (true, default) or play once (false)",
+              "type": "boolean"
+            },
+            "orientation": {
+              "description": "PDF notes/handouts: page orientation (default portrait)",
+              "enum": [
+                "portrait",
+                "landscape"
+              ],
+              "type": "string"
+            },
+            "paper": {
+              "description": "PDF notes/handouts: paper size (default letter)",
+              "enum": [
+                "letter",
+                "a4",
+                "legal",
+                "a3"
+              ],
+              "type": "string"
+            },
+            "path": {
+              "description": "Output path",
+              "type": "string"
+            },
+            "perPage": {
+              "description": "PDF handouts: slides per page (default 6)",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                6,
+                9
+              ],
+              "type": "integer"
+            },
+            "scale": {
+              "description": "Pixels per point for images (default 2)",
+              "type": "number"
+            },
+            "secondsPerSlide": {
+              "description": "GIF: seconds each slide shows (default 5)",
+              "maximum": 600,
+              "minimum": 0.1,
+              "type": "number"
+            },
+            "slide": {
+              "description": "Slide index for images",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "slides": {
+              "description": "PDF and GIF: slide indices to export, in order (default all)",
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "textLayer": {
+              "description": "PDF: invisible text layer for search, select and copy (default true)",
+              "type": "boolean"
+            },
+            "width": {
+              "description": "GIF: frame width in pixels, or a size: small 640, medium 960 (default), large 1280, extraLarge 1920; the height follows the slide's shape",
+              "oneOf": [
+                {
+                  "maximum": 3840,
+                  "minimum": 16,
+                  "type": "integer"
+                },
+                {
+                  "enum": [
+                    "small",
+                    "medium",
+                    "large",
+                    "extraLarge"
+                  ],
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "export",
+        "title": "Export"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect presentation"
+        },
+        "description": "Slides (index, id, title, layout, shape count, transition, animations, notes), sections, theme, layouts, media and the selection.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "name": "inspect_document",
+        "title": "Inspect presentation"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect slide"
+        },
+        "description": "One slide's shapes with ids, kinds, boxes [x,y,w,h], placeholder types, text, fills, tables, charts; plus background, transition, animations, notes.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "index": {
+              "description": "Slide index (default: current)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "inspect_slide",
+        "title": "Inspect slide"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Render slide"
+        },
+        "description": "Render a slide to a PNG image and return it, to check your work visually.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "edit": {
+              "description": "Show placeholder prompts like the editor",
+              "type": "boolean"
+            },
+            "scale": {
+              "description": "Pixels per point (default 1 = 960\xD7540 for 16:9)",
+              "type": "number"
+            },
+            "slide": {
+              "description": "Slide index (default: current)",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "render_slide",
+        "title": "Render slide"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Add slide"
+        },
+        "description": "Insert a slide after the current one with a layout (title, titleAndContent, sectionHeader, twoContent, comparison, titleOnly, blank, contentWithCaption, pictureWithCaption) and optional title/body text (body: one paragraph per line, leading tabs indent).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "body": {
+              "description": "Body text",
+              "type": "string"
+            },
+            "layout": {
+              "description": "Layout name or kind",
+              "type": "string"
+            },
+            "title": {
+              "description": "Title text",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "add_slide",
+        "title": "Add slide"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Go to slide"
+        },
+        "description": "Make a slide current (shape commands act on the current slide).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "index": {
+              "description": "Slide index",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "index"
+          ],
+          "type": "object"
+        },
+        "name": "go_to_slide",
+        "title": "Go to slide"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Add shape"
+        },
+        "description": "Insert a preset shape (rect, roundRect, ellipse, triangle, diamond, rightArrow, chevron, star5, heart, cloud, wedgeRectCallout, line, straightConnector1\u2026 see shape.presets) at x,y with size w\xD7h, with optional text and fill colour (#RRGGBB or accent1..6).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "fill": {
+              "description": "Fill colour",
+              "type": "string"
+            },
+            "h": {
+              "description": "Height (pt)",
+              "type": "number"
+            },
+            "line": {
+              "description": "Outline colour or `none`",
+              "type": "string"
+            },
+            "preset": {
+              "description": "Preset name",
+              "type": "string"
+            },
+            "text": {
+              "description": "Text inside",
+              "type": "string"
+            },
+            "w": {
+              "description": "Width (pt)",
+              "type": "number"
+            },
+            "x": {
+              "description": "Left (pt)",
+              "type": "number"
+            },
+            "y": {
+              "description": "Top (pt)",
+              "type": "number"
+            }
+          },
+          "required": [
+            "preset",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "type": "object"
+        },
+        "name": "add_shape",
+        "title": "Add shape"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Add text box"
+        },
+        "description": "Insert a text box. Height grows to fit the text.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "align": {
+              "description": "left|center|right|justify",
+              "type": "string"
+            },
+            "color": {
+              "description": "Text colour",
+              "type": "string"
+            },
+            "h": {
+              "description": "Height (pt)",
+              "type": "number"
+            },
+            "size": {
+              "description": "Font size (pt)",
+              "type": "number"
+            },
+            "text": {
+              "description": "Text (one paragraph per line)",
+              "type": "string"
+            },
+            "w": {
+              "description": "Width (pt)",
+              "type": "number"
+            },
+            "x": {
+              "description": "Left (pt)",
+              "type": "number"
+            },
+            "y": {
+              "description": "Top (pt)",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "w",
+            "text"
+          ],
+          "type": "object"
+        },
+        "name": "add_text_box",
+        "title": "Add text box"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Set text"
+        },
+        "description": "Replace a shape's text (keeps its first run's formatting). Leading tabs set bullet levels.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "Shape id (from inspect_slide)",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "text": {
+              "description": "New text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text"
+          ],
+          "type": "object"
+        },
+        "name": "set_text",
+        "title": "Set text"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Insert picture"
+        },
+        "description": "Insert a picture from a file path or base64 data, optionally at a box.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "Base64 image data (instead of path)",
+              "type": "string"
+            },
+            "h": {
+              "description": "Height",
+              "type": "number"
+            },
+            "name": {
+              "description": "File name for data",
+              "type": "string"
+            },
+            "path": {
+              "description": "Image file path",
+              "type": "string"
+            },
+            "w": {
+              "description": "Width",
+              "type": "number"
+            },
+            "x": {
+              "description": "Left",
+              "type": "number"
+            },
+            "y": {
+              "description": "Top",
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "name": "insert_picture",
+        "title": "Insert picture"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Insert table"
+        },
+        "description": "Insert a table with rows\xD7cols and optional cell text (data: rows of strings).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "cols": {
+              "description": "Columns",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "data": {
+              "items": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "h": {
+              "description": "Height",
+              "type": "number"
+            },
+            "rows": {
+              "description": "Rows",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "w": {
+              "description": "Width",
+              "type": "number"
+            },
+            "x": {
+              "description": "Left",
+              "type": "number"
+            },
+            "y": {
+              "description": "Top",
+              "type": "number"
+            }
+          },
+          "required": [
+            "rows",
+            "cols"
+          ],
+          "type": "object"
+        },
+        "name": "insert_table",
+        "title": "Insert table"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Insert chart"
+        },
+        "description": "Insert a chart (column, bar, line, pie, doughnut, area, scatter, stackedColumn\u2026) with categories and series, optionally at a box.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "categories": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "h": {
+              "description": "Height",
+              "type": "number"
+            },
+            "series": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "description": "Series name",
+                    "type": "string"
+                  },
+                  "values": {
+                    "items": {
+                      "type": "number"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "values"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "title": {
+              "description": "Chart title",
+              "type": "string"
+            },
+            "type": {
+              "description": "Chart type",
+              "type": "string"
+            },
+            "w": {
+              "description": "Width",
+              "type": "number"
+            },
+            "x": {
+              "description": "Left",
+              "type": "number"
+            },
+            "y": {
+              "description": "Top",
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "name": "insert_chart",
+        "title": "Insert chart"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Select shapes"
+        },
+        "description": "Select shapes by id (formatting commands then act on them).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "ids": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "ids"
+          ],
+          "type": "object"
+        },
+        "name": "select",
+        "title": "Select shapes"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Pointer gesture"
+        },
+        "description": "Drive the active tool with pointer events in slide points: down/drag/up/move/doubleclick/contextclick, exactly like the mouse (draws, moves, resizes, rotates, places the caret; contextclick selects like a right click).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "events": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "description": "down|drag|up|move|doubleclick|tripleclick|contextclick",
+                    "type": "string"
+                  },
+                  "mods": {
+                    "additionalProperties": false,
+                    "description": "Modifier keys (cmd = Command on macOS / Ctrl elsewhere; alt = Option)",
+                    "properties": {
+                      "alt": {
+                        "type": "boolean"
+                      },
+                      "cmd": {
+                        "type": "boolean"
+                      },
+                      "shift": {
+                        "type": "boolean"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "x": {
+                    "description": "x (pt)",
+                    "type": "number"
+                  },
+                  "y": {
+                    "description": "y (pt)",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "x",
+                  "y"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "mods": {
+              "additionalProperties": false,
+              "description": "Modifier keys (cmd = Command on macOS / Ctrl elsewhere; alt = Option)",
+              "properties": {
+                "alt": {
+                  "type": "boolean"
+                },
+                "cmd": {
+                  "type": "boolean"
+                },
+                "shift": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "events"
+          ],
+          "type": "object"
+        },
+        "name": "pointer",
+        "title": "Pointer gesture"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Select tool"
+        },
+        "description": "Pick the pointer tool: select, textBox, shape (with preset), pen, highlighter, eraser \u2014 or a preset name.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "description": "Shape preset for the shape tool",
+              "type": "string"
+            },
+            "tool": {
+              "description": "Tool name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "tool"
+          ],
+          "type": "object"
+        },
+        "name": "select_tool",
+        "title": "Select tool"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Press key"
+        },
+        "description": "Press a key as on the keyboard: text editing keys (arrows, Backspace, Enter, Tab), nudges, and shortcuts (cmd+B\u2026).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "description": "Key name or character",
+              "type": "string"
+            },
+            "mods": {
+              "additionalProperties": false,
+              "description": "Modifier keys (cmd = Command on macOS / Ctrl elsewhere; alt = Option)",
+              "properties": {
+                "alt": {
+                  "type": "boolean"
+                },
+                "cmd": {
+                  "type": "boolean"
+                },
+                "shift": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "name": "key",
+        "title": "Press key"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Type text"
+        },
+        "description": "Type text into the text being edited (or into the selected shape).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "description": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "name": "type_text",
+        "title": "Type text"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Screenshot"
+        },
+        "description": "Screenshot of the whole DeckCraft window (UI included). Desktop app only (`deckcraft-cli mcp --connect PORT`).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "name": "screenshot",
+        "title": "Screenshot"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Call app method"
+        },
+        "description": "Call any control-channel method (ui.click, ui.set, ui.dialog.*, ui.inspect\u2026). Desktop app only (`deckcraft-cli mcp --connect PORT`).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "description": "Method",
+              "type": "string"
+            },
+            "params": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "method"
+          ],
+          "type": "object"
+        },
+        "name": "call_app",
+        "title": "Call app method"
+      }
+    ]
+  },
+  "pdfcraft": {
+    "version": "0.17.0",
+    "instructions": "PdfCraft edits PDFs. Open a file with doc_open to get a document id, then inspect (doc_info, text_extract, text_find, page_render) or edit it (page_*, doc_set_info). Edits are undoable (edit_undo) and stay in memory until doc_save. Page numbers are 1-based. Open documents are also resources: pdfcraft://doc/{doc}/info, /text, /page/{page}/text and /page/{page}/image. command_list discovers command ids and tool schemas; command_run executes one, command_batch runs several. doc_inspect returns open document state; render_preview returns a bounded PNG. Only a core set of tools is listed. Every other tool is still available: find it with tool_search (optional query and category, or name for its full input schema) and run it with tool_call.",
+    "tools": [
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Open a PDF"
+        },
+        "description": "Open a PDF file and return its document id, page count and whether it can be edited.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "password": {
+              "description": "User or owner password for encrypted files.",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        "name": "doc_open",
+        "title": "Open a PDF"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect a document"
+        },
+        "description": "Metadata, page sizes and labels, bookmarks, annotations, form fields, links, layers, page transitions and display times, the destination it opens at, attachments, fonts, security and repair notes.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "doc"
+          ],
+          "type": "object"
+        },
+        "name": "doc_info",
+        "title": "Inspect a document"
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Save a document"
+        },
+        "description": "Save to its own file (an incremental update, which keeps signatures valid) or to a new path (a full rewrite). The write is atomic. flatten_fill_sign bakes Fill & Sign text, marks and signatures into the page first and removes those annotations; other comments and form fields stay. Omit it, or pass false, to leave them editable.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "flatten_fill_sign": {
+              "description": "Bake Fill & Sign marks into the page before writing. Default false.",
+              "type": "boolean"
+            },
+            "full": {
+              "description": "Force a full rewrite (or, with false, an incremental update).",
+              "type": "boolean"
+            },
+            "path": {
+              "description": "Save as this file. Omit to save in place.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc"
+          ],
+          "type": "object"
+        },
+        "name": "doc_save",
+        "title": "Save a document"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Close a document"
+        },
+        "description": "Close a document. Fails if it has unsaved changes unless discard_changes is true.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "discard_changes": {
+              "type": "boolean"
+            },
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "doc"
+          ],
+          "type": "object"
+        },
+        "name": "doc_close",
+        "title": "Close a document"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Render a page"
+        },
+        "description": "Render one page to a PNG image (default 96 dpi, at most 600). When the picture is incomplete or approximate (content cut at the page's safety budget, a colour painted in a fallback colour), a JSON part follows the image: { page, warnings: [sentence, ...] }.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "dpi": {
+              "maximum": 600,
+              "minimum": 1,
+              "type": "number"
+            },
+            "hide_added_text": {
+              "description": "Render a retyping background without this added text item (added index from object_list). Mutually exclusive with hide_text_block. Does not modify the document.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "hide_text_block": {
+              "description": "Render an inline editor background without this paragraph (number from text_paragraphs, resolved as text_edit does: refused once an edit merged that paragraph into a neighbour). Does not modify the document.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "page": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "doc",
+            "page"
+          ],
+          "type": "object"
+        },
+        "name": "page_render",
+        "title": "Render a page"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Extract text"
+        },
+        "description": "Extract the text of some or all pages, in reading order. With rect, only the text inside that rectangle on each page, as Column select takes it: one row per visual line, side-by-side pieces (table cells) separated by a tab.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "pages": {
+              "description": "1-based page numbers to extract (default: all).",
+              "items": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "rect": {
+              "description": "Column select: [x0, y0, x1, y1] in points from the top-left of the displayed page; a glyph counts when its centre is inside.",
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "type": "array"
+            }
+          },
+          "required": [
+            "doc"
+          ],
+          "type": "object"
+        },
+        "name": "text_extract",
+        "title": "Extract text"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Find text"
+        },
+        "description": "Find a phrase (case-insensitive, whitespace-normalised) and return matches in page order with page and line rectangles in points (origin top-left). Reads growing batches, looking one match past the limit for a continuation. Failed pages do not discard readable matches: warnings contains up to 100 {page, error, error_truncated} entries (errors capped at 1024 UTF-8 bytes), warning_count counts failed pages, and warnings_truncated reports a capped list. complete is false after a page failure or when more matches exist; next is present only for a match-limit continuation.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "limit": {
+              "description": "Maximum matches (default 500). When another match exists, next holds start_page and skip to continue. complete is false for either additional matches or failed pages; an exhausted search with warnings has no next.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "query": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "skip": {
+              "description": "Matches to pass over on start_page before returning any (default 0).",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "start_page": {
+              "description": "Page to start searching from (default 1).",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "doc",
+            "query"
+          ],
+          "type": "object"
+        },
+        "name": "text_find",
+        "title": "Find text"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Combine files"
+        },
+        "description": `Combine files, in order, into one PDF (bookmarks are kept under one entry per file). Images (PNG, JPEG, TIFF, GIF, BMP, JPEG 2000) and .txt files are made into PDFs first. pages optionally chooses each file's pages, in step with paths: a range such as "1-3, 6" or null for all pages. passwords, also in step with paths, opens encrypted files (the open password, or the permissions password where a file's security doesn't allow copying pages; null for none). The result is not encrypted. Passwords are never echoed back. groups, also in step with paths, splits a file around others: entries with the same number (they must name the same path) are one file, copied once, so it keeps one bookmark at its first page, its links and its form fields; null for a file of its own. A group uses its first entry's password. When two files' forms name the same field, field_conflicts says what happens: "rename" (the default) keeps the fields separate by renaming the later one (Text1 becomes Text1-1) and the result lists renamed_fields as [[old, new], \u2026] \u2014 scripts that refer to the old name are not rewritten; "merge" makes them one field, as before.`,
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "field_conflicts": {
+              "enum": [
+                "rename",
+                "merge"
+              ],
+              "type": "string"
+            },
+            "groups": {
+              "items": {
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "type": "array"
+            },
+            "open": {
+              "description": "Also open the result as a new document (default: only when out is omitted).",
+              "type": "boolean"
+            },
+            "out": {
+              "description": "File to write. Omit to open the result as a new unsaved document instead.",
+              "type": "string"
+            },
+            "pages": {
+              "items": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": "array"
+            },
+            "passwords": {
+              "items": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": "array"
+            },
+            "paths": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2,
+              "type": "array"
+            }
+          },
+          "required": [
+            "paths"
+          ],
+          "type": "object"
+        },
+        "name": "doc_combine",
+        "title": "Combine files"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Split a document"
+        },
+        "description": "Split into several files written to out_dir: every N pages, before given pages, at top-level bookmarks (bookmarks: true; files named after them, repeated titles get -2, -3), or by file size (max_mb). Files are <name>-partK.pdf.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "before": {
+              "description": "1-based page numbers that start a new part.",
+              "items": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "bookmarks": {
+              "type": "boolean"
+            },
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "every": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "max_mb": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "out_dir": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc",
+            "out_dir"
+          ],
+          "type": "object"
+        },
+        "name": "doc_split",
+        "title": "Split a document"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Undo"
+        },
+        "description": "Undo the last edit of a document.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "doc"
+          ],
+          "type": "object"
+        },
+        "name": "edit_undo",
+        "title": "Undo"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "List commands"
+        },
+        "description": "Every registered PdfCraft command with its menu, shortcut, whether it is enabled now, and the tool that automates it.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "enabled_only": {
+              "type": "boolean"
+            },
+            "filter": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "command_list",
+        "title": "List commands"
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run a command"
+        },
+        "description": "Run a registry command through its headless tool. Pass that tool's arguments in params (see command_list). Unknown params are ignored with warnings; path confinement still applies.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        },
+        "name": "command_run",
+        "title": "Run a command"
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run several commands"
+        },
+        "description": "Run steps in order (at most 1000). Returns completed/failed counts and per-step ok/result/error; stop_on_error defaults to true.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "steps": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "stop_on_error": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "steps"
+          ],
+          "type": "object"
+        },
+        "name": "command_batch",
+        "title": "Run several commands"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Inspect open documents"
+        },
+        "description": "With doc, return doc_info; otherwise return information for every open document (empty documents array when none are open).",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "doc_inspect",
+        "title": "Inspect open documents"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Render a preview"
+        },
+        "description": "Render a PNG bounded by max_side (default 1024), without changing or saving the document. Page defaults to 1; doc may be omitted when exactly one document is open. Render warnings follow the image as page_render gives them.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "doc": {
+              "description": "Document id from doc_open or doc_list.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "max_side": {
+              "maximum": 4096,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "page": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "render_preview",
+        "title": "Render a preview"
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true,
+          "title": "Find PdfCraft tools"
+        },
+        "description": "Search and list all PdfCraft automation tools, including the core tools, with a one-sentence description each. Filter by query (words matched against name, title and description) and/or category (the name prefix: doc, page, text, form, \u2026). With name, return that one tool in full, including its input_schema. Run a tool with tool_call.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "description": "Tool name prefix, e.g. page, text, form, redact.",
+              "type": "string"
+            },
+            "name": {
+              "description": "Exact tool name: return its description and input_schema.",
+              "type": "string"
+            },
+            "query": {
+              "description": "Words to look for, all of which must match (case-insensitive).",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "tool_search",
+        "title": "Find PdfCraft tools"
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Run any PdfCraft tool"
+        },
+        "description": "Run any PdfCraft tool by name with its arguments, exactly as if it were called directly. Find names and argument schemas with tool_search. The result is the tool's own result.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "arguments": {
+              "description": "The tool's arguments (see its input_schema from tool_search).",
+              "type": "object"
+            },
+            "name": {
+              "description": "The tool to run, e.g. page_rotate.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        },
+        "name": "tool_call",
+        "title": "Run any PdfCraft tool"
+      }
+    ]
+  }
+};
+
+// src/mcp-hub.ts
+var TOOL_PREFIX = { wordcraft: "word_", gridcraft: "grid_", deckcraft: "deck_", pdfcraft: "pdf_" };
+var FORMAT = { wordcraft: "DOCX", gridcraft: "XLSX", deckcraft: "PPTX", pdfcraft: "PDF" };
+function hubUsage(prog = "aiplus-office") {
+  return `usage: ${prog} mcp [--root <dir>]
+
+One stdio MCP server for the four office apps, each confined to <dir> (default: the current directory). Tools carry a
+prefix: ${CRAFT_APPS.map((a) => `${TOOL_PREFIX[a.id]}* = ${a.name}`).join(", ")}. An app starts at its first tool call.
+For one app alone: ${prog} <app> mcp.`;
+}
+function routeTool(name) {
+  if (typeof name !== "string") return void 0;
+  const app2 = CRAFT_APPS.find((a) => name.startsWith(TOOL_PREFIX[a.id]) && name.length > TOOL_PREFIX[a.id].length);
+  return app2 ? { app: app2, tool: name.slice(TOOL_PREFIX[app2.id].length) } : void 0;
+}
+async function runHub(argv, deps) {
+  const usage2 = hubUsage(deps.prog);
+  const parsed = parseMcpArgs(argv);
+  if (parsed.kind === "help") {
+    deps.stderr(`${usage2}
+`);
+    return 0;
+  }
+  if (parsed.kind === "error" || parsed.allowUnconfined || parsed.compact) {
+    const message = parsed.kind === "error" ? parsed.message : `option ${parsed.allowUnconfined ? "--allow-unconfined" : "--compact"} is not taken here: every app is confined, PdfCraft is always compact`;
+    deps.stderr(`${message}
+${usage2}
+`);
+    return 1;
+  }
+  let root;
+  if (parsed.noProject) {
+    root = deps.chatRoot();
+    try {
+      fs8.mkdirSync(root, { recursive: true });
+    } catch (e) {
+      deps.stderr(`${deps.prog}: cannot create the chat folder ${root}: ${e.message}
+`);
+      return 1;
+    }
+    deps.stderr(`[${deps.prog}] no project folder from the client (plain Chat): files go to ${root}
+`);
+  } else root = path8.resolve(deps.cwd(), parsed.root ?? ".");
+  try {
+    if (!fs8.statSync(root).isDirectory()) throw new Error("not a folder");
+  } catch {
+    deps.stderr(`${deps.prog}: the mcp root ${root} is not an existing folder; refusing to start
+`);
+    return 1;
+  }
+  const log = (text) => deps.stderr(`[${deps.prog}] mcp: ${text}
+`);
+  const toClient = (o) => deps.stdout.write(`${JSON.stringify(o)}
+`);
+  const backendArgv = (app2) => ["--root", root, ...app2.mcp.compactFlag ? [app2.mcp.compactFlag] : []];
+  const live = /* @__PURE__ */ new Map();
+  const manifestTools = (app2) => {
+    const tools = deps.manifest[app2.id]?.tools ?? [];
+    return app2.mcp.confinement === "gateway" ? tools.filter((t) => GRID_TOOLS.includes(t.name)) : tools;
+  };
+  const toolsOf = (app2) => live.get(app2.id) ?? manifestTools(app2);
+  const listAll = () => CRAFT_APPS.flatMap((a) => toolsOf(a).map((t) => ({ ...t, name: `${TOOL_PREFIX[a.id]}${t.name}` })));
+  const instructions = () => {
+    const head = refusalText(
+      `AI+ Iroda: a n\xE9gy ArtCraft irodai program egy kapcsolatban. Eszk\xF6z-el\u0151tagok: ${CRAFT_APPS.map((a) => `${TOOL_PREFIX[a.id]} = ${a.name} (${FORMAT[a.id]})`).join(", ")}.`,
+      `AI+ Office: the four ArtCraft office apps in one connection. Tool prefixes: ${CRAFT_APPS.map((a) => `${TOOL_PREFIX[a.id]} = ${a.name} (${FORMAT[a.id]})`).join(", ")}. An app starts at its first call; while it downloads, its tools say so. Files: only inside ${root}; a relative path is resolved against it. The app notes below name the tools without the prefix.`
+    );
+    const notes = CRAFT_APPS.map((a) => {
+      let text = deps.manifest[a.id]?.instructions ?? "";
+      if (a.mcp.confinement === "gateway") text = createGateway(a.name, root).annotateInitialize({ instructions: text }).instructions;
+      return `${TOOL_PREFIX[a.id]} \u2014 ${a.name}: ${text}`;
+    });
+    return [head, ...notes].join("\n\n");
+  };
+  let clientInitialized = false;
+  let resolveClientInit = () => {
+  };
+  const clientInit = new Promise((r) => {
+    resolveClientInit = r;
+  });
+  const backends = /* @__PURE__ */ new Map();
+  const running = /* @__PURE__ */ new Set();
+  const sent = /* @__PURE__ */ new Map();
+  const startBackend = (app2, why) => {
+    log(`starting ${app2.name} (${why})`);
+    const stdin = new PassThrough();
+    const stdout = new PassThrough();
+    const done = deps.runBackend(app2, backendArgv(app2), { stdin, stdout, stderr: deps.stderr });
+    running.add(done);
+    let id = 0;
+    const waiting = /* @__PURE__ */ new Map();
+    const b = {
+      app: app2,
+      ready: Promise.resolve(),
+      done,
+      ended: false,
+      write: (o) => {
+        if (!stdin.writableEnded) stdin.write(`${JSON.stringify(o)}
+`);
+      },
+      end: () => {
+        if (!stdin.writableEnded) stdin.end();
+      },
+      calls: /* @__PURE__ */ new Map(),
+      nextId: () => ++id
+    };
+    const request = (method, params) => new Promise((resolve7) => {
+      const i = b.nextId();
+      waiting.set(i, resolve7);
+      b.write({ jsonrpc: "2.0", id: i, method, ...params === void 0 ? {} : { params } });
+    });
+    const refreshList = async () => {
+      const r = await request("tools/list");
+      const tools = r.result?.tools;
+      if (!Array.isArray(tools) || tools.length === 0) return;
+      if (tools.length === 1 && tools[0]?.name === `${app2.id}_status`) return;
+      const before = JSON.stringify(toolsOf(app2));
+      live.set(app2.id, tools);
+      if (JSON.stringify(tools) !== before && clientInitialized) {
+        log(`${app2.name}'s own tool list differs from the manifest; tools/list_changed sent`);
+        toClient({ jsonrpc: "2.0", method: "notifications/tools/list_changed" });
+      }
+    };
+    readline2.createInterface({ input: stdout }).on("line", (line) => {
+      let m;
+      try {
+        m = JSON.parse(line);
+      } catch {
+        deps.stderr(`${line}
+`);
+        return;
+      }
+      if (m === null || typeof m !== "object" || Array.isArray(m)) return;
+      if (m.method === void 0 && typeof m.id === "number") {
+        const w = waiting.get(m.id);
+        if (w) {
+          waiting.delete(m.id);
+          return w(m);
+        }
+        if (b.calls.has(m.id)) {
+          const clientId = b.calls.get(m.id);
+          b.calls.delete(m.id);
+          sent.delete(clientId);
+          toClient({ ...m, id: clientId });
+        }
+        return;
+      }
+      if (typeof m.method !== "string") return;
+      if (m.id !== void 0) {
+        b.write({ jsonrpc: "2.0", id: m.id, error: { code: -32601, message: `${deps.prog} does not answer ${m.method}` } });
+        return;
+      }
+      if (m.method === "notifications/tools/list_changed") {
+        refreshList().catch(() => {
+        });
+        return;
+      }
+      if (clientInitialized) toClient(m);
+    });
+    const ended = done.then((code) => {
+      b.ended = true;
+      if (backends.get(app2.id) === b) backends.delete(app2.id);
+      log(`${app2.name} ended (exit ${code})`);
+      for (const [bid, clientId] of b.calls) {
+        sent.delete(clientId);
+        toClient({ jsonrpc: "2.0", id: clientId, result: errorResult(endedText(app2, code)) });
+        b.calls.delete(bid);
+      }
+      for (const w of waiting.values()) w({ error: { code: -32603, message: "ended" } });
+      waiting.clear();
+      return code;
+    });
+    b.ready = Promise.race([
+      (async () => {
+        const params = await clientInit;
+        const r = await request("initialize", params);
+        if (b.ended) throw new Error(endedText(app2, await done));
+        if (r.error) log(`${app2.name} refused initialize (${JSON.stringify(r.error)}); going on`);
+        b.write({ jsonrpc: "2.0", method: "notifications/initialized" });
+        refreshList().catch(() => {
+        });
+      })(),
+      ended.then((code) => {
+        throw new Error(endedText(app2, code));
+      })
+    ]);
+    b.ready.catch(() => {
+    });
+    backends.set(app2.id, b);
+    return b;
+  };
+  const endedText = (app2, code) => refusalText(
+    `A(z) ${app2.name} le\xE1llt (kil\xE9p\xE9si k\xF3d ${code}). Pr\xF3b\xE1ld \xFAjra: a k\xF6vetkez\u0151 h\xEDv\xE1s \xFAjraind\xEDtja.`,
+    `${app2.name} stopped (exit code ${code}). Try again: the next call starts it again.`
+  );
+  const errorResult = (text) => ({ content: [{ type: "text", text }], isError: true });
+  const call = (clientId, params) => {
+    const route = routeTool(params?.name);
+    if (!route) {
+      toClient({
+        jsonrpc: "2.0",
+        id: clientId,
+        result: errorResult(refusalText(`Ismeretlen eszk\xF6z: ${String(params?.name)}.`, `unknown tool: ${String(params?.name)}.`))
+      });
+      return;
+    }
+    const b = backends.get(route.app.id) ?? startBackend(route.app, "first call");
+    const entry = { b };
+    if (clientId !== void 0) sent.set(clientId, entry);
+    b.ready.then(
+      () => {
+        if (entry.cancelled) return void sent.delete(clientId);
+        if (b.ended) {
+          sent.delete(clientId);
+          return toClient({ jsonrpc: "2.0", id: clientId, result: errorResult(endedText(route.app, -1)) });
+        }
+        const bid = b.nextId();
+        entry.bid = bid;
+        if (clientId !== void 0) b.calls.set(bid, clientId);
+        b.write({ jsonrpc: "2.0", id: bid, method: "tools/call", params: { ...params, name: route.tool } });
+      },
+      (e) => {
+        sent.delete(clientId);
+        if (clientId !== void 0) toClient({ jsonrpc: "2.0", id: clientId, result: errorResult(e.message) });
+      }
+    );
+  };
+  const onLine = (line) => {
+    let msg;
+    try {
+      msg = JSON.parse(line);
+    } catch {
+      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } });
+    }
+    if (Array.isArray(msg) || msg === null || typeof msg !== "object") {
+      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+    }
+    const { method, id, params } = msg;
+    if (typeof method !== "string") return;
+    if (id === void 0) {
+      if (method === "notifications/initialized") clientInitialized = true;
+      else if (method === "notifications/cancelled") {
+        const requestId = params?.requestId;
+        const entry = sent.get(requestId);
+        if (!entry) return;
+        if (entry.bid === void 0) entry.cancelled = true;
+        else entry.b.write({ jsonrpc: "2.0", method, params: { ...params, requestId: entry.bid } });
+      }
+      return;
+    }
+    const reply = (result2) => toClient({ jsonrpc: "2.0", id, result: result2 });
+    switch (method) {
+      case "initialize": {
+        const requested = params?.protocolVersion;
+        const protocolVersion = typeof requested === "string" && PROTOCOL_VERSIONS.includes(requested) ? requested : PROTOCOL_VERSIONS[PROTOCOL_VERSIONS.length - 1];
+        reply({ protocolVersion, capabilities: { tools: { listChanged: true } }, serverInfo: { name: deps.prog, version: deps.serverVersion }, instructions: instructions() });
+        resolveClientInit(params);
+        clientInitialized = true;
+        return;
+      }
+      case "ping":
+        return reply({});
+      case "tools/list":
+        return reply({ tools: listAll() });
+      case "tools/call":
+        return call(id, params);
+      case "resources/list":
+        return reply({ resources: [] });
+      case "resources/templates/list":
+        return reply({ resourceTemplates: [] });
+      case "prompts/list":
+        return reply({ prompts: [] });
+      default:
+        toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: `method not found: ${method}` } });
+    }
+  };
+  return new Promise((resolveRun) => {
+    let finishing = false;
+    let exitOverride;
+    const finish = async () => {
+      if (finishing) return;
+      finishing = true;
+      for (const b of backends.values()) b.end();
+      const codes = await Promise.all(running);
+      resolveRun(exitOverride ?? codes.find((c) => c !== 0) ?? 0);
+    };
+    const rl = readline2.createInterface({ input: deps.stdin });
+    rl.on("line", (line) => {
+      if (line.trim() !== "") onLine(line);
+    });
+    rl.on("close", () => void finish());
+    deps.onSignal("SIGINT", () => {
+      exitOverride = 130;
+      void finish();
+    });
+    deps.onSignal("SIGTERM", () => {
+      exitOverride = 143;
+      void finish();
+    });
+    const atOnce = CRAFT_APPS.filter((a) => !deps.installed(a));
+    log(`root ${root}; ${atOnce.length === 0 ? "every app installed, none started" : `downloading now: ${atOnce.map((a) => a.name).join(", ")}`}`);
+    for (const app2 of atOnce) startBackend(app2, "not installed yet");
+  });
+}
+function defaultHubDeps(o) {
+  return {
+    prog: "aiplus-office",
+    stdin: process.stdin,
+    stdout: process.stdout,
+    stderr: o.stderr,
+    cwd: () => process.cwd(),
+    chatRoot: () => defaultChatRoot(o.env, o.homedir()),
+    onSignal: (signal, handler) => {
+      process.on(signal, handler);
+    },
+    serverVersion: o.version,
+    manifest: MCP_MANIFEST,
+    installed: (app2) => {
+      if (o.env[`${envPrefix(app2)}_BIN`]) return true;
+      try {
+        return installedVersions(app2, cacheRoot(app2, { env: o.env, homedir: o.homedir, platform: o.platform }), o.platform).length > 0;
+      } catch {
+        return false;
+      }
+    },
+    runBackend: (app2, argv, io) => runMcp(app2, argv, { prog: "aiplus-office", provision: (opts) => o.provision(app2.id, opts), stdin: io.stdin, stdout: io.stdout, stderr: io.stderr, serverVersion: o.version })
+  };
+}
+
+// src/status.ts
+import * as fs9 from "node:fs";
+import * as path9 from "node:path";
 function dirBytes(dir) {
   let total = 0;
   let entries;
   try {
-    entries = fs8.readdirSync(dir, { withFileTypes: true });
+    entries = fs9.readdirSync(dir, { withFileTypes: true });
   } catch {
     return 0;
   }
   for (const e of entries) {
-    const p = path8.join(dir, e.name);
+    const p = path9.join(dir, e.name);
     try {
       if (e.isDirectory()) total += dirBytes(p);
-      else if (e.isFile()) total += fs8.statSync(p).size;
+      else if (e.isFile()) total += fs9.statSync(p).size;
     } catch {
     }
   }
@@ -10704,16 +14021,16 @@ function statusRoot(deps) {
 }
 function desktopCacheRoots(deps) {
   if (deps.env.AIPLUS_OFFICE_HOME || deps.platform !== "win32") return [];
-  const packages = path8.join(deps.env.LOCALAPPDATA || path8.join(deps.homedir(), "AppData", "Local"), "Packages");
+  const packages = path9.join(deps.env.LOCALAPPDATA || path9.join(deps.homedir(), "AppData", "Local"), "Packages");
   let names;
   try {
-    names = fs8.readdirSync(packages);
+    names = fs9.readdirSync(packages);
   } catch {
     return [];
   }
-  return names.filter((n) => /^Claude_/i.test(n)).sort().map((n) => path8.join(packages, n, "LocalCache", "Local", "aiplus-office")).filter((p) => {
+  return names.filter((n) => /^Claude_/i.test(n)).sort().map((n) => path9.join(packages, n, "LocalCache", "Local", "aiplus-office")).filter((p) => {
     try {
-      return fs8.statSync(p).isDirectory();
+      return fs9.statSync(p).isDirectory();
     } catch {
       return false;
     }
@@ -10721,12 +14038,12 @@ function desktopCacheRoots(deps) {
 }
 
 // src/verify.ts
-import * as fs10 from "node:fs";
-import * as path10 from "node:path";
+import * as fs11 from "node:fs";
+import * as path11 from "node:path";
 
 // src/hu-guards.ts
-import * as fs9 from "node:fs";
-import * as path9 from "node:path";
+import * as fs10 from "node:fs";
+import * as path10 from "node:path";
 var HU_LONG = /[őűŐŰ]/;
 var MONTHS2 = "janu\xE1r|febru\xE1r|m\xE1rcius|\xE1prilis|m\xE1jus|j\xFAnius|j\xFAlius|augusztus|szeptember|okt\xF3ber|november|december";
 var SIGN = "[-+\u2212]?";
@@ -10781,14 +14098,14 @@ function unzip(buf) {
   }
 }
 var utf8 = (b) => b ? new TextDecoder().decode(b) : "";
-function sourceText(file, buf = fs9.readFileSync(file)) {
+function sourceText(file, buf = fs10.readFileSync(file)) {
   const zip = unzip(buf);
   if (zip) {
     const parts = Object.keys(zip).filter((n) => n.endsWith(".xml") && /^(xl\/(sharedStrings|worksheets\/|charts\/)|word\/|ppt\/(slides|charts|notesSlides)\/)/.test(n)).sort();
     return parts.map((n) => texts(utf8(zip[n])).join(" ")).join("\n");
   }
   const raw = utf8(buf);
-  return /\.html?$/i.test(path9.extname(file)) ? decode(raw.replace(/<[^>]*>/g, " ")) : raw;
+  return /\.html?$/i.test(path10.extname(file)) ? decode(raw.replace(/<[^>]*>/g, " ")) : raw;
 }
 function huWords(text) {
   const seen = /* @__PURE__ */ new Set();
@@ -10829,7 +14146,7 @@ function sheetParts(zip) {
   for (const m of rels.matchAll(/<Relationship\b[^>]*>/g)) {
     const id = /\bId="([^"]+)"/.exec(m[0])?.[1];
     const t = /\bTarget="([^"]+)"/.exec(m[0])?.[1];
-    if (id && t) target.set(id, t.startsWith("/") ? t.slice(1) : path9.posix.join("xl", t));
+    if (id && t) target.set(id, t.startsWith("/") ? t.slice(1) : path10.posix.join("xl", t));
   }
   const out = [];
   for (const m of wb.matchAll(/<sheet\b[^>]*>/g)) {
@@ -10913,7 +14230,7 @@ function defaultVerifyDeps() {
     stdout: (t) => process.stdout.write(t),
     stderr: (t) => process.stderr.write(t),
     provisionPdfcraft: () => provision("pdfcraft"),
-    exists: (f) => fs10.existsSync(f)
+    exists: (f) => fs11.existsSync(f)
   };
 }
 var FLAG_ONLY = /* @__PURE__ */ new Set(["has-video", "has-audio", "no-audio", "alpha", "hu-numbers"]);
@@ -11005,10 +14322,10 @@ function parseVerifyArgs(argv) {
   if (file === void 0) throw new UsageError("no file given");
   if (assertions.length === 0) throw new UsageError("no assertion given");
   for (const a of assertions) {
-    if (a.kind === "frame-diff") a.ref = path10.resolve(a.ref);
-    if (a.kind === "hu-glyphs") a.source = path10.resolve(a.source);
+    if (a.kind === "frame-diff") a.ref = path11.resolve(a.ref);
+    if (a.kind === "hu-glyphs") a.source = path11.resolve(a.source);
   }
-  return { file: path10.resolve(file), assertions, json };
+  return { file: path11.resolve(file), assertions, json };
 }
 var ToolMissing = class extends Error {
   tool;
@@ -11023,7 +14340,7 @@ var tolText = (raw) => raw.replace("+/-", "\xB1").replace("+-", "\xB1");
 var ProbeTimeout = class extends Error {
 };
 async function run(deps, tool, args, opts) {
-  const bare = !path10.isAbsolute(tool);
+  const bare = !path11.isAbsolute(tool);
   try {
     return await deps.exec(bare ? exe(tool) : tool, args, opts);
   } catch (e) {
@@ -11149,7 +14466,7 @@ async function evaluate(a, file, deps, prober, pdfBin) {
     }
     case "hu-glyphs": {
       const words = huWordsFrom(a.source);
-      const expected = `every word with \u0151/\u0171 from ${path10.basename(a.source)} in the PDF text`;
+      const expected = `every word with \u0151/\u0171 from ${path11.basename(a.source)} in the PDF text`;
       if (words.length === 0) return result("--hu-glyphs", expected, "the source holds no word with \u0151/\u0171", true);
       const bin = await pdfBin();
       const missing = missingWords(words, (await run(deps, bin, ["text", file])).stdout.toString());
@@ -11164,7 +14481,7 @@ async function evaluate(a, file, deps, prober, pdfBin) {
     case "hu-numbers": {
       let cells;
       try {
-        cells = scanHuNumbers(fs10.readFileSync(file));
+        cells = scanHuNumbers(fs11.readFileSync(file));
       } catch {
         return result("--hu-numbers", "an XLSX workbook", "not an XLSX workbook", false);
       }
@@ -11252,7 +14569,7 @@ ${VERIFY_USAGE}
 }
 
 // src/bin/aiplus-office.ts
-var VERSION = "0.1.22";
+var VERSION = "0.1.23";
 var NODE_MIN_MAJOR = 20;
 function nodeLine(version) {
   const major = Number(/^v?(\d+)/.exec(version)?.[1]);
@@ -11268,6 +14585,7 @@ commands:
   install <app\u2026>|--all         provision <app>-cli for each app, print one JSON report per app
   verify <file> [assertions\u2026]  mechanical output checks (aiplus-office verify --help)
   doc prepare <in.md> --out <dir>  fill a docx template, inline images/diagrams (aiplus-office doc --help)
+  mcp [--root <dir>]           one stdio MCP server for the four apps (tools word_*, grid_*, deck_*, pdf_*)
   <app> ensure                 provision <app>-cli and print a JSON report
   <app> path                   provision <app>-cli and print its absolute path
   <app> exec <args\u2026>           run <app>-cli with <args\u2026> verbatim (bash route)
@@ -11452,6 +14770,11 @@ async function main(argv, partial = {}) {
       return deps.runJq(rest);
     case "dict":
       return dictCommand(rest, deps);
+    case "mcp": {
+      const dir = wordcraftEnv(deps.env, deps).WORDCRAFT_DICTIONARIES;
+      if (dir && !deps.env.WORDCRAFT_DICTIONARIES) deps.env.WORDCRAFT_DICTIONARIES = dir;
+      return runHub(rest, defaultHubDeps({ provision: deps.provision, stderr: deps.stderr, env: deps.env, platform: deps.platform, homedir: deps.homedir, version: VERSION }));
+    }
     case "--version":
     case "-V":
       deps.stdout(`aiplus-office ${VERSION}
@@ -11490,7 +14813,7 @@ async function main(argv, partial = {}) {
 function isEntry() {
   try {
     const entry = process.argv[1];
-    return !!entry && fs11.realpathSync(entry) === fs11.realpathSync(fileURLToPath3(import.meta.url));
+    return !!entry && fs12.realpathSync(entry) === fs12.realpathSync(fileURLToPath3(import.meta.url));
   } catch {
     return false;
   }

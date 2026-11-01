@@ -32,17 +32,17 @@ reads and changes nothing. The **Fix** starts with the smallest step. Claude run
   Node.js-t.
 - **Ki:** a gép előtt ülő ember.
 
-### A kapcsolatok mellett „Reconnect” áll
+### A kapcsolat mellett „Reconnect” áll
 
-- **Tünet:** a Claude Desktopban a munkamenet jobb oldali paneljén, a **Connectors** alatt az „Aiplus office gridcraft”,
-  „… wordcraft”, „… deckcraft”, „… pdfcraft” mellett **Reconnect** gomb áll; a megnyíló ablakban: `Failed to connect:
+- **Tünet:** a Claude Desktopban a munkamenet jobb oldali paneljén, a **Connectors** alatt az „Aiplus office” mellett
+  (0.1.22-ig négy kapcsolat: „Aiplus office gridcraft”, „… wordcraft”, „… deckcraft”, „… pdfcraft”) **Reconnect** gomb áll; a megnyíló ablakban: `Failed to connect:
   Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`.
 - **Hol:** Claude Desktop.
 - **Ok:** a kapcsolat egyszer nem indult el (eddig mindig azért, mert hiányzott a Node.js, vagy a Claude még a Node.js
   telepítése előtt indult), és a Claude Desktop ezt 15 percig megjegyzi, újraindítás után is (kipróbálva Windows 11-en,
   2026. október 25.).
 - **Ellenőrzés:** `node --version` egy parancssorban.
-- **Javítás:** ha a Node.js megvan, ne várd ki a 15 percet: kattints a **Reconnect** gombra mind a négy kapcsolatnál.
+- **Javítás:** ha a Node.js megvan, ne várd ki a 15 percet: kattints a **Reconnect** gombra (0.1.22-ig mind a négy kapcsolatnál).
   Nálunk utána egy másodpercen belül elindultak.
 - **Ki:** a gép előtt ülő ember.
 

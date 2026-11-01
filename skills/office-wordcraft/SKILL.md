@@ -91,7 +91,7 @@ Id families: `text.*` (typing, breaks), `para.*` (alignment, spacing, styles, li
 
 ## MCP route (opt-in)
 
-The plugin registers `aiplus-office-wordcraft` (16 tools), confined to the project folder for reads and writes
+The plugin's `aiplus-office` server lists WordCraft's 17 tools as `word_*`, confined to the project folder for reads and writes
 (`--automation-read-root` / `--automation-write-root`). Use it in a client without a shell, or for a long session on one
 open document; bash for everything here. GUI bridging (`--connect`) is out of scope.
 

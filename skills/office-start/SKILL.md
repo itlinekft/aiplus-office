@@ -10,9 +10,10 @@ command failed because Node.js or an app is missing. It checks the machine, expl
 never starts a download itself without a yes (two exceptions, both said to the user: Claude Desktop's own download
 below, and the small `jq` helper a workflow fetches on a computer without one). Office jobs themselves belong to `office-router`.
 
-**Claude Desktop downloads the apps by itself.** It starts the module's four connectors when Claude starts and when a
-session opens (not yet when the plugin is added), and each connector fetches its app in the background the first time
-(measured on Windows 2026-10-26: all four about 10 s after a new session opened, before any question). So on Claude
+**Claude Desktop downloads the apps by itself.** It starts the module's connector (`aiplus-office`) when Claude starts
+and when a session opens (not yet when the plugin is added), and the connector fetches every app that is missing in the
+background (measured on Windows 2026-10-26, when there were four connectors: all four about 10 s after a new session
+opened, before any question). So on Claude
 Desktop the apps are usually there, or arriving, when this skill runs: say how they got there (3. below), never that
 they were already on the computer. An app `not installed` in a Claude Desktop session is usually still downloading:
 say so (HU: „a többi most töltődik le magától, pár perc”; EN: “the others are downloading by themselves, a few
@@ -103,23 +104,23 @@ uname -s; command -v winget || command -v winget.exe; command -v brew
 before must be reconnected:
 
 > **HU:** A Node.js fent van. Most lépj ki teljesen a Claude-ból (a tálcán vagy a menüsoron lévő ikonjánál is), és
-> indítsd újra. Ha a munkamenet jobb oldalán, a „Connectors” részben az AI+ Iroda kapcsolói mellett „Reconnect” áll,
-> kattints rá mindegyiknél. Utána kérdezd újra: „Hogyan kezdjem az AI+ Iroda modult?” A négy irodai programot a modul
+> indítsd újra. Ha a munkamenet jobb oldalán, a „Connectors” részben az AI+ Iroda kapcsolója (aiplus-office) mellett
+> „Reconnect” áll, kattints rá. Utána kérdezd újra: „Hogyan kezdjem az AI+ Iroda modult?” A négy irodai programot a modul
 > ezután magától letölti.
 >
 > **EN:** Node.js is installed. Now quit Claude fully (also from its icon in the tray or the menu bar) and start it
-> again. If the AI+ Iroda connectors in the session's “Connectors” panel on the right show “Reconnect”, click it on
-> each. Then ask again: “How do I start with the AI+ Iroda module?” The module then downloads the four office programs
+> again. If the AI+ Iroda connector (aiplus-office) in the session's “Connectors” panel on the right shows
+> “Reconnect”, click it. Then ask again: “How do I start with the AI+ Iroda module?” The module then downloads the four office programs
 > by itself.
 
-**After the restart the connectors still say „Reconnect”.** Claude remembers a connector that failed for 15 minutes,
+**After the restart the connector still says „Reconnect”.** Claude remembers a connector that failed for 15 minutes,
 even across a restart. Do not wait:
 
-> **HU:** A Claude 15 percig megjegyzi, ha egy kapcsoló nem indult el. Kattints a „Reconnect” gombra mindegyik AI+ Iroda
-> kapcsolónál (a munkamenet jobb oldali „Connectors” részében, vagy a Customize alatt), és már mehet is.
+> **HU:** A Claude 15 percig megjegyzi, ha egy kapcsoló nem indult el. Kattints a „Reconnect” gombra az AI+ Iroda
+> kapcsolójánál (aiplus-office; a munkamenet jobb oldali „Connectors” részében, vagy a Customize alatt), és már mehet is.
 >
-> **EN:** Claude remembers a connector that failed to start for 15 minutes. Click “Reconnect” on each AI+ Iroda
-> connector (in the session's “Connectors” panel on the right, or under Customize), and you can go on.
+> **EN:** Claude remembers a connector that failed to start for 15 minutes. Click “Reconnect” on the AI+ Iroda
+> connector (aiplus-office; in the session's “Connectors” panel on the right, or under Customize), and you can go on.
 
 Stop here until Node.js is there: nothing else of the plugin runs without it.
 
@@ -247,13 +248,13 @@ Exit `69` = the download failed: same causes as `install`.
 
 Say it plainly, once:
 
-> **HU:** **A sima Chatben is megy mind a négy** (Word, Excel, PowerPoint, PDF): a modul négy beépített kapcsolatot ad a
-> Claude-nak, és ezek csak egy mappához férnek hozzá, a Dokumentumok mappán belüli **„AI+ Iroda”** mappához. **A saját
+> **HU:** **A sima Chatben is megy mind a négy** (Word, Excel, PowerPoint, PDF): a modul beépített kapcsolata a
+> Claude-nak mind a négy programot elérhetővé teszi, és csak egy mappához fér hozzá, a Dokumentumok mappán belüli **„AI+ Iroda”** mappához. **A saját
 > mappádban** a Claude Code-ban, vagy a Claude Desktopban egy „This computer” környezetű munkamenetben dolgozhatsz: ott
 > az a mappa számít, amelyiket kiválasztod. A felhőben futó munkamenet nem tudja letölteni a programokat.
 >
-> **EN:** **All four work in a plain Chat too** (Word, Excel, PowerPoint, PDF): the module gives Claude four built-in
-> connections, and they reach one folder only, the **„AI+ Iroda”** folder in your Documents. **To work in a folder of
+> **EN:** **All four work in a plain Chat too** (Word, Excel, PowerPoint, PDF): the module's built-in connection gives Claude
+> all four programs, and it reaches one folder only, the **„AI+ Iroda”** folder in your Documents. **To work in a folder of
 > your choice**, use Claude Code, or in Claude Desktop a session whose environment is “This computer”: there the folder
 > you pick counts. A session running in the cloud cannot download the programs.
 

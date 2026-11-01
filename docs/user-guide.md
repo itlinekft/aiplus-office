@@ -36,9 +36,9 @@ Kipróbálva Windows 11-en, 2026. október 26-án.
 3. **A modul.** Az **AI+ Iroda** kártyán: **Add** › „This plugin includes local MCP servers” › **Continue**. A Claude
    kiírja: „AI+ Iroda is installed and ready to use.”
 4. **A négy program** a következő indításkor vagy amikor munkamenetet nyitsz, magától letöltődik a háttérben (nálunk kb.
-   10 másodperc alatt). Kérdezni nem fog. **Ha a munkamenet jobb oldali „Connectors” részében** az „Aiplus office …”
-   kapcsolatok mellett **Reconnect** áll (a Claude a Node.js előtt indult), kattints rá mind a négynél: magától csak 15
-   perc múlva próbálná újra.
+   10 másodperc alatt). Kérdezni nem fog. **Ha a munkamenet jobb oldali „Connectors” részében** az „Aiplus office”
+   kapcsolat mellett **Reconnect** áll (a Claude a Node.js előtt indult), kattints rá: magától csak 15 perc múlva
+   próbálná újra.
 5. **Az első kérdés:** „Hogyan kezdjem az AI+ Iroda modult?” Megnézi a Node.js-t és a négy programot, elmondja, honnan
    jöttek, és hogy mi hol működik. A modul nevét érdemes kimondani: egy puszta „hogyan kezdjem?” mellé más modul is
    jelentkezhet.

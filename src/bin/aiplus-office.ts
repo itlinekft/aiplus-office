@@ -6,6 +6,7 @@
  *   aiplus-office install <app…>|--all             provision CLIs, one JSON report per app
  *   aiplus-office verify <file> [assertions…]      mechanical output checks (`aiplus-office verify --help`)
  *   aiplus-office doc prepare <in.md> --out <dir>  fill a docx template + prepare the body for WordCraft
+ *   aiplus-office mcp [--root <dir>]               one stdio MCP server for the four apps (the plugin's connector)
  *   aiplus-office <app> ensure|path|exec|mcp       per-app provisioning, bash route, stdio MCP server
  *   aiplus-office jq <args…>                       a pinned, checked jq for the workflow gates (Git for Windows has none)
  *   aiplus-office dict hu                          the Hungarian spelling dictionary for WordCraft (pinned, checked)
@@ -21,13 +22,14 @@ import { execPassthrough, runAppCommand } from "../app-command.js";
 import { dictionaryDir, ensureHu, huDesktopDir, huInstalled, wordcraftEnv } from "../dictionary.js";
 import { DOC_USAGE, prepareDoc } from "../doc-prepare.js";
 import { ensureJq, installedJq, JQ_VERSION } from "../jq.js";
+import { defaultHubDeps, runHub } from "../mcp-hub.js";
 import { defaultLauncherPath } from "../mcp-register.js";
 import { defaultDeps, type ProvisionReport, provision } from "../provision.js";
 import { APP_IDS, CRAFT_APPS, getApp, isAppId, repoFor } from "../registry.js";
 import { appStatus, desktopCacheRoots, statusRoot } from "../status.js";
 import { runVerify } from "../verify.js";
 
-export const VERSION = "0.1.22";
+export const VERSION = "0.1.23";
 
 /** Minimum Node.js major version (package.json `engines`); `status` says when the running one is older. */
 export const NODE_MIN_MAJOR = 20;
@@ -48,6 +50,7 @@ commands:
   install <app…>|--all         provision <app>-cli for each app, print one JSON report per app
   verify <file> [assertions…]  mechanical output checks (aiplus-office verify --help)
   doc prepare <in.md> --out <dir>  fill a docx template, inline images/diagrams (aiplus-office doc --help)
+  mcp [--root <dir>]           one stdio MCP server for the four apps (tools word_*, grid_*, deck_*, pdf_*)
   <app> ensure                 provision <app>-cli and print a JSON report
   <app> path                   provision <app>-cli and print its absolute path
   <app> exec <args…>           run <app>-cli with <args…> verbatim (bash route)
@@ -238,6 +241,12 @@ export async function main(argv: string[], partial: Partial<CliDeps> = {}): Prom
       return deps.runJq(rest);
     case "dict":
       return dictCommand(rest, deps);
+    case "mcp": {
+      // WordCraft, started inside this process, reads the Hungarian dictionary from the environment.
+      const dir = wordcraftEnv(deps.env, deps).WORDCRAFT_DICTIONARIES;
+      if (dir && !deps.env.WORDCRAFT_DICTIONARIES) deps.env.WORDCRAFT_DICTIONARIES = dir;
+      return runHub(rest, defaultHubDeps({ provision: deps.provision, stderr: deps.stderr, env: deps.env, platform: deps.platform, homedir: deps.homedir, version: VERSION }));
+    }
     case "--version":
     case "-V":
       deps.stdout(`aiplus-office ${VERSION}\n`);

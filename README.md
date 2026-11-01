@@ -38,8 +38,10 @@ PowerPoint. So:
 | Claude Code | yes | yes | yes | yes |
 | a session running in the cloud (Cowork measured) | not measured | not measured | no | no |
 
-All four apps are registered MCP servers, each confined to the project folder (`.mcp.json` in the plugin, kept at `release/mcp.json` here; GridCraft and DeckCraft
-since change `office-mcp-grid-deck`, 2026-10-25). Up to 0.1.10 only WordCraft and PdfCraft were (the Desktop install
+All four apps are reachable over MCP through one server, `aiplus-office` (since 0.1.23, change `office-mcp-one-server`;
+tools prefixed `word_`, `grid_`, `deck_`, `pdf_`; an app starts at its first call), each confined to the project folder
+(`.mcp.json` in the plugin, kept at `release/mcp.json` here). From 0.1.11 to 0.1.22 they were four servers, one node
+process each per session (GridCraft and DeckCraft since change `office-mcp-grid-deck`, 2026-10-25). Up to 0.1.10 only WordCraft and PdfCraft were (the Desktop install
 dialog listed exactly `aiplus-office-wordcraft` and `aiplus-office-pdfcraft`, measured 2026-10-24 on Windows 11), and a
 plain Chat passes no project folder: up to 0.1.14 every server refused the unsubstituted `${CLAUDE_PROJECT_DIR}` and
 none started there (measured 2026-10-26, Windows 11). Since 0.1.15 such a server is confined to the „AI+ Iroda” folder
@@ -60,12 +62,12 @@ table is the design; what has actually been tried is kept in one block of `skill
 | `skills/office-deck` | outline → slides → PDF handout (example: a Hungarian quarterly deck) |
 | `skills/office-data-visual` | numbers → workbook with formulas and a read-back → chart → slide (example: árlista with 27% ÁFA) |
 | `dist/aiplus-office.mjs` | the `aiplus-office` command (one self-contained Node.js file) |
-| `release/mcp.json` | MCP servers for clients without a shell: the four apps, each confined to the project folder; shipped as the plugin's `.mcp.json` (not at the repo root, where Claude Code would read it as this repo's own server list) |
+| `release/mcp.json` | the MCP server for clients without a shell: one server for the four apps, each confined to the project folder; shipped as the plugin's `.mcp.json` (not at the repo root, where Claude Code would read it as this repo's own server list) |
 
 ## Install
 
 Requirements: **Node.js 20 or newer** on the machine. The four apps are downloaded once (20–100 MB each; Claude Desktop does it in the background when it starts the module's
-connectors, at its own start or when a session opens; Claude Code at the first job) from
+connector, at its own start or when a session opens; Claude Code at the first job) from
 their official GitHub releases (`github.com/storytold/<app>`), each archive checked against the release's
 `SHA256SUMS.txt`, into a per-user cache (`~/.cache/aiplus-office` on Linux, `~/Library/Caches/aiplus-office` on macOS,
 `%LOCALAPPDATA%\aiplus-office` on Windows; Claude Desktop, a packaged app, is on some installations redirected to

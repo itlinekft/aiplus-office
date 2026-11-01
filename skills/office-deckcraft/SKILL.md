@@ -78,12 +78,13 @@ Families: `slide.*`, `shape.*`, `insert.*`, `format.*`, `arrange.*`, `design.*` 
 
 ## MCP route (registered, confined)
 
-The plugin registers `aiplus-office-deckcraft` (25 tools), confined to the project folder for reads and writes by
-DeckCraft itself (`--automation-read-root` / `--automation-write-root`, measured on 0.10.0 and 0.11.1). Use it in a
-client without a shell: `new_presentation`, `add_slide` (layout, title, body), `insert_table` / `insert_chart`,
-`inspect_document`, `render_slide` to look at a slide, then `save_presentation` and `export` (format `pdf`). Paths must
+The plugin's `aiplus-office` server lists DeckCraft's 25 tools as `deck_*`, confined to the project folder for reads
+and writes by DeckCraft itself (`--automation-read-root` / `--automation-write-root`, measured on 0.10.0 and 0.11.1).
+Use it in a client without a shell: `deck_new_presentation`, `deck_add_slide` (layout, title, body),
+`deck_insert_table` / `deck_insert_chart`, `deck_inspect_document`, `deck_render_slide` to look at a slide, then
+`deck_save_presentation` and `deck_export` (format `pdf`). Paths must
 be **absolute** and inside the project folder; a relative or outside path is refused („automation path rejected”). The
-window-only tools (`screenshot`, `call_app`) do not work here. The bash route stays the default where there is a shell.
+window-only tools (`deck_screenshot`, `deck_call_app`) do not work here. The bash route stays the default where there is a shell.
 
 ## Recipes
 

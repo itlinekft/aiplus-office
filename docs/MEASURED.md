@@ -3,6 +3,24 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-01 (night) — Linux x64, Node.js 25.6.1: one MCP server instead of four (change office-mcp-one-server)
+
+Apps installed: WordCraft 0.14.0, GridCraft 0.15.0, DeckCraft 0.14.1, PdfCraft 0.17.0 (`install --all`). RSS from
+`ps -eo pid,ppid,rss,args`, the client a small stdio script (initialize, `notifications/initialized`, `tools/list`, then
+calls) holding the connection open.
+
+- **Before (0.1.22's bundle), `node dist/aiplus-office.mjs <app> mcp --root <dir>` idle, stdin held open:** each proxy
+  87 MB RSS 6 s after start, and each had already started its app's server (`wordcraft-cli mcp` 8 MB, `gridcraft-cli
+  mcp` 5 MB before any call). Four per session. Bare `node -e "setInterval(()=>{},1e6)"`: 52 MB;
+  `--max-semi-space-size=1 --v8-pool-size=0`: 53 MB; `--jitless` as well: 49 MB, so Node flags do not help.
+- **After (0.1.23's bundle), `node dist/aiplus-office.mjs mcp --root <dir>`:** `initialize` answered in 72 ms,
+  `tools/list` 79 tools (`word_list_commands`, …); 3 s later **one process, 66 MB RSS, no `*craft-cli`**. A
+  `word_new_document` call started only `wordcraft-cli mcp` (10 MB) and was answered; a `grid_open_workbook` on
+  `/etc/passwd` was refused by the gateway (Hungarian, then English). Closing stdin: exit 0, both servers ended.
+- **A real client:** Claude Code headless (`claude -p … --mcp-config <one aiplus-office entry> --strict-mcp-config`,
+  Haiku 5.5) called `word_new_document`, `word_type_text`, `word_save_document`; the saved docx holds the typed text.
+- Not measured yet: Claude Desktop (Windows, macOS) with the one connector; the first-run download through it.
+
 ## 2026-10-31 (night) — WordCraft 0.12.0-hu.2: signed and notarized on macOS, the same marks on Windows
 
 Release `v0.12.0-hu.2` of `itlinekft/wordcraft`, built by the fork's workflow with a Developer ID certificate and

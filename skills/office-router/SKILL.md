@@ -156,9 +156,11 @@ record_step() { # record_step NN-step "upstream ids comma-separated" verify-repo
 
 - **Default to the bash route** (`aiplus-office <app> exec`). It works for every app, costs no tool slots, and every
   command and result is visible.
-- **MCP** is for clients without a shell (Claude Desktop chat). The plugin registers four servers, each confined to the
-  project folder for reads and writes (a plain Chat passes none: then the „AI+ Iroda” folder in Documents): `aiplus-office-wordcraft` (16 tools), `aiplus-office-gridcraft` (20 tools),
-  `aiplus-office-deckcraft` (25 tools) and `aiplus-office-pdfcraft` (`--compact`: 17 tools instead of 175).
+- **MCP** is for clients without a shell (Claude Desktop chat). The plugin registers one server, `aiplus-office`, for
+  the four apps, each confined to the project folder for reads and writes (a plain Chat passes none: then the „AI+
+  Iroda” folder in Documents). Its tools carry the app's prefix: `word_*` WordCraft (17 tools), `grid_*` GridCraft (20),
+  `deck_*` DeckCraft (25), `pdf_*` PdfCraft (compact: 17 instead of 175). An app starts at its first call; the app
+  notes in the server's instructions name the tools without the prefix (`open_document` is `word_open_document`).
 - **GridCraft's own server has no confinement**, so aiplus-office confines it: a path outside the project folder, a
   window-only tool, or a command that would open a link, run a script, open a window or print is refused with a
   Hungarian-then-English tool error. Do not retry such a call another way; tell the user what was refused.

@@ -110,13 +110,13 @@ Measured 2026-10-24 on GridCraft 0.11.1 (the plugin's `docs/MEASURED.md`); upstr
 
 ## MCP route (registered, confined by aiplus-office)
 
-GridCraft's own MCP server has **no path confinement**, so the plugin registers `aiplus-office-gridcraft` behind a
-gateway: 20 of its 21 tools (the window-only `screenshot` is left out), every `path` resolved inside the project folder
+GridCraft's own MCP server has **no path confinement**, so the plugin's `aiplus-office` server lists it (as `grid_*`)
+behind a gateway: 20 of its tools (the window-only `screenshot` is left out), every `path` resolved inside the project folder
 (a relative path is resolved against it), and `execute_command` limited to in-workbook commands plus the file commands
 open, save, save as and export, whose paths are checked too. A refused call comes back as a tool error, Hungarian then
-English. Use MCP in a client without a shell (Claude Desktop chat): `new_workbook` or `open_workbook`, then
-`write_range` / `set_cell`, `read_range` / `get_cell` / `evaluate_formula` to read back, `format_range`, and
-`save_workbook` with an `.xlsx` path. The same traps apply (ő/ű in GridCraft's own PDF). The bash route stays the
+English. Use MCP in a client without a shell (Claude Desktop chat): `grid_new_workbook` or `grid_open_workbook`, then
+`grid_write_range` / `grid_set_cell`, `grid_read_range` / `grid_get_cell` / `grid_evaluate_formula` to read back,
+`grid_format_range`, and `grid_save_workbook` with an `.xlsx` path. The same traps apply (ő/ű in GridCraft's own PDF). The bash route stays the
 default where there is a shell. GUI bridging (`--connect`) is out of scope.
 
 ## Recipes

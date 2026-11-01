@@ -128,9 +128,11 @@ describe("router and app skills", () => {
     expect(b).toMatch(/checked before it is sent/);
   });
 
-  it("the router names the four confined MCP servers and GridCraft's gateway (change office-mcp-grid-deck)", () => {
+  it("the router names the one MCP server, its tool prefixes and GridCraft's gateway (changes office-mcp-grid-deck, office-mcp-one-server)", () => {
     const b = loadSkill("office-router").body;
-    for (const app of ["wordcraft", "gridcraft", "deckcraft", "pdfcraft"]) expect(b).toContain(`aiplus-office-${app}`);
+    expect(b).toContain("`aiplus-office`");
+    for (const p of ["word_", "grid_", "deck_", "pdf_"]) expect(b).toContain(`\`${p}*\``);
+    expect(b).not.toMatch(/aiplus-office-(wordcraft|gridcraft|deckcraft|pdfcraft)/);
     expect(b).toMatch(/GridCraft's own server has no confinement/);
     expect(b).not.toMatch(/not registered as MCP servers/);
   });
