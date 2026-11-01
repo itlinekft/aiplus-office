@@ -20,6 +20,10 @@ calls) holding the connection open.
 - **A real client:** Claude Code headless (`claude -p … --mcp-config <one aiplus-office entry> --strict-mcp-config`,
   Haiku 5.5) called `word_new_document`, `word_type_text`, `word_save_document`; the saved docx holds the typed text.
 - Not measured yet: Claude Desktop (Windows, macOS) with the one connector; the first-run download through it.
+- **Released:** built from `18d84d3` with `node scripts/release.mjs --ref 18d84d3 --out <scratch>/release-0.1.23/aiplus-office
+  --stage <scratch>/aiplus-plugins` (12 files changed): `set-leakscan --staged` clean, `--tree` exit 0 (14 advisory
+  example prices, as before), `claude plugin validate` passed. Pushed as `51e20a8` to `itlinekft/aiplus-plugins`; a
+  fresh clone carries plugin.json `0.1.23`, the one-entry `.mcp.json`, and a bundle byte-identical to the build.
 
 ## 2026-10-31 (night) — WordCraft 0.12.0-hu.2: signed and notarized on macOS, the same marks on Windows
 

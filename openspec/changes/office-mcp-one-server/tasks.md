@@ -19,3 +19,7 @@
 ## 4. Confirm on a real client
 
 - [ ] 4.1 Claude Desktop on the Windows test PC: one „Aiplus office” connector, a plain Chat makes all four file types, a first run with nothing installed downloads while the session opens [REQ: One server for the four apps] [REQ: No app process before its first call]
+
+## 5. Release
+
+- [x] 5.1 0.1.23 staged into the marketplace clone (leak scan, validate) and published to `itlinekft/aiplus-plugins` [REQ: One server for the four apps]
