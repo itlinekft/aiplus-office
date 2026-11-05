@@ -7,7 +7,7 @@ import type { McpManifest } from "./mcp-hub.js";
 
 export const MCP_MANIFEST: McpManifest = {
  "wordcraft": {
-  "version": "0.14.0",
+  "version": "0.15.2",
   "instructions": "WordCraft is a word processor (a Microsoft Word clone). Every action is a command: find ids and parameters with list_commands and run them with execute (or several with batch). Positions are {story:\"body\", path:[block,(row,cell,block)...], off:byteOffset}. Typical flow: new_document → type_text \"Hello\" → execute text.newParagraph → execute para.style {style:\"Heading 1\"} → select_text {text:\"Hello\"} → execute format.bold → inspect_document to verify → render_page to look at the result → save {path:\"out.docx\"}. Several documents can be open: new_document and open_document open another one and make it active; list_documents gives their ids, and `doc` on execute, batch and the other document tools works on one without switching. Backend: headless session (no window). Community: https://discord.gg/artcraft · https://getartcraft.com/apps/wordcraft · https://github.com/storytold/wordcraft",
   "tools": [
    {
@@ -438,7 +438,7 @@ export const MCP_MANIFEST: McpManifest = {
   ]
  },
  "gridcraft": {
-  "version": "0.15.0",
+  "version": "0.16.1",
   "instructions": "GridCraft is a spreadsheet app (an Excel clone). Cells use A1 notation (\"B2\", \"A1:D10\", \"Sheet2!A1:B3\"). Every action is a command: find ids and parameters with list_commands and run any of them with execute_command. Convenience tools cover the common flow: write_range / set_cell to enter values and formulas (strings starting with = are formulas), read_range / get_cell to read computed values back, format_range, create_table, insert_chart, sort_range, filter, evaluate_formula (try a formula without changing the sheet), undo / redo, open_workbook / save_workbook. inspect_workbook summarizes sheets, used ranges, tables, charts and names. list_functions lists the worksheet functions. Backend: headless (in-process engine, no window).",
   "tools": [
    {
@@ -1401,7 +1401,7 @@ export const MCP_MANIFEST: McpManifest = {
   ]
  },
  "deckcraft": {
-  "version": "0.14.1",
+  "version": "0.15.1",
   "instructions": "DeckCraft is a presentation app (a PowerPoint clone). Coordinates are points on the current slide (y down; the default 16:9 slide is 960×540). Every action is a command: find ids and parameters with list_commands and run them with run_command (or several with batch). Typical flow: new_presentation → add_slide {layout:\"titleAndContent\", title, body} → add_shape / add_text_box / insert_picture / insert_chart → inspect_slide to read back ids, boxes and text → render_slide to look at the result. Shape ids are looked up on the current slide. An inserted shape is selected; run_command edit.select {ids:[…]} selects others. format.* acts on the selected text or shapes; shape.fill, shape.line and the other shape commands whose parameters list `ids` act on those shapes, else on the selected ones. Save with save_presentation (.deckcraft or .pptx). Backend: headless (in-process engine; no window). Community: https://discord.gg/artcraft (Discord), https://getartcraft.com/apps/deckcraft (app page), https://github.com/storytold/deckcraft (source). The `app.links` command returns these links.",
   "tools": [
    {
@@ -2359,7 +2359,7 @@ export const MCP_MANIFEST: McpManifest = {
   ]
  },
  "pdfcraft": {
-  "version": "0.17.0",
+  "version": "0.18.2",
   "instructions": "PdfCraft edits PDFs. Open a file with doc_open to get a document id, then inspect (doc_info, text_extract, text_find, page_render) or edit it (page_*, doc_set_info). Edits are undoable (edit_undo) and stay in memory until doc_save. Page numbers are 1-based. Open documents are also resources: pdfcraft://doc/{doc}/info, /text, /page/{page}/text and /page/{page}/image. command_list discovers command ids and tool schemas; command_run executes one, command_batch runs several. doc_inspect returns open document state; render_preview returns a bounded PNG. Only a core set of tools is listed. Every other tool is still available: find it with tool_search (optional query and category, or name for its full input schema) and run it with tool_call.",
   "tools": [
    {

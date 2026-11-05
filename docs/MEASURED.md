@@ -3,6 +3,26 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-05 — Linux x64: the apps' November releases, and stock WordCraft's Hungarian Language pack
+
+Apps as `install --all` fetched them: WordCraft 0.15.2, GridCraft 0.16.1, DeckCraft 0.15.1, PdfCraft 0.18.2.
+
+- **The bundled MCP manifest re-read** (`node --import tsx scripts/mcp-manifest.mjs`): the same tools (17, 22, 25, 17)
+  and the same instructions; only the four version strings changed.
+- **Real binaries:** `AIPLUS_OFFICE_E2E=1 npx vitest run` → 481 passed, 6 skipped; every skill recipe runs and
+  verifies. The combined server (`aiplus-office mcp --root <dir>`): `initialize` 75 ms, 79 tools, a first call to each
+  of the four apps answered.
+- **Stock WordCraft 0.15.2 with storytold's `hu` Language pack** (`language-packs-2`, LibreOffice hu_HU at `4f1df64`;
+  its `spelling.aff`/`.dic` given as `hu_HU.*` through `WORDCRAFT_DICTIONARIES`, since the CLI cannot turn downloading
+  on). Five Hungarian office sentences, `select.all`, `review.language hu-HU`, `review.issues`:
+  - marked rightly: `szálítás` (→ szállítás, second), `határídőre` (→ határidőre, first);
+  - **9 false alarms** on words the Hunspell command line accepts: `Kft` twice (in `Kft.` and `Kft.-ben`), the ending
+    after a sign (`27%-os` → `os`, `§-ában` → `ában`, `5 °C-on` → `C-on`), `forgalmiadó-hiány`, `nyugdíjbiztosítási`,
+    `leltárértékelési`, and `ben` of `Kft.-ben`;
+  - missed: `a ÁFA` (no Hungarian grammar), `műanyagcső` (a two-words-of-their-own compound).
+  So the stock pack checks Hungarian, but without the Hungarian module of storytold/wordcraft#2385/#2070 (being moved
+  to craft-libs `crates/proof`), the fork's build stays the better one for office text.
+
 ## 2026-11-01 (night) — Linux x64, Node.js 25.6.1: one MCP server instead of four (change office-mcp-one-server)
 
 Apps installed: WordCraft 0.14.0, GridCraft 0.15.0, DeckCraft 0.14.1, PdfCraft 0.17.0 (`install --all`). RSS from
