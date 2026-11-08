@@ -1,0 +1,9 @@
+{
+  "marker": "office-data-ok",
+  "fixtures": "^src/__tests__/fixtures/",
+  "presets": ["keys", "env", "pdf", "office"],
+  "detectors": {
+    "privateKey": {}, "adoszam": {}, "adoszamLoose": {}, "huVat": {}, "cegjegyzekszam": {}, "giro": {}, "iban": {},
+    "personalFields": {}, "tajKeyword": {}
+  }
+}
