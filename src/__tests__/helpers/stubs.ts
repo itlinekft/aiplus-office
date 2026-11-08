@@ -62,7 +62,7 @@ export function readLog(file: string): { t: number; ev: string; key?: string; id
 export const GRID_MCP_STUB = `
 const fs = require("node:fs");
 const readline = require("node:readline");
-const TOOLS = ["execute_command","list_commands","inspect_workbook","read_range","write_range","set_cell","get_cell","evaluate_formula","select","format_range","insert_chart","create_table","sort_range","filter","open_workbook","save_workbook","new_workbook","undo","redo","screenshot","list_functions"];
+const TOOLS = ["execute_command","list_commands","inspect_workbook","read_range","write_range","set_cell","get_cell","evaluate_formula","select","format_range","insert_chart","create_table","sort_range","filter","open_workbook","save_workbook","new_workbook","undo","redo","screenshot","list_functions"].concat((process.env.STUB_EXTRA_TOOLS || "").split(",").filter(Boolean));
 const log = (o) => process.env.STUB_LOG && fs.appendFileSync(process.env.STUB_LOG, JSON.stringify(o) + "\\n");
 if (process.env.STUB_ARGV_LOG) fs.writeFileSync(process.env.STUB_ARGV_LOG, JSON.stringify(process.argv.slice(2)));
 const send = (o) => process.stdout.write(JSON.stringify({ jsonrpc: "2.0", ...o }) + "\\n");
@@ -72,7 +72,12 @@ readline.createInterface({ input: process.stdin }).on("line", (line) => {
   if (m.id === undefined) return;
   if (m.method === "initialize") setTimeout(() => send({ id: m.id, result: { protocolVersion: "2025-06-18", capabilities: { tools: {} }, serverInfo: { name: "gridcraft" }, instructions: "GridCraft is a spreadsheet app." } }), Number(process.env.STUB_INIT_DELAY || 0));
   else if (m.method === "tools/list") send({ id: m.id, result: { tools: TOOLS.map((name) => ({ name, inputSchema: { type: "object" } })) } });
-  else if (m.method === "tools/call") send({ id: m.id, result: { content: [{ type: "text", text: JSON.stringify(m.params) }], isError: false } });
+  else if (m.method === "tools/call") {
+    // STUB_READ_PATH: a call with arguments.path answers with that file's text, as an app reading a document would.
+    const p = process.env.STUB_READ_PATH && m.params && m.params.arguments && m.params.arguments.path;
+    const text = p ? fs.readFileSync(p, "utf8") : JSON.stringify(m.params);
+    send({ id: m.id, result: { content: [{ type: "text", text }], isError: false } });
+  }
   else send({ id: m.id, result: {} });
 });
 `;

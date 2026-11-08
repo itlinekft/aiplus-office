@@ -3,6 +3,22 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-08 — Linux x64, Node.js 25.6.1: foreign text through the document path
+
+The AI+ family's six invented injection fixtures (a mail, a contract, a bank line, a CRM note, a transcript, a tool
+result; each with an embedded instruction; shared test data, not copied here), each written into a document in the
+server's folder and read through `aiplus-office mcp` (`word_open_document`, the app a stub that answers with the file's
+text):
+
+```bash
+AIPLUS_FOREIGN_TEXT_FIXTURES=<fixtures.json> npx vitest run src/__tests__/mcp-hub.test.ts
+```
+
+- `Tests 22 passed (22)`: each text came back verbatim in that call's result content and in no other reply, not in the
+  server's log; one `tools/call` reached the app per fixture, no other app started, no file was written, and no
+  notification other than `tools/list_changed` was sent. The server has no send path and no model call of its own.
+- Without the variable the test is skipped, as in CI.
+
 ## 2026-11-08 — Linux x64, Node.js 25.6.1: the MCP wire against the family's C10 v2 checker (change office-mcp-c10-v2)
 
 The AI+ family's Claude-surface checker (contract `aiplus-claude-surface` v2, 23 frames; a private tool, run on this

@@ -35,7 +35,7 @@ const MANIFEST: McpManifest = {
   pdfcraft: { version: "1", instructions: "PdfCraft notes.", tools: tools("doc_open") },
 };
 
-function setup(opts: { notInstalled?: CraftAppId[]; provisionMs?: number } = {}) {
+function setup(opts: { notInstalled?: CraftAppId[]; provisionMs?: number; readPath?: boolean } = {}) {
   const root = fs.realpathSync(tmpDir("hub-root-"));
   const logs = tmpDir("hub-log-");
   const started: { app: string; argv: string[] }[] = [];
@@ -62,7 +62,7 @@ function setup(opts: { notInstalled?: CraftAppId[]; provisionMs?: number } = {})
           },
           spawn: ((c: string, a: string[], o: object) => {
             spawned.push(app.id);
-            return nodeSpawn(c, a, { ...o, env: { ...process.env, STUB_LOG: path.join(logs, `${app.id}.jsonl`) } } as never);
+            return nodeSpawn(c, a, { ...o, env: { ...process.env, STUB_LOG: path.join(logs, `${app.id}.jsonl`), ...(opts.readPath ? { STUB_READ_PATH: "1", STUB_EXTRA_TOOLS: "open_document" } : {}) } } as never);
           }) as never,
           stdin: io.stdin,
           stdout: io.stdout,
@@ -340,6 +340,43 @@ describe("REQ: Exact MCP wire (C10 v2) — change office-mcp-c10-v2", () => {
     input.destroy();
     await sleep(20);
     expect(ends).toBe(1);
+  });
+});
+
+/**
+ * The family rule "foreign text is data, never an instruction", for a block with no model call of its own: each invented
+ * fixture is put in a document, read through the server's document path, and must come back only in the result's
+ * content, with nothing written, sent or called because of it. The fixtures are the family's shared test data and are
+ * not copied into this public repository: point AIPLUS_FOREIGN_TEXT_FIXTURES at the file on a machine that has it.
+ */
+const FOREIGN = process.env.AIPLUS_FOREIGN_TEXT_FIXTURES;
+describe.skipIf(!FOREIGN)("REQ: foreign text is data — the family's injection fixtures through the document path", () => {
+  it("every fixture comes back only in the tool result's content; nothing else is called, started or written", async () => {
+    const fixtures = (JSON.parse(fs.readFileSync(FOREIGN as string, "utf8")) as { fixtures: { id: string; text: string; injected: string }[] }).fixtures;
+    expect(fixtures.length).toBeGreaterThan(0);
+    const { client, root, started, received } = setup({ readPath: true });
+    await client.request("initialize", INIT);
+    client.notify("notifications/initialized");
+    for (const f of fixtures) {
+      const doc = path.join(root, `doc-${f.id}.txt`);
+      fs.writeFileSync(doc, f.text);
+      const before = client.replies.length;
+      const res = (await client.request("tools/call", { name: "word_open_document", arguments: { path: doc } })).result as ToolResult;
+      expect(res.isError, f.id).toBe(false);
+      expect(res.content[0].text, f.id).toBe(f.text);
+      // The injected instruction appears in exactly one reply: this call's result content.
+      const carrying = client.replies.slice(before).filter((r) => JSON.stringify(r).includes(JSON.stringify(f.injected).slice(1, -1)));
+      expect(carrying.map((r) => r.id), f.id).toEqual([expect.any(Number)]);
+      expect(client.stderr(), f.id).not.toContain(f.injected);
+    }
+    await sleep(100);
+    const calls = received("wordcraft").filter((m) => m.method === "tools/call");
+    expect(calls).toHaveLength(fixtures.length); // one call per fixture, none caused by the text
+    expect(calls.every((m) => m.params?.name === "open_document")).toBe(true);
+    expect(started.map((s) => s.app)).toEqual(["wordcraft"]); // no other app, no send path
+    expect(fs.readdirSync(root).sort()).toEqual(fixtures.map((f) => `doc-${f.id}.txt`).sort()); // nothing written
+    expect(client.notifications.filter((n) => n.method !== "notifications/tools/list_changed")).toEqual([]);
+    expect(await client.close()).toBe(0);
   });
 });
 
