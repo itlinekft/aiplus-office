@@ -14,4 +14,4 @@
 
 - [x] 2.1 The family C10 checker against `dist/aiplus-office.mjs mcp` with `--probe-tool office_status`, no network: every frame passes (`docs/MEASURED.md`, with no private path or repo name) [REQ: Exact MCP wire (C10 v2)]
 - [x] 2.3 Review findings folded in: stdin "close"/"error" end the server; the exit has a 2 s fallback and survives EPIPE; null for an optional argument passes; a fault inside a frame answers -32603; the checker re-run gives 23/23 [REQ: Exact MCP wire (C10 v2)]
-- [ ] 2.2 At the next version bump, a `CHANGELOG.md` line [REQ: Exact MCP wire (C10 v2)]
+- [x] 2.2 0.1.24: At the next version bump, a `CHANGELOG.md` line [REQ: Exact MCP wire (C10 v2)]

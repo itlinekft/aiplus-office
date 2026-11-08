@@ -3,6 +3,18 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-08 (afternoon) — Linux x64, Node.js 25.6.1: the apps' 2026-11-06 releases, for 0.1.24
+
+Apps as `install --all` fetched them: WordCraft 0.16.0, GridCraft 0.17.0, DeckCraft 0.16.0, PdfCraft 0.19.0
+(`itlinekft/wordcraft` latest is still 0.12.0-hu.3).
+
+- **The bundled MCP manifest re-read** (`node --import tsx scripts/mcp-manifest.mjs`): the same tools (17, 22, 25, 17)
+  with the same schemas and the same instructions; only the four version strings changed.
+- **Command fixtures re-recorded** (`scripts/record-fixtures.mjs`, last taken at 0.10–0.13): 656, 385, 331 and 195
+  command ids; added ids only, except GridCraft's `window.activate`, which no skill quotes (the drift test passes).
+- **Real binaries:** `AIPLUS_OFFICE_E2E=1 AIPLUS_OFFICE_E2E_HOME=<cache> npx vitest run` → 487 passed, 7 skipped
+  (21 files); every skill recipe runs and verifies.
+
 ## 2026-11-08 — Linux x64, Node.js 25.6.1: foreign text through the document path
 
 The AI+ family's six invented injection fixtures (a mail, a contract, a bank line, a CRM note, a transcript, a tool

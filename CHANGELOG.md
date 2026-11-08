@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.24 — 2026-11-08
+
+- **The apps' November releases.** The bundled tool lists come from WordCraft 0.16.0, GridCraft 0.17.0, DeckCraft
+  0.16.0 and PdfCraft 0.19.0 (the same tools and notes as before); the module fetches these versions. On Windows x64
+  and macOS, WordCraft still comes from the build with Hungarian spell checking (0.12.0-hu.3).
+- **The WordCraft skill uses the Hungarian spell check where it exists.** On Windows x64 and macOS, with the Hungarian
+  WordCraft build and `aiplus-office dict hu`, Claude runs WordCraft's check as a first pass and still proofreads; on
+  other computers it proofreads alone and says so.
+- **The PDF password recipe asks for the password.** There is no default word any more, the password stays off every
+  command's arguments, and the temporary script that holds it is removed also when a step fails.
+- **A stricter, quieter connector.** The `aiplus-office` MCP server checks each call's arguments against the tool's
+  description before an app starts, and refuses a malformed request with a fixed sentence that repeats nothing from it.
+  A new `office_status` tool tells which apps are installed and running, without starting one. The server's replies
+  are no longer cut off when it exits.
+- **The plugin is built by the AI+ family release tool** from a commit, through `.aiplus-release.json`.
+
 ## 0.1.23 — 2026-11-01
 
 - **One connector instead of four, and no app running until it is used.** The module registered four MCP servers, so
