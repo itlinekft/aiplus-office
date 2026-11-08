@@ -335,9 +335,11 @@ describe("Hungarian guards in the skills (change office-hungarian-guards)", () =
     expect(b).toMatch(/verify \S*arlista\.xlsx --hu-numbers/);
   });
 
-  it("office-wordcraft: says there is no Hungarian spell check and that Claude proofreads", () => {
+  it("REQ: No Hungarian spell check said plainly — office-wordcraft decides from status and Claude proofreads", () => {
     const b = loadSkill("office-wordcraft").body;
-    expect(b).toContain("No Hungarian spell check");
+    expect(b).toContain("dictionary: hu_HU in");
+    expect(b).toContain("`review.language` `hu-HU` as a **first pass**");
+    expect(b).toContain("Never use `review.issues` on Hungarian text there");
     expect(b).toContain("Proofread Hungarian text yourself");
     expect(b).toContain("A WordCraft nem ellenőrzi a magyar helyesírást");
   });
