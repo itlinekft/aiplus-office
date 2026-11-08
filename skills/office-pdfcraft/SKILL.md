@@ -81,7 +81,7 @@ Families: `doc_*` (open/save/combine/split/info/set_info/protect), `page_*`, `te
   result unless the user asks to replace it.
 - **Passwords never go on the command line or into a file in the project**: write the script to a `0600` temp file
   outside the project and delete it right after, also on failure (recipe `protect`). The password is the user's: ask
-  for it, never make one up or fall back to a fixed word.
+  for it, never make one up or fall back to a fixed word, and set it with `read -r PASSWORD <<'PW'`, not as an argument.
 
 ## MCP route (opt-in)
 
@@ -115,14 +115,19 @@ aiplus-office verify ki.pdf --pages 2 --text-contains "Ezt is megtartjuk"
 
 ```bash recipe: protect
 # Password-protect from a 0600 temp script outside the project; opening without the password must then fail.
-# The password is the user's: there is no default, and jq reads it from its environment, never from its arguments.
+# The password is the user's: ask for it; there is no default. Set it in the same Bash call with
+#   read -r PASSWORD <<'PW'   (the password on the next line, then PW)
+# never as a command's argument and never echoed. jq reads it from its environment; the subshell keeps the trap that
+# removes the temp script (mktemp makes it 0600) to this step, also when a command fails.
 : "${PASSWORD:?ask the user for the password first}"
 aiplus-office wordcraft exec run --cmd 'text.insert={"text":"Bizalmas szerződés"}' --save src.docx
 aiplus-office wordcraft exec convert src.docx vegleges.pdf
-S=$(mktemp); trap 'rm -f "$S"' EXIT; chmod 600 "$S"
-PASSWORD="$PASSWORD" jq -nc --arg in "$PWD/vegleges.pdf" --arg out "$PWD/vegleges-vedett.pdf" \
-  '[{tool:"doc_open",args:{path:$in}},{tool:"doc_protect",args:{doc:1,open_password:env.PASSWORD}},{tool:"doc_save",args:{doc:1,path:$out}}]' > "$S"
-aiplus-office pdfcraft exec run --script "$S" >/dev/null; rm -f "$S"
+(
+  S=$(mktemp); trap 'rm -f "$S"' EXIT
+  PASSWORD="$PASSWORD" jq -nc --arg in "$PWD/vegleges.pdf" --arg out "$PWD/vegleges-vedett.pdf" \
+    '[{tool:"doc_open",args:{path:$in}},{tool:"doc_protect",args:{doc:1,open_password:env.PASSWORD}},{tool:"doc_save",args:{doc:1,path:$out}}]' > "$S"
+  aiplus-office pdfcraft exec run --script "$S" >/dev/null
+)
 test -f vegleges-vedett.pdf
 ! aiplus-office pdfcraft exec info vegleges-vedett.pdf >/dev/null 2>&1
 aiplus-office verify vegleges.pdf --pages 1 --text-contains "Bizalmas"

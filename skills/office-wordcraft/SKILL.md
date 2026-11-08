@@ -68,15 +68,16 @@ Id families: `text.*` (typing, breaks), `para.*` (alignment, spacing, styles, li
 ## Traps
 
 - **Hungarian spell check only with the Hungarian build and its dictionary.** Look at `aiplus-office status` first.
-  - **The WordCraft version carries `-hu` and the line reads `dictionary: hu_HU in …`** (Windows x64 and macOS after
-    `aiplus-office dict hu`): run `review.issues` with `review.language` `hu-HU` as a **first pass**. It marks real typos
+  - **The version after `next:` on the `wordcraft` line carries `-hu`** (the one that runs; the cache may hold others)
+    **and the line reads `dictionary: hu_HU in …`** (Windows x64 and macOS after `aiplus-office dict hu`): run `review.issues` with `review.language` `hu-HU` as a **first pass**. It marks real typos
     (`szálítás`, `határídőre`) but also gives false grammar alarms (lowercase table cells such as `db`) and misses
     compounds, so weigh each mark and proofread anyway (measured 2026-10-30/31, `docs/MEASURED.md`). Tell the user:
     „A WordCraft magyar helyesírás-ellenőrzése és én is átnéztem a szöveget.” / “WordCraft's Hungarian spell check ran,
     and I proofread the text too.”
-  - **Anywhere else** (Linux, Windows on Arm, `dictionary: hu_HU not installed`): WordCraft does not check Hungarian.
-    With `en-US` every Hungarian word is flagged, with `hu-HU` nothing is, and it gives no warning (measured 2026-10-24;
-    upstream #735). Never use `review.issues` on Hungarian text there and never say WordCraft checked the spelling.
+  - **Anywhere else** (Linux, Windows on Arm, `dictionary: hu_HU not installed`): treat WordCraft as not checking
+    Hungarian. Without a dictionary, `en-US` flags every Hungarian word and `hu-HU` nothing, with no warning (measured
+    2026-10-24; upstream #735); the stock build with a `hu` language pack does check, but with 9 false alarms on five
+    office sentences (`docs/MEASURED.md`, 2026-11), and the module does not set that pack up. Never use `review.issues` on Hungarian text there and never say WordCraft checked the spelling.
     **Proofread Hungarian text yourself** before saving (spelling, ő/ű against ö/ü, compounds, the names and amounts),
     and tell the user plainly: „A WordCraft nem ellenőrzi a magyar helyesírást; a szöveget én néztem át.” / “WordCraft
     does not check Hungarian spelling; I proofread the text myself.” The dictionary is offered by `office-start`.

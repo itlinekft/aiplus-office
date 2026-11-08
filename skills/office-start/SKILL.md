@@ -308,7 +308,7 @@ Say this once, after the two blocks above (measured 2026-10-24; the skills route
 >   WordCraft-tal készíti, és ellenőrzi.
 > - A szövegként beírt magyar számot („1 330,50”) a GridCraft nem adja össze, ezért a modul valódi számot ír be, és
 >   ellenőrzi az összegeket.
-> - A WordCraft csak Windowson és a magyar szótárral ellenőrzi a magyar helyesírást (4a.); máshol a szöveget a Claude
+> - A WordCraft csak Windowson és Macen, a magyar szótárral ellenőrzi a magyar helyesírást (4a.); máshol a szöveget a Claude
 >   nézi át, és ezt meg is mondja.
 >
 > **EN:** **Good to know:**
@@ -316,7 +316,7 @@ Say this once, after the two blocks above (measured 2026-10-24; the skills route
 >   WordCraft, and checks it.
 > - GridCraft does not add up a Hungarian number typed as text („1 330,50”), so the module writes real numbers and
 >   checks the totals.
-> - WordCraft checks Hungarian spelling only on Windows and with the Hungarian dictionary (4a.); elsewhere Claude
+> - WordCraft checks Hungarian spelling only on Windows and macOS, with the Hungarian dictionary (4a.); elsewhere Claude
 >   proofreads the text itself and says so.
 
 ## 8. The desktop (window) apps (optional)

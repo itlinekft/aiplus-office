@@ -343,7 +343,9 @@ describe("Hungarian guards in the skills (change office-hungarian-guards)", () =
     expect(code).not.toMatch(/PASSWORD:-/);
     expect(code).not.toMatch(/--arg\s+\w+\s+"\$PASSWORD"/);
     expect(code).toContain("env.PASSWORD");
-    expect(code).toMatch(/S=\$\(mktemp\); trap 'rm -f "\$S"' EXIT/);
+    expect(code).toMatch(/\(\n\s+S=\$\(mktemp\); trap 'rm -f "\$S"' EXIT/);
+    expect(code).not.toMatch(/--argjson|\$ENV/);
+    expect(fence!.code.split("\n").filter((l) => !l.startsWith("#")).join("\n")).not.toMatch(/echo[^\n]*PASSWORD/);
   });
 
   it("REQ: No Hungarian spell check said plainly — office-wordcraft decides from status and Claude proofreads", () => {
