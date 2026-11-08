@@ -80,7 +80,8 @@ Families: `doc_*` (open/save/combine/split/info/set_info/protect), `page_*`, `te
 - **A changed PDF is a new file** (`… – jelszóval.pdf`, `… – 2 oldal.pdf`): never save over the input or an earlier
   result unless the user asks to replace it.
 - **Passwords never go on the command line or into a file in the project**: write the script to a `0600` temp file
-  outside the project and delete it right after (recipe `protect`).
+  outside the project and delete it right after, also on failure (recipe `protect`). The password is the user's: ask
+  for it, never make one up or fall back to a fixed word.
 
 ## MCP route (opt-in)
 
@@ -114,12 +115,13 @@ aiplus-office verify ki.pdf --pages 2 --text-contains "Ezt is megtartjuk"
 
 ```bash recipe: protect
 # Password-protect from a 0600 temp script outside the project; opening without the password must then fail.
+# The password is the user's: there is no default, and jq reads it from its environment, never from its arguments.
+: "${PASSWORD:?ask the user for the password first}"
 aiplus-office wordcraft exec run --cmd 'text.insert={"text":"Bizalmas szerződés"}' --save src.docx
 aiplus-office wordcraft exec convert src.docx vegleges.pdf
-PASSWORD=${PASSWORD:-recipe-only-secret}
-S=$(mktemp); chmod 600 "$S"
-jq -nc --arg pw "$PASSWORD" --arg in "$PWD/vegleges.pdf" --arg out "$PWD/vegleges-vedett.pdf" \
-  '[{tool:"doc_open",args:{path:$in}},{tool:"doc_protect",args:{doc:1,open_password:$pw}},{tool:"doc_save",args:{doc:1,path:$out}}]' > "$S"
+S=$(mktemp); trap 'rm -f "$S"' EXIT; chmod 600 "$S"
+PASSWORD="$PASSWORD" jq -nc --arg in "$PWD/vegleges.pdf" --arg out "$PWD/vegleges-vedett.pdf" \
+  '[{tool:"doc_open",args:{path:$in}},{tool:"doc_protect",args:{doc:1,open_password:env.PASSWORD}},{tool:"doc_save",args:{doc:1,path:$out}}]' > "$S"
 aiplus-office pdfcraft exec run --script "$S" >/dev/null; rm -f "$S"
 test -f vegleges-vedett.pdf
 ! aiplus-office pdfcraft exec info vegleges-vedett.pdf >/dev/null 2>&1

@@ -34,7 +34,7 @@ for (const name of ALL_SKILL_NAMES) {
         const res = spawnSync("bash", ["-e", "-o", "pipefail", "-c", r.code], {
           cwd,
           encoding: "utf8",
-          env: { ...process.env, PATH: `${binDir}:${process.env.PATH}`, NODE_OPTIONS: "", AIPLUS_OFFICE_HOME: cache },
+          env: { ...process.env, PATH: `${binDir}:${process.env.PATH}`, NODE_OPTIONS: "", AIPLUS_OFFICE_HOME: cache, PASSWORD: "recipe-test-only" },
           timeout: 400_000,
           maxBuffer: 64 * 1024 * 1024,
         });

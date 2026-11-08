@@ -335,6 +335,17 @@ describe("Hungarian guards in the skills (change office-hungarian-guards)", () =
     expect(b).toMatch(/verify \S*arlista\.xlsx --hu-numbers/);
   });
 
+  it("REQ: The protect recipe treats the password as a secret — no default, not in argv, temp script removed on exit", () => {
+    const fence = fences(loadSkill("office-pdfcraft").body).find((f) => f.recipe === "protect");
+    expect(fence).toBeDefined();
+    const code = fence!.code;
+    expect(code).toContain(': "${PASSWORD:?');
+    expect(code).not.toMatch(/PASSWORD:-/);
+    expect(code).not.toMatch(/--arg\s+\w+\s+"\$PASSWORD"/);
+    expect(code).toContain("env.PASSWORD");
+    expect(code).toMatch(/S=\$\(mktemp\); trap 'rm -f "\$S"' EXIT/);
+  });
+
   it("REQ: No Hungarian spell check said plainly — office-wordcraft decides from status and Claude proofreads", () => {
     const b = loadSkill("office-wordcraft").body;
     expect(b).toContain("dictionary: hu_HU in");
