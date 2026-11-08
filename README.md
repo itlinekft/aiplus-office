@@ -89,7 +89,10 @@ claude plugin install aiplus-office@aiplus-office-dev
 
 That install has the skills and the `aiplus-office` command, but not the four MCP servers: their list is
 `release/mcp.json`, which only the release puts at the plugin's root. To test with the servers, build the plugin and load
-the build: `node scripts/release.mjs --out /tmp/aiplus-office-build`, then `claude --plugin-dir /tmp/aiplus-office-build`.
+the build. The build is made by the maintainers' release tool (the AI+ family release kit, run with `npx` on the
+release machine and not part of this repository; it builds from a commit through `.aiplus-release.json`):
+`aiplus-release --out /tmp/aiplus-office-build`, then `claude --plugin-dir /tmp/aiplus-office-build`. Without it, copy
+the files `.aiplus-release.json` lists (`allow`, with `to` where a file is renamed) into a folder by hand.
 
 Optional pre-download and a check:
 

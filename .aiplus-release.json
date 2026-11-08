@@ -1,0 +1,70 @@
+{
+  "plugin": "aiplus-office",
+  "marketplace": "aiplus-plugins",
+  "versionSource": {
+    "file": "package.json",
+    "json": "version"
+  },
+  "versionCopies": [
+    {
+      "file": ".claude-plugin/plugin.json",
+      "json": "version"
+    },
+    {
+      "file": ".claude-plugin/marketplace.json",
+      "marketplaceEntry": true
+    },
+    {
+      "file": "src/bin/aiplus-office.ts",
+      "regex": "export const VERSION = \"([^\"]+)\""
+    },
+    {
+      "file": "CHANGELOG.md",
+      "regex": "^## (\\S+)"
+    }
+  ],
+  "allow": [
+    {
+      "from": ".claude-plugin/plugin.json"
+    },
+    {
+      "from": "release/mcp.json",
+      "to": ".mcp.json"
+    },
+    {
+      "from": "dist/aiplus-office.mjs"
+    },
+    {
+      "from": "LICENSE"
+    },
+    {
+      "from": "release/NOTICE",
+      "to": "NOTICE"
+    },
+    {
+      "from": "release/README.md",
+      "to": "README.md"
+    },
+    {
+      "from": "TROUBLESHOOTING.md"
+    },
+    {
+      "from": "docs/user-guide.md",
+      "to": "USER-GUIDE.md"
+    },
+    {
+      "prefix": "skills/"
+    },
+    {
+      "prefix": "hooks/"
+    }
+  ],
+  "selfVersion": {
+    "run": "dist/aiplus-office.mjs",
+    "args": [
+      "--version"
+    ],
+    "expect": "aiplus-office {version}"
+  },
+  "readmeRow": "| `aiplus-office` | AI+ Iroda · AI+ Office (ingyenes · free) | irodai skillek és az `aiplus-office` parancs, a WordCraft, GridCraft, DeckCraft és PdfCraft programokat maga tölti le; a sima Chatben a Dokumentumok › „AI+ Iroda” mappában dolgozik, a saját mappádban Claude Code-ban vagy „This computer” munkamenetben · office skills and the `aiplus-office` command, downloads the four apps itself; in a plain Chat it works in Documents › „AI+ Iroda”, in a folder of your choice in Claude Code or a “This computer” session |"
+}

@@ -141,8 +141,7 @@ describe("public copy", () => {
   });
 
   it("no em dash as punctuation in the public user-facing texts (ITLine copy gate H2; ranges like 20–100 stay)", () => {
-    const src = read("scripts/release.mjs");
-    const row = /const README_ROW = `(.*)`;/.exec(src)?.[1] ?? "";
+    const row: string = json(".aiplus-release.json").readmeRow ?? "";
     const texts: Record<string, string> = {
       "plugin.json description": json(".claude-plugin/plugin.json").description,
       "release/README.md": read("release/README.md"),
