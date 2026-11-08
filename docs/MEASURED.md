@@ -3,6 +3,22 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-08 — Linux x64, Node.js 25.6.1: the MCP wire against the family's C10 v2 checker (change office-mcp-c10-v2)
+
+The AI+ family's Claude-surface checker (contract `aiplus-claude-surface` v2, 23 frames; a private tool, run on this
+machine), against the built server with no network (`unshare -rn`), because the server starts downloading any app that
+is not installed as soon as it serves; the checker gives the server a fresh HOME and folder:
+
+```bash
+unshare -rn python3 <checker>/check_mcp.py --probe-tool office_status -- node "$PWD/dist/aiplus-office.mjs" mcp
+```
+
+- **Before** (0.1.23, the family's run the night before): 5 frames failed (a request without `jsonrpc`, `id: null`, an
+  invalid notification unanswered, an unknown method and an unknown tool echoed) and `serverInfo` had no
+  `contractVersion`; the two tool-input frames could not run, since every tool started an app.
+- **After:** `summary: contract v2 pass 23 fail 0 skip 0`, `PRESENT serverInfo.contractVersion (1)`. The probe tool
+  `office_status` answered without starting an app.
+
 ## 2026-11-05 — Linux x64: the apps' November releases, and stock WordCraft's Hungarian Language pack
 
 Apps as `install --all` fetched them: WordCraft 0.15.2, GridCraft 0.16.1, DeckCraft 0.15.1, PdfCraft 0.18.2.

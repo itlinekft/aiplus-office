@@ -23,6 +23,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
 import { PassThrough, type Readable, type Writable } from "node:stream";
+import { StringDecoder } from "node:string_decoder";
 import { createGateway, GRID_TOOLS, refusalText } from "./mcp-gateway.js";
 import { MCP_MANIFEST } from "./mcp-manifest.js";
 import { defaultChatRoot, parseMcpArgs, PROTOCOL_VERSIONS, runMcp } from "./mcp-proxy.js";
@@ -42,6 +43,152 @@ export const TOOL_PREFIX: Readonly<Record<CraftAppId, string>> = { wordcraft: "w
 
 /** Format each app saves, for the instructions. */
 const FORMAT: Readonly<Record<CraftAppId, string>> = { wordcraft: "DOCX", gridcraft: "XLSX", deckcraft: "PPTX", pdfcraft: "PDF" };
+
+/**
+ * This server's own surface version (family contract C10, rule 2). Bump it when a tool name, a required argument or an
+ * answer field of this server's own changes (`office_status`, the prefixes); the apps' tools follow their apps.
+ */
+export const CONTRACT_VERSION = 1;
+
+/** The longest inbound line this server reads; a longer one is refused with `id: null` and skipped (C10 v2 rule 1a). */
+export const MAX_LINE_BYTES = 4 * 1024 * 1024;
+
+/** The status tool answered here, without starting an app (the C10 checker probes with it). */
+export const STATUS_TOOL = {
+  name: "office_status",
+  description:
+    "Állapot: a mappa, ahol az irodai programok dolgoznak, és programonként, hogy telepítve van-e és fut-e. Programot nem indít. English: Status: the folder the office apps work in and, per app, whether it is installed and whether it runs. Starts no app.",
+  inputSchema: { type: "object", properties: {}, additionalProperties: false },
+} as const;
+
+/** JSON-RPC error messages: fixed sentences, nothing taken from the request (C10 v2 rule 1a, "no echo"). */
+const RPC_TEXT = {
+  parse: "The request is not valid JSON.",
+  invalid: "The request is not a JSON-RPC 2.0 request.",
+  tooLarge: "The request is too large.",
+  noMethod: "No such method.",
+  noTool: "No such tool.",
+  argsNotObject: "The arguments are not an object.",
+  internal: "The server could not handle the request.",
+} as const;
+
+/**
+ * The catalogue of this server's own tool refusals: key → Hungarian and English sentence. A sentence may name a field
+ * of the tool's own `inputSchema` (from the catalogue side, so the model can correct the call), never a value or a
+ * name taken from the request.
+ */
+export const MESSAGES = {
+  "office.unknownArgument": (_f?: string) => [
+    "Az eszköz nem ismeri az egyik megadott paramétert; csak a sémájában szereplőket fogadja.",
+    "The tool does not take one of the given arguments; it takes only those in its input schema.",
+  ],
+  "office.missingArgument": (f?: string) => [`Hiányzik a kötelező paraméter: ${f}.`, `The required argument ${f} is missing.`],
+  "office.wrongType": (f?: string) => [`A(z) ${f} paraméter típusa nem az, amit a séma kér.`, `The argument ${f} does not have the type its schema asks for.`],
+  "office.appEnded": (f?: string) => [`A(z) ${f} leállt. Próbáld újra: a következő hívás újraindítja.`, `${f} stopped. Try again: the next call starts it again.`],
+} as const satisfies Record<string, (field?: string) => readonly [string, string]>;
+export type MessageKey = keyof typeof MESSAGES;
+
+/** A refusal sentence from the catalogue, prefixed with its key. */
+export function catalogueText(key: MessageKey, field?: string): string {
+  const [hu, en] = MESSAGES[key](field);
+  return `${key}: ${refusalText(hu, en)}`;
+}
+
+type Schema = { type?: unknown; properties?: Record<string, { type?: unknown }>; required?: unknown; additionalProperties?: unknown };
+
+/** The value's JSON-Schema type names (an integer is also a number). */
+function jsonTypes(v: unknown): string[] {
+  if (v === null) return ["null"];
+  if (Array.isArray(v)) return ["array"];
+  if (typeof v === "number") return Number.isInteger(v) ? ["integer", "number"] : ["number"];
+  return [typeof v];
+}
+
+/**
+ * Checks a call's `arguments` against the tool's input schema, top level only: an unknown name (where the schema
+ * names its properties and does not open them), a missing required one, or a wrong declared type. Returns the
+ * refusal, or undefined when the call may go on.
+ */
+export function checkArguments(schema: unknown, args: Record<string, unknown>): string | undefined {
+  const s = (schema ?? {}) as Schema;
+  const props = s.properties && typeof s.properties === "object" ? s.properties : undefined;
+  if (props && s.additionalProperties !== true && typeof s.additionalProperties !== "object") {
+    if (Object.keys(args).some((k) => !Object.hasOwn(props, k))) return catalogueText("office.unknownArgument");
+  }
+  for (const r of Array.isArray(s.required) ? s.required : []) {
+    if (typeof r === "string" && !Object.hasOwn(args, r)) return catalogueText("office.missingArgument", r);
+  }
+  const required = new Set(Array.isArray(s.required) ? s.required : []);
+  for (const [k, v] of Object.entries(args)) {
+    if (v === null && !required.has(k)) continue; // clients send null for an unset optional field
+    const want = props?.[k]?.type;
+    const wanted = typeof want === "string" ? [want] : Array.isArray(want) ? want.filter((t): t is string => typeof t === "string") : [];
+    if (wanted.length && !jsonTypes(v).some((t) => wanted.includes(t))) return catalogueText("office.wrongType", k);
+  }
+  return undefined;
+}
+
+/** `tools/list` says what the input check enforces: a schema that names its properties is closed. */
+function closedSchema(schema: unknown): unknown {
+  const s = schema as Schema | undefined;
+  if (!s || typeof s !== "object" || !s.properties || s.additionalProperties !== undefined) return schema;
+  return { ...s, additionalProperties: false };
+}
+
+/** A request's `id` when it is one MCP allows (a string or an integer), else undefined. */
+function validId(id: unknown): string | number | undefined {
+  return typeof id === "string" || (typeof id === "number" && Number.isInteger(id)) ? id : undefined;
+}
+
+/**
+ * Splits a byte stream into lines: LF ends a line (a CR before it is dropped), several lines in one chunk are several
+ * lines, and a line longer than `max` bytes is reported once through `onTooLong` and skipped up to its end. The cap
+ * counts the CR of a CRLF line. The end comes once, on "end", "close" or "error".
+ */
+export function readLines(input: Readable, max: number, onLine: (line: string) => void, onTooLong: () => void, onEnd: () => void): void {
+  let parts: Buffer[] = [];
+  let size = 0;
+  let skipping = false;
+  const emit = (buf: Buffer) => {
+    let line = new StringDecoder("utf8").end(buf);
+    if (line.endsWith("\r")) line = line.slice(0, -1);
+    onLine(line);
+  };
+  input.on("data", (chunk: Buffer | string) => {
+    let buf = typeof chunk === "string" ? Buffer.from(chunk) : chunk;
+    for (let nl = buf.indexOf(10); nl !== -1 || buf.length; nl = buf.indexOf(10)) {
+      const piece = nl === -1 ? buf : buf.subarray(0, nl);
+      if (!skipping) {
+        if (size + piece.length > max) {
+          skipping = true;
+          parts = [];
+          size = 0;
+          onTooLong();
+        } else {
+          parts.push(piece);
+          size += piece.length;
+        }
+      }
+      if (nl === -1) break;
+      if (!skipping) emit(Buffer.concat(parts));
+      parts = [];
+      size = 0;
+      skipping = false;
+      buf = buf.subarray(nl + 1);
+    }
+  });
+  let ended = false;
+  const end = () => {
+    if (ended) return;
+    ended = true;
+    if (!skipping && size > 0) emit(Buffer.concat(parts));
+    onEnd();
+  };
+  // A destroyed or failed stdin emits no "end": the server must still finish, or it and its apps outlive the client.
+  input.on("end", end);
+  input.on("close", end);
+  input.on("error", end);
+}
 
 export interface HubIo {
   stdin: Readable;
@@ -136,7 +283,10 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
     return app.mcp.confinement === "gateway" ? tools.filter((t) => (GRID_TOOLS as readonly string[]).includes(t.name)) : tools;
   };
   const toolsOf = (app: CraftApp) => live.get(app.id) ?? manifestTools(app);
-  const listAll = () => CRAFT_APPS.flatMap((a) => toolsOf(a).map((t) => ({ ...t, name: `${TOOL_PREFIX[a.id]}${t.name}` })));
+  const listAll = () => [
+    STATUS_TOOL,
+    ...CRAFT_APPS.flatMap((a) => toolsOf(a).map((t) => ({ ...t, name: `${TOOL_PREFIX[a.id]}${t.name}`, ...(t.inputSchema === undefined ? {} : { inputSchema: closedSchema(t.inputSchema) }) }))),
+  ];
 
   const instructions = (): string => {
     const head = refusalText(
@@ -211,7 +361,7 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
       try {
         m = JSON.parse(line);
       } catch {
-        deps.stderr(`${line}\n`);
+        log(`${app.name} wrote a line that is not JSON (${line.length} characters); dropped`);
         return;
       }
       if (m === null || typeof m !== "object" || Array.isArray(m)) return;
@@ -232,7 +382,7 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
       if (typeof m.method !== "string") return;
       if (m.id !== undefined) {
         // A request from the app's server (roots, sampling …): this server offers none.
-        b.write({ jsonrpc: "2.0", id: m.id, error: { code: -32601, message: `${deps.prog} does not answer ${m.method}` } });
+        b.write({ jsonrpc: "2.0", id: m.id, error: { code: -32601, message: RPC_TEXT.noMethod } });
         return;
       }
       if (m.method === "notifications/tools/list_changed") {
@@ -260,7 +410,7 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
         const params = await clientInit;
         const r = await request("initialize", params);
         if (b.ended) throw new Error(endedText(app, await done));
-        if (r.error) log(`${app.name} refused initialize (${JSON.stringify(r.error)}); going on`);
+        if (r.error) log(`${app.name} refused initialize (code ${(r.error as { code?: unknown }).code}); going on`);
         b.write({ jsonrpc: "2.0", method: "notifications/initialized" });
         refreshList().catch(() => {});
       })(),
@@ -273,23 +423,32 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
     return b;
   };
 
-  const endedText = (app: CraftApp, code: number) =>
-    refusalText(
-      `A(z) ${app.name} leállt (kilépési kód ${code}). Próbáld újra: a következő hívás újraindítja.`,
-      `${app.name} stopped (exit code ${code}). Try again: the next call starts it again.`,
-    );
+  /** The exit code goes to the log; the sentence comes from the catalogue. */
+  const endedText = (app: CraftApp, _code: number) => catalogueText("office.appEnded", app.name);
   const errorResult = (text: string) => ({ content: [{ type: "text", text }], isError: true });
 
-  const call = (clientId: unknown, params: { name?: unknown; [k: string]: unknown } | undefined) => {
-    const route = routeTool(params?.name);
-    if (!route) {
-      toClient({
-        jsonrpc: "2.0",
-        id: clientId,
-        result: errorResult(refusalText(`Ismeretlen eszköz: ${String(params?.name)}.`, `unknown tool: ${String(params?.name)}.`)),
-      });
-      return;
+  const status = () => ({
+    root,
+    contractVersion: CONTRACT_VERSION,
+    apps: Object.fromEntries(
+      CRAFT_APPS.map((a) => [a.id, { name: a.name, prefix: TOOL_PREFIX[a.id], installed: deps.installed(a), running: backends.has(a.id) && !backends.get(a.id)?.ended }]),
+    ),
+  });
+
+  const call = (clientId: unknown, params: { name?: unknown; arguments?: unknown; [k: string]: unknown } | undefined) => {
+    const rpcError = (code: number, message: string) => toClient({ jsonrpc: "2.0", id: clientId, error: { code, message } });
+    const args = params?.arguments ?? {};
+    if (params?.name === STATUS_TOOL.name) {
+      if (args === null || typeof args !== "object" || Array.isArray(args)) return rpcError(-32602, RPC_TEXT.argsNotObject);
+      const refusal = checkArguments(STATUS_TOOL.inputSchema, args as Record<string, unknown>);
+      return toClient({ jsonrpc: "2.0", id: clientId, result: refusal ? errorResult(refusal) : { content: [{ type: "text", text: JSON.stringify(status()) }], isError: false } });
     }
+    const route = routeTool(params?.name);
+    const tool = route && toolsOf(route.app).find((t) => t.name === route.tool);
+    if (!route || !tool) return rpcError(-32602, RPC_TEXT.noTool);
+    if (args === null || typeof args !== "object" || Array.isArray(args)) return rpcError(-32602, RPC_TEXT.argsNotObject);
+    const refusal = checkArguments(tool.inputSchema, args as Record<string, unknown>);
+    if (refusal) return toClient({ jsonrpc: "2.0", id: clientId, result: errorResult(refusal) });
     const b = backends.get(route.app.id) ?? startBackend(route.app, "first call");
     const entry: { b: Backend; bid?: number; cancelled?: boolean } = { b };
     if (clientId !== undefined) sent.set(clientId, entry);
@@ -317,14 +476,27 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
     try {
       msg = JSON.parse(line);
     } catch {
-      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } });
+      log("refused a line that is not JSON (-32700)");
+      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: RPC_TEXT.parse } });
     }
-    if (Array.isArray(msg) || msg === null || typeof msg !== "object") {
-      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+    // The closed envelope (C10 v2 rule 1a): an object with jsonrpc "2.0", a string method, a string or integer id when
+    // present, params an object when present. Anything else, a batch or a response included, is -32600.
+    const m = msg !== null && typeof msg === "object" && !Array.isArray(msg) ? (msg as Json) : undefined;
+    const hasId = m !== undefined && Object.hasOwn(m, "id");
+    const okId = hasId ? validId(m.id) : undefined;
+    const hasParams = m !== undefined && Object.hasOwn(m, "params");
+    if (
+      m === undefined ||
+      m.jsonrpc !== "2.0" ||
+      typeof m.method !== "string" ||
+      (hasId && okId === undefined) ||
+      (hasParams && (m.params === null || typeof m.params !== "object" || Array.isArray(m.params)))
+    ) {
+      log("refused a frame that is not a JSON-RPC 2.0 request (-32600)");
+      return toClient({ jsonrpc: "2.0", id: okId ?? null, error: { code: -32600, message: RPC_TEXT.invalid } });
     }
-    const { method, id, params } = msg as Json;
-    if (typeof method !== "string") return; // a response: this server sends the client no requests
-    if (id === undefined) {
+    const { method, id, params } = m as { method: string; id?: string | number; params?: unknown };
+    if (!hasId) {
       if (method === "notifications/initialized") clientInitialized = true;
       else if (method === "notifications/cancelled") {
         const requestId = (params as { requestId?: unknown } | undefined)?.requestId;
@@ -340,7 +512,12 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
       case "initialize": {
         const requested = (params as { protocolVersion?: unknown } | undefined)?.protocolVersion;
         const protocolVersion = typeof requested === "string" && (PROTOCOL_VERSIONS as readonly string[]).includes(requested) ? requested : PROTOCOL_VERSIONS[PROTOCOL_VERSIONS.length - 1];
-        reply({ protocolVersion, capabilities: { tools: { listChanged: true } }, serverInfo: { name: deps.prog, version: deps.serverVersion }, instructions: instructions() });
+        reply({
+          protocolVersion,
+          capabilities: { tools: { listChanged: true } },
+          serverInfo: { name: deps.prog, version: deps.serverVersion, contractVersion: CONTRACT_VERSION },
+          instructions: instructions(),
+        });
         resolveClientInit(params);
         clientInitialized = true; // a client that skips notifications/initialized still gets list_changed
         return;
@@ -358,7 +535,8 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
       case "prompts/list":
         return reply({ prompts: [] });
       default:
-        toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: `method not found: ${method}` } });
+        log("refused an unknown method (-32601)");
+        toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: RPC_TEXT.noMethod } });
     }
   };
 
@@ -372,11 +550,29 @@ export async function runHub(argv: string[], deps: HubDeps): Promise<number> {
       const codes = await Promise.all(running);
       resolveRun(exitOverride ?? codes.find((c) => c !== 0) ?? 0);
     };
-    const rl = readline.createInterface({ input: deps.stdin });
-    rl.on("line", (line) => {
-      if (line.trim() !== "") onLine(line);
-    });
-    rl.on("close", () => void finish());
+    readLines(
+      deps.stdin,
+      MAX_LINE_BYTES,
+      (line) => {
+        if (line.trim() === "") return;
+        try {
+          onLine(line);
+        } catch (e) {
+          // A fault answers -32603 and never ends the server (C10 rule 1); the log names no content.
+          log(`internal fault (${(e as Error)?.name ?? "error"}); answered -32603`);
+          try {
+            toClient({ jsonrpc: "2.0", id: null, error: { code: -32603, message: RPC_TEXT.internal } });
+          } catch {
+            /* stdout is gone: nothing left to tell */
+          }
+        }
+      },
+      () => {
+        log(`refused a line over ${MAX_LINE_BYTES} bytes (-32600)`);
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: RPC_TEXT.tooLarge } });
+      },
+      () => void finish(),
+    );
     deps.onSignal("SIGINT", () => {
       exitOverride = 130;
       void finish();

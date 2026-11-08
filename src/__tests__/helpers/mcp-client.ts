@@ -84,6 +84,10 @@ export interface InProcessMcp {
   /** Send a request; resolves with the response and the milliseconds it took. */
   request: (method: string, params?: unknown) => Promise<{ result?: unknown; error?: { code: number; message: string }; ms: number }>;
   notify: (method: string, params?: unknown) => void;
+  /** Write raw text to the server's stdin, as is (for wire tests). */
+  sendRaw: (text: string) => void;
+  /** Every line the server wrote, parsed, in order. */
+  replies: Record<string, unknown>[];
   /** Notifications the proxy sent the client, in order. */
   notifications: { method: string; at: number }[];
   /** Resolves when a notification with this method arrives (or has arrived). */
@@ -105,9 +109,11 @@ export function inProcessMcp(start: (io: { stdin: PassThrough; stdout: PassThrou
   let err = "";
   const waiting = new Map<unknown, (m: { result?: unknown; error?: { code: number; message: string } }) => void>();
   const notifications: { method: string; at: number }[] = [];
+  const replies: Record<string, unknown>[] = [];
   const watchers: { method: string; resolve: () => void }[] = [];
   readline.createInterface({ input: stdout }).on("line", (line) => {
     const m = JSON.parse(line) as { id?: unknown; method?: string };
+    replies.push(m);
     if (m.method !== undefined && m.id === undefined) {
       notifications.push({ method: m.method, at: Date.now() });
       for (const w of watchers.filter((x) => x.method === m.method)) w.resolve();
@@ -128,6 +134,8 @@ export function inProcessMcp(start: (io: { stdin: PassThrough; stdout: PassThrou
         });
         stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, method, ...(params === undefined ? {} : { params }) })}\n`);
       }),
+    sendRaw: (text) => stdin.write(text),
+    replies,
     notify: (method, params) => stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method, ...(params === undefined ? {} : { params }) })}\n`),
     notifications,
     waitFor: (method, timeoutMs = 10_000) =>

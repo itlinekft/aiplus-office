@@ -10667,6 +10667,7 @@ import * as fs8 from "node:fs";
 import * as path8 from "node:path";
 import * as readline2 from "node:readline";
 import { PassThrough } from "node:stream";
+import { StringDecoder } from "node:string_decoder";
 
 // src/mcp-manifest.ts
 var MCP_MANIFEST = {
@@ -13653,6 +13654,110 @@ var MCP_MANIFEST = {
 // src/mcp-hub.ts
 var TOOL_PREFIX = { wordcraft: "word_", gridcraft: "grid_", deckcraft: "deck_", pdfcraft: "pdf_" };
 var FORMAT = { wordcraft: "DOCX", gridcraft: "XLSX", deckcraft: "PPTX", pdfcraft: "PDF" };
+var CONTRACT_VERSION = 1;
+var MAX_LINE_BYTES = 4 * 1024 * 1024;
+var STATUS_TOOL = {
+  name: "office_status",
+  description: "\xC1llapot: a mappa, ahol az irodai programok dolgoznak, \xE9s programonk\xE9nt, hogy telep\xEDtve van-e \xE9s fut-e. Programot nem ind\xEDt. English: Status: the folder the office apps work in and, per app, whether it is installed and whether it runs. Starts no app.",
+  inputSchema: { type: "object", properties: {}, additionalProperties: false }
+};
+var RPC_TEXT = {
+  parse: "The request is not valid JSON.",
+  invalid: "The request is not a JSON-RPC 2.0 request.",
+  tooLarge: "The request is too large.",
+  noMethod: "No such method.",
+  noTool: "No such tool.",
+  argsNotObject: "The arguments are not an object.",
+  internal: "The server could not handle the request."
+};
+var MESSAGES = {
+  "office.unknownArgument": (_f) => [
+    "Az eszk\xF6z nem ismeri az egyik megadott param\xE9tert; csak a s\xE9m\xE1j\xE1ban szerepl\u0151ket fogadja.",
+    "The tool does not take one of the given arguments; it takes only those in its input schema."
+  ],
+  "office.missingArgument": (f) => [`Hi\xE1nyzik a k\xF6telez\u0151 param\xE9ter: ${f}.`, `The required argument ${f} is missing.`],
+  "office.wrongType": (f) => [`A(z) ${f} param\xE9ter t\xEDpusa nem az, amit a s\xE9ma k\xE9r.`, `The argument ${f} does not have the type its schema asks for.`],
+  "office.appEnded": (f) => [`A(z) ${f} le\xE1llt. Pr\xF3b\xE1ld \xFAjra: a k\xF6vetkez\u0151 h\xEDv\xE1s \xFAjraind\xEDtja.`, `${f} stopped. Try again: the next call starts it again.`]
+};
+function catalogueText(key, field) {
+  const [hu, en] = MESSAGES[key](field);
+  return `${key}: ${refusalText(hu, en)}`;
+}
+function jsonTypes(v) {
+  if (v === null) return ["null"];
+  if (Array.isArray(v)) return ["array"];
+  if (typeof v === "number") return Number.isInteger(v) ? ["integer", "number"] : ["number"];
+  return [typeof v];
+}
+function checkArguments(schema, args) {
+  const s = schema ?? {};
+  const props = s.properties && typeof s.properties === "object" ? s.properties : void 0;
+  if (props && s.additionalProperties !== true && typeof s.additionalProperties !== "object") {
+    if (Object.keys(args).some((k) => !Object.hasOwn(props, k))) return catalogueText("office.unknownArgument");
+  }
+  for (const r of Array.isArray(s.required) ? s.required : []) {
+    if (typeof r === "string" && !Object.hasOwn(args, r)) return catalogueText("office.missingArgument", r);
+  }
+  const required = new Set(Array.isArray(s.required) ? s.required : []);
+  for (const [k, v] of Object.entries(args)) {
+    if (v === null && !required.has(k)) continue;
+    const want = props?.[k]?.type;
+    const wanted = typeof want === "string" ? [want] : Array.isArray(want) ? want.filter((t) => typeof t === "string") : [];
+    if (wanted.length && !jsonTypes(v).some((t) => wanted.includes(t))) return catalogueText("office.wrongType", k);
+  }
+  return void 0;
+}
+function closedSchema(schema) {
+  const s = schema;
+  if (!s || typeof s !== "object" || !s.properties || s.additionalProperties !== void 0) return schema;
+  return { ...s, additionalProperties: false };
+}
+function validId(id) {
+  return typeof id === "string" || typeof id === "number" && Number.isInteger(id) ? id : void 0;
+}
+function readLines(input, max2, onLine, onTooLong, onEnd) {
+  let parts = [];
+  let size = 0;
+  let skipping = false;
+  const emit = (buf) => {
+    let line = new StringDecoder("utf8").end(buf);
+    if (line.endsWith("\r")) line = line.slice(0, -1);
+    onLine(line);
+  };
+  input.on("data", (chunk) => {
+    let buf = typeof chunk === "string" ? Buffer.from(chunk) : chunk;
+    for (let nl = buf.indexOf(10); nl !== -1 || buf.length; nl = buf.indexOf(10)) {
+      const piece = nl === -1 ? buf : buf.subarray(0, nl);
+      if (!skipping) {
+        if (size + piece.length > max2) {
+          skipping = true;
+          parts = [];
+          size = 0;
+          onTooLong();
+        } else {
+          parts.push(piece);
+          size += piece.length;
+        }
+      }
+      if (nl === -1) break;
+      if (!skipping) emit(Buffer.concat(parts));
+      parts = [];
+      size = 0;
+      skipping = false;
+      buf = buf.subarray(nl + 1);
+    }
+  });
+  let ended = false;
+  const end = () => {
+    if (ended) return;
+    ended = true;
+    if (!skipping && size > 0) emit(Buffer.concat(parts));
+    onEnd();
+  };
+  input.on("end", end);
+  input.on("close", end);
+  input.on("error", end);
+}
 function hubUsage(prog = "aiplus-office") {
   return `usage: ${prog} mcp [--root <dir>]
 
@@ -13711,7 +13816,10 @@ ${usage2}
     return app2.mcp.confinement === "gateway" ? tools.filter((t) => GRID_TOOLS.includes(t.name)) : tools;
   };
   const toolsOf = (app2) => live.get(app2.id) ?? manifestTools(app2);
-  const listAll = () => CRAFT_APPS.flatMap((a) => toolsOf(a).map((t) => ({ ...t, name: `${TOOL_PREFIX[a.id]}${t.name}` })));
+  const listAll = () => [
+    STATUS_TOOL,
+    ...CRAFT_APPS.flatMap((a) => toolsOf(a).map((t) => ({ ...t, name: `${TOOL_PREFIX[a.id]}${t.name}`, ...t.inputSchema === void 0 ? {} : { inputSchema: closedSchema(t.inputSchema) } })))
+  ];
   const instructions = () => {
     const head = refusalText(
       `AI+ Iroda: a n\xE9gy ArtCraft irodai program egy kapcsolatban. Eszk\xF6z-el\u0151tagok: ${CRAFT_APPS.map((a) => `${TOOL_PREFIX[a.id]} = ${a.name} (${FORMAT[a.id]})`).join(", ")}.`,
@@ -13778,8 +13886,7 @@ ${usage2}
       try {
         m = JSON.parse(line);
       } catch {
-        deps.stderr(`${line}
-`);
+        log(`${app2.name} wrote a line that is not JSON (${line.length} characters); dropped`);
         return;
       }
       if (m === null || typeof m !== "object" || Array.isArray(m)) return;
@@ -13799,7 +13906,7 @@ ${usage2}
       }
       if (typeof m.method !== "string") return;
       if (m.id !== void 0) {
-        b.write({ jsonrpc: "2.0", id: m.id, error: { code: -32601, message: `${deps.prog} does not answer ${m.method}` } });
+        b.write({ jsonrpc: "2.0", id: m.id, error: { code: -32601, message: RPC_TEXT.noMethod } });
         return;
       }
       if (m.method === "notifications/tools/list_changed") {
@@ -13827,7 +13934,7 @@ ${usage2}
         const params = await clientInit;
         const r = await request("initialize", params);
         if (b.ended) throw new Error(endedText(app2, await done));
-        if (r.error) log(`${app2.name} refused initialize (${JSON.stringify(r.error)}); going on`);
+        if (r.error) log(`${app2.name} refused initialize (code ${r.error.code}); going on`);
         b.write({ jsonrpc: "2.0", method: "notifications/initialized" });
         refreshList().catch(() => {
         });
@@ -13841,21 +13948,29 @@ ${usage2}
     backends.set(app2.id, b);
     return b;
   };
-  const endedText = (app2, code) => refusalText(
-    `A(z) ${app2.name} le\xE1llt (kil\xE9p\xE9si k\xF3d ${code}). Pr\xF3b\xE1ld \xFAjra: a k\xF6vetkez\u0151 h\xEDv\xE1s \xFAjraind\xEDtja.`,
-    `${app2.name} stopped (exit code ${code}). Try again: the next call starts it again.`
-  );
+  const endedText = (app2, _code) => catalogueText("office.appEnded", app2.name);
   const errorResult = (text) => ({ content: [{ type: "text", text }], isError: true });
+  const status = () => ({
+    root,
+    contractVersion: CONTRACT_VERSION,
+    apps: Object.fromEntries(
+      CRAFT_APPS.map((a) => [a.id, { name: a.name, prefix: TOOL_PREFIX[a.id], installed: deps.installed(a), running: backends.has(a.id) && !backends.get(a.id)?.ended }])
+    )
+  });
   const call = (clientId, params) => {
-    const route = routeTool(params?.name);
-    if (!route) {
-      toClient({
-        jsonrpc: "2.0",
-        id: clientId,
-        result: errorResult(refusalText(`Ismeretlen eszk\xF6z: ${String(params?.name)}.`, `unknown tool: ${String(params?.name)}.`))
-      });
-      return;
+    const rpcError = (code, message) => toClient({ jsonrpc: "2.0", id: clientId, error: { code, message } });
+    const args = params?.arguments ?? {};
+    if (params?.name === STATUS_TOOL.name) {
+      if (args === null || typeof args !== "object" || Array.isArray(args)) return rpcError(-32602, RPC_TEXT.argsNotObject);
+      const refusal2 = checkArguments(STATUS_TOOL.inputSchema, args);
+      return toClient({ jsonrpc: "2.0", id: clientId, result: refusal2 ? errorResult(refusal2) : { content: [{ type: "text", text: JSON.stringify(status()) }], isError: false } });
     }
+    const route = routeTool(params?.name);
+    const tool = route && toolsOf(route.app).find((t) => t.name === route.tool);
+    if (!route || !tool) return rpcError(-32602, RPC_TEXT.noTool);
+    if (args === null || typeof args !== "object" || Array.isArray(args)) return rpcError(-32602, RPC_TEXT.argsNotObject);
+    const refusal = checkArguments(tool.inputSchema, args);
+    if (refusal) return toClient({ jsonrpc: "2.0", id: clientId, result: errorResult(refusal) });
     const b = backends.get(route.app.id) ?? startBackend(route.app, "first call");
     const entry = { b };
     if (clientId !== void 0) sent.set(clientId, entry);
@@ -13882,14 +13997,19 @@ ${usage2}
     try {
       msg = JSON.parse(line);
     } catch {
-      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } });
+      log("refused a line that is not JSON (-32700)");
+      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32700, message: RPC_TEXT.parse } });
     }
-    if (Array.isArray(msg) || msg === null || typeof msg !== "object") {
-      return toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch requests are not supported by this server" } });
+    const m = msg !== null && typeof msg === "object" && !Array.isArray(msg) ? msg : void 0;
+    const hasId = m !== void 0 && Object.hasOwn(m, "id");
+    const okId = hasId ? validId(m.id) : void 0;
+    const hasParams = m !== void 0 && Object.hasOwn(m, "params");
+    if (m === void 0 || m.jsonrpc !== "2.0" || typeof m.method !== "string" || hasId && okId === void 0 || hasParams && (m.params === null || typeof m.params !== "object" || Array.isArray(m.params))) {
+      log("refused a frame that is not a JSON-RPC 2.0 request (-32600)");
+      return toClient({ jsonrpc: "2.0", id: okId ?? null, error: { code: -32600, message: RPC_TEXT.invalid } });
     }
-    const { method, id, params } = msg;
-    if (typeof method !== "string") return;
-    if (id === void 0) {
+    const { method, id, params } = m;
+    if (!hasId) {
       if (method === "notifications/initialized") clientInitialized = true;
       else if (method === "notifications/cancelled") {
         const requestId = params?.requestId;
@@ -13905,7 +14025,12 @@ ${usage2}
       case "initialize": {
         const requested = params?.protocolVersion;
         const protocolVersion = typeof requested === "string" && PROTOCOL_VERSIONS.includes(requested) ? requested : PROTOCOL_VERSIONS[PROTOCOL_VERSIONS.length - 1];
-        reply({ protocolVersion, capabilities: { tools: { listChanged: true } }, serverInfo: { name: deps.prog, version: deps.serverVersion }, instructions: instructions() });
+        reply({
+          protocolVersion,
+          capabilities: { tools: { listChanged: true } },
+          serverInfo: { name: deps.prog, version: deps.serverVersion, contractVersion: CONTRACT_VERSION },
+          instructions: instructions()
+        });
         resolveClientInit(params);
         clientInitialized = true;
         return;
@@ -13923,7 +14048,8 @@ ${usage2}
       case "prompts/list":
         return reply({ prompts: [] });
       default:
-        toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: `method not found: ${method}` } });
+        log("refused an unknown method (-32601)");
+        toClient({ jsonrpc: "2.0", id, error: { code: -32601, message: RPC_TEXT.noMethod } });
     }
   };
   return new Promise((resolveRun) => {
@@ -13936,11 +14062,27 @@ ${usage2}
       const codes = await Promise.all(running);
       resolveRun(exitOverride ?? codes.find((c) => c !== 0) ?? 0);
     };
-    const rl = readline2.createInterface({ input: deps.stdin });
-    rl.on("line", (line) => {
-      if (line.trim() !== "") onLine(line);
-    });
-    rl.on("close", () => void finish());
+    readLines(
+      deps.stdin,
+      MAX_LINE_BYTES,
+      (line) => {
+        if (line.trim() === "") return;
+        try {
+          onLine(line);
+        } catch (e) {
+          log(`internal fault (${e?.name ?? "error"}); answered -32603`);
+          try {
+            toClient({ jsonrpc: "2.0", id: null, error: { code: -32603, message: RPC_TEXT.internal } });
+          } catch {
+          }
+        }
+      },
+      () => {
+        log(`refused a line over ${MAX_LINE_BYTES} bytes (-32600)`);
+        toClient({ jsonrpc: "2.0", id: null, error: { code: -32600, message: RPC_TEXT.tooLarge } });
+      },
+      () => void finish()
+    );
     deps.onSignal("SIGINT", () => {
       exitOverride = 130;
       void finish();
@@ -14818,9 +14960,15 @@ function isEntry() {
     return false;
   }
 }
+function exitAfterDrain(code) {
+  process.exitCode = code;
+  process.stdout.on("error", () => process.exit(code));
+  setTimeout(() => process.exit(code), 2e3).unref();
+  process.stdout.write("", () => process.exit(code));
+}
 if (isEntry()) {
   main(process.argv.slice(2)).then(
-    (code) => process.exit(code),
+    (code) => exitAfterDrain(code),
     (e) => {
       process.stderr.write(`aiplus-office: ${e.message}
 `);

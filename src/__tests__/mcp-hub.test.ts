@@ -7,7 +7,7 @@ import { spawn as nodeSpawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { type McpManifest, routeTool, runHub, TOOL_PREFIX } from "../mcp-hub.js";
+import { checkArguments, CONTRACT_VERSION, type McpManifest, MAX_LINE_BYTES, readLines, routeTool, runHub, TOOL_PREFIX } from "../mcp-hub.js";
 import { MCP_MANIFEST } from "../mcp-manifest.js";
 import { runMcp } from "../mcp-proxy.js";
 import type { ProvisionReport } from "../provision.js";
@@ -25,8 +25,12 @@ type ToolResult = { content: { text: string }[]; isError: boolean };
 
 const tools = (...names: string[]) => names.map((name) => ({ name, inputSchema: { type: "object" } }));
 const MANIFEST: McpManifest = {
-  wordcraft: { version: "1", instructions: "WordCraft notes.", tools: tools("list_commands", "open_document") },
-  gridcraft: { version: "1", instructions: "GridCraft notes.", tools: tools("list_commands", "read_range", "screenshot") },
+  wordcraft: {
+    version: "1",
+    instructions: "WordCraft notes.",
+    tools: [...tools("list_commands"), { name: "open_document", inputSchema: { type: "object", properties: { path: { type: "string" } }, required: ["path"] } }],
+  },
+  gridcraft: { version: "1", instructions: "GridCraft notes.", tools: tools("list_commands", "read_range", "open_workbook", "screenshot") },
   deckcraft: { version: "1", instructions: "DeckCraft notes.", tools: tools("list_commands", "add_slide") },
   pdfcraft: { version: "1", instructions: "PdfCraft notes.", tools: tools("doc_open") },
 };
@@ -90,13 +94,13 @@ describe("REQ-OFFICE-MCP: one server for the four apps (change office-mcp-one-se
     const r = init.result as { protocolVersion: string; capabilities: { tools: { listChanged: boolean } }; serverInfo: { name: string; version: string }; instructions: string };
     expect(r.protocolVersion).toBe("2025-06-18");
     expect(r.capabilities.tools.listChanged).toBe(true);
-    expect(r.serverInfo).toEqual({ name: "aiplus-office", version: "9.9.9" });
+    expect(r.serverInfo).toEqual({ name: "aiplus-office", version: "9.9.9", contractVersion: CONTRACT_VERSION });
     for (const p of Object.values(TOOL_PREFIX)) expect(r.instructions).toContain(p);
     expect(r.instructions).toContain("WordCraft notes.");
     expect(r.instructions).toContain(`Files: only inside ${root}`);
     client.notify("notifications/initialized");
     const names = ((await client.request("tools/list")).result as ToolList).tools.map((t) => t.name);
-    expect(names).toEqual(["word_list_commands", "word_open_document", "grid_list_commands", "grid_read_range", "deck_list_commands", "deck_add_slide", "pdf_doc_open"]);
+    expect(names).toEqual(["office_status", "word_list_commands", "word_open_document", "grid_list_commands", "grid_read_range", "grid_open_workbook", "deck_list_commands", "deck_add_slide", "pdf_doc_open"]);
     expect((await client.request("ping")).result).toEqual({});
     await sleep(100);
     expect(started).toEqual([]);
@@ -156,12 +160,13 @@ describe("REQ-OFFICE-MCP: one server for the four apps (change office-mcp-one-se
     await client.close();
   });
 
-  it("an unknown tool gets a tool error and starts nothing", async () => {
+  it("an unknown tool gets -32602 with a fixed sentence and starts nothing", async () => {
     const { client, started } = setup();
     await client.request("initialize", INIT);
-    const res = (await client.request("tools/call", { name: "list_commands", arguments: {} })).result as ToolResult;
-    expect(res.isError).toBe(true);
-    expect(res.content[0].text).toContain("unknown tool: list_commands");
+    for (const name of ["list_commands", "word_no_such_tool"]) {
+      const res = await client.request("tools/call", { name, arguments: {} });
+      expect(res.error).toEqual({ code: -32602, message: "No such tool." });
+    }
     expect(started).toEqual([]);
     await client.close();
   });
@@ -188,6 +193,153 @@ describe("REQ-OFFICE-MCP: one server for the four apps (change office-mcp-one-se
     expect(await runHub(["--allow-unconfined"], deps)).toBe(1);
     expect(await runHub(["--root", "/nonexistent-aiplus-office-root"], deps)).toBe(1);
     expect(err).toContain("is not an existing folder");
+  });
+});
+
+describe("REQ: Exact MCP wire (C10 v2) — change office-mcp-c10-v2", () => {
+  const SENTINEL = "c10zqsentinel";
+  /** Sends raw text and resolves with the replies it produced (waits until `n` new lines or 300 ms of quiet). */
+  const exchange = async (client: ReturnType<typeof setup>["client"], text: string, n = 1) => {
+    const before = client.replies.length;
+    client.sendRaw(text);
+    for (let i = 0; i < 100 && client.replies.length < before + n; i++) await sleep(10);
+    if (n === 0) await sleep(150);
+    return client.replies.slice(before);
+  };
+  const err = (code: number, id: unknown) => expect.objectContaining({ jsonrpc: "2.0", id, error: expect.objectContaining({ code }) });
+
+  it("refuses every frame outside the closed envelope, with the request's id only when it is valid, and lives", async () => {
+    const { client } = setup();
+    await client.request("initialize", INIT);
+    expect(await exchange(client, "{not json\n")).toEqual([err(-32700, null)]);
+    for (const frame of ["[1,2]", "null", "42", '"x"', '{"jsonrpc":"2.0","id":null,"method":"ping"}', '{"jsonrpc":"2.0","method":1}', '{"jsonrpc":"2.0","id":1.5,"method":"ping"}', '{"jsonrpc":"2.0","id":true,"method":"ping"}', '{"jsonrpc":"2.0","id":7,"method":"ping","params":[1]}', '{"jsonrpc":"2.0","id":8,"result":{}}']) {
+      const want = frame.includes('"id":7') ? 7 : frame.includes('"id":8') ? 8 : null;
+      expect(await exchange(client, `${frame}\n`), frame).toEqual([err(-32600, want)]);
+    }
+    expect(await exchange(client, '{"id":21,"method":"ping"}\n')).toEqual([err(-32600, 21)]);
+    expect((await client.request("ping")).result).toEqual({});
+    await client.close();
+  });
+
+  it("a valid notification gets no reply, whatever its method; a blank line is ignored; params._meta is accepted", async () => {
+    const { client } = setup();
+    await client.request("initialize", INIT);
+    expect(await exchange(client, '{"jsonrpc":"2.0","method":"ping"}\n', 0)).toEqual([]);
+    expect(await exchange(client, '{"jsonrpc":"2.0","method":"initialize","params":{}}\n', 0)).toEqual([]);
+    expect(await exchange(client, "\n\r\n   \n", 0)).toEqual([]);
+    expect(await exchange(client, '{"jsonrpc":"2.0","id":29,"method":"ping","params":{"_meta":{"progressToken":"c10"}}}\n')).toEqual([{ jsonrpc: "2.0", id: 29, result: {} }]);
+    await client.close();
+  });
+
+  it("CRLF ends a line, two frames in one write get two replies, and a line over the cap is refused with id null", async () => {
+    const { client } = setup();
+    await client.request("initialize", INIT);
+    expect(await exchange(client, '{"jsonrpc":"2.0","id":24,"method":"ping"}\r\n')).toEqual([{ jsonrpc: "2.0", id: 24, result: {} }]);
+    expect(await exchange(client, '{"jsonrpc":"2.0","id":25,"method":"ping"}\n{"jsonrpc":"2.0","id":26,"method":"ping"}\n', 2)).toEqual([
+      { jsonrpc: "2.0", id: 25, result: {} },
+      { jsonrpc: "2.0", id: 26, result: {} },
+    ]);
+    const big = `{"jsonrpc":"2.0","id":27,"method":"ping","params":{"pad":"${"x".repeat(MAX_LINE_BYTES)}"}}\n`;
+    expect(await exchange(client, big)).toEqual([err(-32600, null)]);
+    expect((await client.request("ping")).result).toEqual({});
+    await client.close();
+  });
+
+  it("errors never echo the request: unknown method and unknown tool carry fixed sentences", async () => {
+    const { client, started } = setup();
+    await client.request("initialize", INIT);
+    const m = await client.request(`${SENTINEL}/no/such/method`);
+    expect(m.error).toEqual({ code: -32601, message: "No such method." });
+    const t = await client.request("tools/call", { name: `zz_${SENTINEL}_tool`, arguments: { [SENTINEL]: SENTINEL } });
+    expect(t.error).toEqual({ code: -32602, message: "No such tool." });
+    expect(JSON.stringify(client.replies)).not.toContain(SENTINEL);
+    expect(started).toEqual([]);
+    await client.close();
+  });
+
+  it("tool input is checked against the schema before an app starts; tools/list shows closed schemas", async () => {
+    const { client, started } = setup();
+    await client.request("initialize", INIT);
+    const list = ((await client.request("tools/list")).result as { tools: { name: string; inputSchema: { additionalProperties?: unknown } }[] }).tools;
+    expect(list.find((t) => t.name === "word_open_document")?.inputSchema.additionalProperties).toBe(false);
+    expect(list.find((t) => t.name === "office_status")?.inputSchema.additionalProperties).toBe(false);
+    const call = async (args: unknown) => client.request("tools/call", { name: "word_open_document", arguments: args });
+    expect((await call([1])).error).toEqual({ code: -32602, message: "The arguments are not an object." });
+    const unknown = (await call({ path: "a.docx", [SENTINEL]: 1 })).result as ToolResult;
+    expect(unknown.isError).toBe(true);
+    expect(unknown.content[0].text).toMatch(/^office\.unknownArgument: /);
+    expect(unknown.content[0].text).not.toContain(SENTINEL);
+    expect(((await call({})).result as ToolResult).content[0].text).toMatch(/^office\.missingArgument: .*path/);
+    expect(((await call({ path: 5 })).result as ToolResult).content[0].text).toMatch(/^office\.wrongType: .*path/);
+    expect(started).toEqual([]);
+    await client.close();
+  });
+
+  it("office_status answers without starting an app, and refuses arguments", async () => {
+    const { client, root, started } = setup();
+    await client.request("initialize", INIT);
+    const r = (await client.request("tools/call", { name: "office_status", arguments: {} })).result as ToolResult;
+    expect(r.isError).toBe(false);
+    const st = JSON.parse(r.content[0].text) as { root: string; contractVersion: number; apps: Record<string, { installed: boolean; running: boolean }> };
+    expect(st.root).toBe(root);
+    expect(st.contractVersion).toBe(CONTRACT_VERSION);
+    expect(Object.keys(st.apps)).toEqual(APP_IDS);
+    expect(st.apps.wordcraft).toEqual(expect.objectContaining({ installed: true, running: false }));
+    expect(((await client.request("tools/call", { name: "office_status" })).result as ToolResult).isError).toBe(false);
+    expect(((await client.request("tools/call", { name: "office_status", arguments: { [SENTINEL]: 1 } })).result as ToolResult).isError).toBe(true);
+    expect((await client.request("tools/call", { name: "office_status", arguments: [1] })).error?.code).toBe(-32602);
+    expect(started).toEqual([]);
+    await client.close();
+  });
+
+  it("an unsupported protocol version gets one the server supports; contractVersion is pinned", async () => {
+    const { client } = setup();
+    const r = (await client.request("initialize", { ...INIT, protocolVersion: "2099-01-01" })).result as { protocolVersion: string; serverInfo: { contractVersion: number } };
+    expect(r.protocolVersion).toBe("2025-11-25");
+    expect(r.serverInfo.contractVersion).toBe(1);
+    await client.close();
+  });
+
+  it("stdin closed with a request in flight: its reply still arrives", async () => {
+    const { client } = setup();
+    await client.request("initialize", INIT);
+    client.sendRaw('{"jsonrpc":"2.0","id":28,"method":"ping"}\n');
+    expect(await client.close()).toBe(0);
+    expect(client.replies).toContainEqual({ jsonrpc: "2.0", id: 28, result: {} });
+  });
+
+  it("checkArguments: open and property-less schemas take any name; integer counts as number", () => {
+    expect(checkArguments({ type: "object" }, { anything: 1 })).toBeUndefined();
+    expect(checkArguments({ type: "object", properties: { a: {} }, additionalProperties: true }, { b: 1 })).toBeUndefined();
+    expect(checkArguments({ type: "object", properties: { n: { type: "number" } } }, { n: 3 })).toBeUndefined();
+    expect(checkArguments({ type: "object", properties: { n: { type: ["string", "number"] } } }, { n: true })).toMatch(/^office\.wrongType/);
+    expect(checkArguments({ type: "object", properties: { n: { type: "string" } } }, { n: null })).toBeUndefined();
+    expect(checkArguments({ type: "object", properties: { n: { type: "string" } }, required: ["n"] }, { n: null })).toMatch(/^office\.wrongType/);
+  });
+
+  it("readLines splits on LF, drops the CR, keeps a multi-byte character split across chunks, and skips an oversized line once", async () => {
+    const { PassThrough } = await import("node:stream");
+    const input = new PassThrough();
+    const lines: string[] = [];
+    let tooLong = 0;
+    const ended = new Promise<void>((r) => readLines(input, 8, (l) => lines.push(l), () => tooLong++, r));
+    const ő = Buffer.from("ő");
+    input.write(Buffer.concat([Buffer.from("a"), ő.subarray(0, 1)]));
+    input.write(Buffer.concat([ő.subarray(1), Buffer.from("\r\nb\n0123456789abc\nc")]));
+    input.end();
+    await ended;
+    expect(lines).toEqual(["aő", "b", "c"]);
+    expect(tooLong).toBe(1);
+  });
+
+  it("readLines ends once when stdin is destroyed without an end", async () => {
+    const { PassThrough } = await import("node:stream");
+    const input = new PassThrough();
+    let ends = 0;
+    readLines(input, 8, () => {}, () => {}, () => ends++);
+    input.destroy();
+    await sleep(20);
+    expect(ends).toBe(1);
   });
 });
 

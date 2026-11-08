@@ -291,9 +291,21 @@ function isEntry(): boolean {
   }
 }
 
+/**
+ * Leaves the process only after stdout has flushed what was written to it: on a pipe the writes are asynchronous, and a
+ * bare `process.exit` right after a large MCP answer can cut it off (family C10 v2 survey, D12).
+ */
+function exitAfterDrain(code: number): void {
+  process.exitCode = code;
+  process.stdout.on("error", () => process.exit(code)); // EPIPE: the reader is gone, keep the intended code
+  // A reader that stopped reading must not hold the process forever.
+  setTimeout(() => process.exit(code), 2000).unref();
+  process.stdout.write("", () => process.exit(code));
+}
+
 if (isEntry()) {
   main(process.argv.slice(2)).then(
-    (code) => process.exit(code),
+    (code) => exitAfterDrain(code),
     (e) => {
       process.stderr.write(`aiplus-office: ${(e as Error).message}\n`);
       process.exit(1);
