@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.25 — 2026-11-13
+
+- **The apps' 2026-11-12 releases.** The bundled tool lists come from WordCraft 0.18.1, GridCraft 0.19.1, DeckCraft
+  0.18.1 and PdfCraft 0.21.1. WordCraft has a new `word_insert_table` tool (a filled table in one call), and PdfCraft's
+  `pdf_text_extract` (`format`) and `pdf_text_find` (`stop_at_limit`) take new arguments, so the connector accepts them
+  before the app has started. On Windows x64 and macOS, WordCraft still comes from the build with Hungarian spell
+  checking (0.12.0-hu.3).
+
 ## 0.1.24 — 2026-11-08
 
 - **The apps' November releases.** The bundled tool lists come from WordCraft 0.16.0, GridCraft 0.17.0, DeckCraft

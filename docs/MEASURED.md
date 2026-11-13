@@ -3,6 +3,18 @@
 Real runs on real binaries. Each entry: date, machine, versions, the exact commands, the result. A claim about the apps
 that is not here is not measured.
 
+## 2026-11-13 — Linux x64, Node.js 25.6.1: the apps' 2026-11-12 releases, for 0.1.25
+
+Apps as `install --all` fetched them: WordCraft 0.18.1, GridCraft 0.19.1, DeckCraft 0.18.1, PdfCraft 0.21.1
+(`itlinekft/wordcraft` latest is still 0.12.0-hu.3).
+
+- **The bundled MCP manifest re-read** (`node --import tsx scripts/mcp-manifest.mjs`): 18, 22, 25, 17 tools. WordCraft
+  added `insert_table` and reworded `execute`; PdfCraft reworded six tools and added `format` to `text_extract` and
+  `stop_at_limit` to `text_find`; GridCraft and DeckCraft unchanged; instructions unchanged.
+- **Command fixtures re-recorded:** 671, 385, 331 and 208 command ids; none removed.
+- **Real binaries:** `AIPLUS_OFFICE_E2E=1 AIPLUS_OFFICE_E2E_HOME=<cache> npx vitest run` → 487 passed, 7 skipped
+  (21 files).
+
 ## 2026-11-08 (afternoon) — Linux x64, Node.js 25.6.1: the apps' 2026-11-06 releases, for 0.1.24
 
 Apps as `install --all` fetched them: WordCraft 0.16.0, GridCraft 0.17.0, DeckCraft 0.16.0, PdfCraft 0.19.0

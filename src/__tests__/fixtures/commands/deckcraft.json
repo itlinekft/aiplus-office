@@ -1,6 +1,6 @@
 {
  "app": "deckcraft",
- "version": "0.16.0",
+ "version": "0.18.1",
  "list": "deckcraft-cli commands",
  "commandIds": [
   "animation.add",

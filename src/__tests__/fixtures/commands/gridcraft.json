@@ -1,6 +1,6 @@
 {
  "app": "gridcraft",
- "version": "0.17.0",
+ "version": "0.19.1",
  "list": "gridcraft-cli commands --json",
  "commandIds": [
   "app.commands",

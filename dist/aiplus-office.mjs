@@ -10672,7 +10672,7 @@ import { StringDecoder } from "node:string_decoder";
 // src/mcp-manifest.ts
 var MCP_MANIFEST = {
   "wordcraft": {
-    "version": "0.16.0",
+    "version": "0.18.1",
     "instructions": 'WordCraft is a word processor (a Microsoft Word clone). Every action is a command: find ids and parameters with list_commands and run them with execute (or several with batch). Positions are {story:"body", path:[block,(row,cell,block)...], off:byteOffset}. Typical flow: new_document \u2192 type_text "Hello" \u2192 execute text.newParagraph \u2192 execute para.style {style:"Heading 1"} \u2192 select_text {text:"Hello"} \u2192 execute format.bold \u2192 inspect_document to verify \u2192 render_page to look at the result \u2192 save {path:"out.docx"}. Several documents can be open: new_document and open_document open another one and make it active; list_documents gives their ids, and `doc` on execute, batch and the other document tools works on one without switching. Backend: headless session (no window). Community: https://discord.gg/artcraft \xB7 https://getartcraft.com/apps/wordcraft \xB7 https://github.com/storytold/wordcraft',
     "tools": [
       {
@@ -10701,7 +10701,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": false,
           "title": "Run a command"
         },
-        "description": 'Run one command by id with params, e.g. {command:"format.bold"} or {command:"insert.table", params:{rows:3, cols:4}}. Commands work on the active document, or on the open document `doc` names. file.new and file.open open another document beside the open ones and make it active; view.switchWindows {id} makes another one active and file.closeDocument {id, force?} closes one.',
+        "description": 'Run one command by id with params, e.g. {command:"format.bold"} or {command:"insert.table", params:{rows:3, cols:4}}. To insert a table that is already filled, use `insert_table`. Commands work on the active document, or on the open document `doc` names. file.new and file.open open another document beside the open ones and make it active; view.switchWindows {id} makes another one active and file.closeDocument {id, force?} closes one.',
         "inputSchema": {
           "properties": {
             "command": {
@@ -10725,6 +10725,52 @@ var MCP_MANIFEST = {
         },
         "name": "execute",
         "title": "Run a command"
+      },
+      {
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false,
+          "title": "Insert filled table"
+        },
+        "description": "Insert a table at the caret, filled from `values` in one call (an array of rows, each an array of cells; all rows the same length, up to 1000 rows and 63 columns). Set `header` to make the first row a repeating header row.",
+        "inputSchema": {
+          "properties": {
+            "doc": {
+              "description": "Id of the open document to work on (list_documents); the active document when left out. The active document stays active.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "header": {
+              "description": "First row is a header row that repeats on each page",
+              "type": "boolean"
+            },
+            "style": {
+              "description": "Table style name (default GridTable1Light)",
+              "type": "string"
+            },
+            "values": {
+              "description": "Rows of cells (text, numbers or booleans)",
+              "items": {
+                "items": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "values"
+          ],
+          "type": "object"
+        },
+        "name": "insert_table",
+        "title": "Insert filled table"
       },
       {
         "annotations": {
@@ -11103,7 +11149,7 @@ var MCP_MANIFEST = {
     ]
   },
   "gridcraft": {
-    "version": "0.17.0",
+    "version": "0.19.1",
     "instructions": 'GridCraft is a spreadsheet app (an Excel clone). Cells use A1 notation ("B2", "A1:D10", "Sheet2!A1:B3"). Every action is a command: find ids and parameters with list_commands and run any of them with execute_command. Convenience tools cover the common flow: write_range / set_cell to enter values and formulas (strings starting with = are formulas), read_range / get_cell to read computed values back, format_range, create_table, insert_chart, sort_range, filter, evaluate_formula (try a formula without changing the sheet), undo / redo, open_workbook / save_workbook. inspect_workbook summarizes sheets, used ranges, tables, charts and names. list_functions lists the worksheet functions. Backend: headless (in-process engine, no window).',
     "tools": [
       {
@@ -12066,7 +12112,7 @@ var MCP_MANIFEST = {
     ]
   },
   "deckcraft": {
-    "version": "0.16.0",
+    "version": "0.18.1",
     "instructions": 'DeckCraft is a presentation app (a PowerPoint clone). Coordinates are points on the current slide (y down; the default 16:9 slide is 960\xD7540). Every action is a command: find ids and parameters with list_commands and run them with run_command (or several with batch). Typical flow: new_presentation \u2192 add_slide {layout:"titleAndContent", title, body} \u2192 add_shape / add_text_box / insert_picture / insert_chart \u2192 inspect_slide to read back ids, boxes and text \u2192 render_slide to look at the result. Shape ids are looked up on the current slide. An inserted shape is selected; run_command edit.select {ids:[\u2026]} selects others. format.* acts on the selected text or shapes; shape.fill, shape.line and the other shape commands whose parameters list `ids` act on those shapes, else on the selected ones. Save with save_presentation (.deckcraft or .pptx). Backend: headless (in-process engine; no window). Community: https://discord.gg/artcraft (Discord), https://getartcraft.com/apps/deckcraft (app page), https://github.com/storytold/deckcraft (source). The `app.links` command returns these links.',
     "tools": [
       {
@@ -13024,7 +13070,7 @@ var MCP_MANIFEST = {
     ]
   },
   "pdfcraft": {
-    "version": "0.19.0",
+    "version": "0.21.1",
     "instructions": "PdfCraft edits PDFs. Open a file with doc_open to get a document id, then inspect (doc_info, text_extract, text_find, page_render) or edit it (page_*, doc_set_info). Edits are undoable (edit_undo) and stay in memory until doc_save. Page numbers are 1-based. Open documents are also resources: pdfcraft://doc/{doc}/info, /text, /page/{page}/text and /page/{page}/image. command_list discovers command ids and tool schemas; command_run executes one, command_batch runs several. doc_inspect returns open document state; render_preview returns a bounded PNG. Only a core set of tools is listed. Every other tool is still available: find it with tool_search (optional query and category, or name for its full input schema) and run it with tool_call.",
     "tools": [
       {
@@ -13035,7 +13081,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": false,
           "title": "Open a PDF"
         },
-        "description": "Open a PDF file and return its document id, page count and whether it can be edited.",
+        "description": "Open a PDF file and return its document id, page count and whether it can be edited. A path that ends in open parameters, as help systems pass them (`manual.pdf#page=12`, `#nameddest=Intro` or `#Intro`), opens the file and reports its destination as link_open does; a path that names a file opens as it is.",
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -13063,7 +13109,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": true,
           "title": "Inspect a document"
         },
-        "description": "Metadata, page sizes and labels, bookmarks, annotations, form fields, links, layers, page transitions and display times, the destination it opens at, attachments, fonts, security and repair notes.",
+        "description": "Metadata, page sizes and labels, bookmarks, annotations, form fields, links, layers and the Layers panel's tree (layer_order), page transitions and display times, the destination it opens at, attachments (and, for a PDF portfolio, the one it presents first), fonts, security, repair notes and the objects that could not be read.",
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -13156,7 +13202,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": true,
           "title": "Render a page"
         },
-        "description": "Render one page to a PNG image (default 96 dpi, at most 600). When the picture is incomplete or approximate (content cut at the page's safety budget, a colour painted in a fallback colour), a JSON part follows the image: { page, warnings: [sentence, ...] }.",
+        "description": "Render one page to a PNG image (default 96 dpi, at most 600). When the picture is incomplete or approximate (content cut at the page's safety budget, a picture left out because its JBIG2 mask is past a decoder limit, a colour painted in a fallback colour), a JSON part follows the image: { page, warnings: [sentence, ...] }.",
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -13202,7 +13248,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": true,
           "title": "Extract text"
         },
-        "description": "Extract the text of some or all pages, in reading order. With rect, only the text inside that rectangle on each page, as Column select takes it: one row per visual line, side-by-side pieces (table cells) separated by a tab.",
+        "description": `Extract the text of some or all pages, in reading order. With rect, only the text inside that rectangle on each page, as Column select takes it: one row per visual line, side-by-side pieces (table cells) separated by a tab. With format "html", each page also carries html, the same text as Copy with formatting puts on the clipboard (paragraphs, bold, italic, size, colour and font family), and styles_incomplete when some styles had to be left out. With rect, the html is that text in line order, not split into the column's rows and cells. A page whose content was cut at the renderer's limits carries truncated: true; its text is incomplete. The HTML of one call is capped at 32 MiB in total; pages past the cap carry empty html with styles_incomplete. html_truncated is set when that cap is reached or when a page's own copy was cut at its span or size cap.`,
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -13210,6 +13256,14 @@ var MCP_MANIFEST = {
               "description": "Document id from doc_open or doc_list.",
               "minimum": 1,
               "type": "integer"
+            },
+            "format": {
+              "description": "text (default) or html: also return each page's text as formatted HTML.",
+              "enum": [
+                "text",
+                "html"
+              ],
+              "type": "string"
             },
             "pages": {
               "description": "1-based page numbers to extract (default: all).",
@@ -13246,7 +13300,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": true,
           "title": "Find text"
         },
-        "description": "Find a phrase (case-insensitive, whitespace-normalised) and return matches in page order with page and line rectangles in points (origin top-left). Reads growing batches, looking one match past the limit for a continuation. Failed pages do not discard readable matches: warnings contains up to 100 {page, error, error_truncated} entries (errors capped at 1024 UTF-8 bytes), warning_count counts failed pages, and warnings_truncated reports a capped list. complete is false after a page failure or when more matches exist; next is present only for a match-limit continuation.",
+        "description": "Find a phrase (case-insensitive, whitespace-normalised) and return matches in page order with page and line rectangles in points (origin top-left). Reads growing batches, looking one match past the limit for a continuation. Failed pages do not discard readable matches: warnings contains up to 100 {page, error, error_truncated} entries (errors capped at 1024 UTF-8 bytes), warning_count counts failed pages, and warnings_truncated reports a capped list. complete is false after a page failure or when more matches exist; next is present only for a match-limit continuation. With stop_at_limit the search ends at the limit-th match instead of looking for one more, so a lone early match doesn't read the rest of the document.",
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -13273,6 +13327,10 @@ var MCP_MANIFEST = {
               "description": "Page to start searching from (default 1).",
               "minimum": 1,
               "type": "integer"
+            },
+            "stop_at_limit": {
+              "description": "Stop at the limit-th match without looking for another (default false). The answer then has stopped_at_limit; when true, complete is false and next is only where to resume, so following it may find nothing more.",
+              "type": "boolean"
             }
           },
           "required": [
@@ -13292,7 +13350,7 @@ var MCP_MANIFEST = {
           "readOnlyHint": false,
           "title": "Combine files"
         },
-        "description": `Combine files, in order, into one PDF (bookmarks are kept under one entry per file). Images (PNG, JPEG, TIFF, GIF, BMP, JPEG 2000) and .txt files are made into PDFs first. pages optionally chooses each file's pages, in step with paths: a range such as "1-3, 6" or null for all pages. passwords, also in step with paths, opens encrypted files (the open password, or the permissions password where a file's security doesn't allow copying pages; null for none). The result is not encrypted. Passwords are never echoed back. groups, also in step with paths, splits a file around others: entries with the same number (they must name the same path) are one file, copied once, so it keeps one bookmark at its first page, its links and its form fields; null for a file of its own. A group uses its first entry's password. When two files' forms name the same field, field_conflicts says what happens: "rename" (the default) keeps the fields separate by renaming the later one (Text1 becomes Text1-1) and the result lists renamed_fields as [[old, new], \u2026] \u2014 scripts that refer to the old name are not rewritten; "merge" makes them one field, as before.`,
+        "description": `Combine files, in order, into one PDF (bookmarks are kept under one entry per file). Images (PNG, JPEG, TIFF, GIF, BMP, JPEG 2000), .txt files and Office documents (Word, Excel, PowerPoint, OpenDocument, RTF; through an installed LibreOffice) are made into PDFs first. pages optionally chooses each file's pages, in step with paths: a range such as "1-3, 6" or null for all pages. passwords, also in step with paths, opens encrypted files (the open password, or the permissions password where a file's security doesn't allow copying pages; null for none). The result is not encrypted. Passwords are never echoed back. groups, also in step with paths, splits a file around others: entries with the same number (they must name the same path) are one file, copied once, so it keeps one bookmark at its first page, its links and its form fields; null for a file of its own. A group uses its first entry's password. When two files' forms name the same field, field_conflicts says what happens: "rename" (the default) keeps the fields separate by renaming the later one (Text1 becomes Text1-1) and the result lists renamed_fields as [[old, new], \u2026] \u2014 scripts that refer to the old name are not rewritten; "merge" makes them one field, as before.`,
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -14711,7 +14769,7 @@ ${VERIFY_USAGE}
 }
 
 // src/bin/aiplus-office.ts
-var VERSION = "0.1.24";
+var VERSION = "0.1.25";
 var NODE_MIN_MAJOR = 20;
 function nodeLine(version) {
   const major = Number(/^v?(\d+)/.exec(version)?.[1]);
