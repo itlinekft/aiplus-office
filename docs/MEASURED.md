@@ -14,6 +14,13 @@ Apps as `install --all` fetched them: WordCraft 0.18.1, GridCraft 0.19.1, DeckCr
 - **Command fixtures re-recorded:** 671, 385, 331 and 208 command ids; none removed.
 - **Real binaries:** `AIPLUS_OFFICE_E2E=1 AIPLUS_OFFICE_E2E_HOME=<cache> npx vitest run` → 487 passed, 7 skipped
   (21 files).
+- **Released:** built from `4a28006` with the family release kit (`aiplus-release --ref 4a28006 --out <scratch>/build
+  --stage <scratch>/aiplus-plugins`): `set-leakscan` over the 19 built files, `--staged` and `--tree` exit 0, the
+  real-data check clean, `claude plugin validate` passed. Pushed as `caf7493` to `itlinekft/aiplus-plugins`; a fresh
+  clone carries plugin.json and the marketplace entry `0.1.25` and a bundle byte-identical to the build. GitHub release
+  `v0.1.25` with `aiplus-office-0.1.25.zip`, `aiplus-office.zip` and `SHA256SUMS.txt`;
+  `releases/latest/download/aiplus-office.zip` matches its digest. (0.1.24, from `633138f`, went to the marketplace
+  only, as `dc84766`.)
 
 ## 2026-11-08 (afternoon) — Linux x64, Node.js 25.6.1: the apps' 2026-11-06 releases, for 0.1.24
 
